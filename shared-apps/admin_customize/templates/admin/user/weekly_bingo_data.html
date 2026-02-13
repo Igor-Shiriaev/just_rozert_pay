@@ -1,0 +1,24 @@
+{% extends "admin/simple_custom_intermediate_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block additional_data_above_fields %}
+    <b>Weekly tuesday bonus — Bingo</b>
+    {% if nodata_message %}
+        {{ nodata_message }}
+    {% else %}
+        <b>for the period: {{ reportingdate|date }}</b>
+        <table>
+            <tr>
+                <td>Issued tickets:</td><td>{{ issued_tickets_amount }}</td>
+            </tr>
+            <tr>
+                <td>Bingo turnover:</td><td>{{ qualifying_bingo_turnover }}</td>
+            </tr>
+            <tr>
+                <td>Qualifying currency:</td><td>{{ qualifying_turnover_currency }}</td>
+            </tr>
+        </table>
+    {% endif %}
+{% endblock %}
+
+{% block submit_row %}{% endblock %}

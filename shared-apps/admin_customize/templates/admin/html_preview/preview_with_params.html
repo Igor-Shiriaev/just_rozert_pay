@@ -1,0 +1,63 @@
+{% extends 'admin/simple_custom_intermediate_form.html' %}
+{% load i18n admin_urls %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a
+    href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ module_name }}</a>
+    &rsaquo; <a
+    href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}">{{ object|truncatewords:"18" }}</a>
+    &rsaquo; {% trans 'Preview' %}
+  </div>
+{% endblock %}
+
+{% block content %}
+  <style>
+    iframe#preview {
+      width: 100%;
+      margin: auto;
+      min-height: 300px;
+    }
+  </style>
+  <div id="content-main">
+    <div class="module">
+      {% if error %}
+        <h1 class="error">Error occurred while rendering. {{ error }}</h1>
+      {% else %}
+        <div class="preview">
+          <iframe id="preview" srcdoc="{{ template|force_escape }}"
+                  onload="iframe_loaded(this)"></iframe>
+          <script>
+            function iframe_loaded(iframe) {
+              if (iframe) {
+                iframe.height = "";
+                iframe.height = iframe.contentWindow.document.body.scrollHeight + "px";
+              }
+            }
+          </script>
+        </div>
+
+      {% endif %}
+
+      {% if form %}
+        <form method="get">
+          {% if form.non_field_errors|length > 0 %}
+            <p class="errornote">
+              "Please correct the errors below."
+            </p>
+            {{ form.non_field_errors }}
+          {% endif %}
+          <fieldset class="module aligned">
+            <input type="hidden" name="_popup" value="{{ is_popup }}">
+            {% include 'admin/forms/regular_form_row.html' with form=form %}
+          </fieldset>
+          <div class="submit-row">
+            <input type="submit" class="default" name="Preview">
+          </div>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% load static %}
+<div id="modal" _="on closeModal or refreshPage add .closing then wait for animationend then remove me">
+  <link rel="stylesheet" href="{% static 'admin/css/forms.css' %}">
+  <div class="modal-underlay" _="on click or keyup[key is 'Escape'] from <body/> trigger closeModal"></div>
+  <div class="modal-content" style="overflow: auto;">
+    {% include 'admin/_modal_dialog/modal_form.html' %}
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<div>
+  <p>{{ description|safe }}</p>
+  {% if parameters or return_value or raises or example %}
+
+    {% if parameters %}
+      <h3>Parameters</h3>
+      <ol>
+        {% for param in parameters %}
+          <li><strong>{{ param.name }}</strong>: {{ param.description }}</li>
+        {% endfor %}
+      </ol>
+    {% endif %}
+
+    {% if return_value %}
+      <h3>Returns</h3>
+      <p>{{ return_description }}</p>
+    {% endif %}
+
+    {% if raises %}
+      <h3>Raises</h3>
+      <ol>
+        {% for error in raises %}
+          <li><strong>{{ error.name }}</strong>: {{ error.description }}</li>
+        {% endfor %}
+      </ol>
+    {% endif %}
+
+    {% if example %}
+      <h3>Examples</h3>
+      <pre><code>{{ example }}</code></pre>
+    {% endif %}
+  {% endif %}
+</div>

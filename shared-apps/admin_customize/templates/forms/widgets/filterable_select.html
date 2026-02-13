@@ -1,0 +1,19 @@
+<div class="filterable_select" x-data="{'filter_query': ''}" style="flex-flow: inherit">
+  <script>
+      function option_should_be_visible(data, el) {
+          if (data.filter_query == '') return true;
+          let query = data.filter_query.toLowerCase();
+          return el.innerText.toLowerCase().includes(query) || el.value.toLowerCase().includes(query);
+      }
+  </script>
+  <select name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+    {% for group_name, group_choices, group_index in widget.optgroups %}{% if group_name %}
+      <optgroup label="{{ group_name }}">{% endif %}{% for option in group_choices %}
+      {% include option.template_name with widget=option %}{% endfor %}{% if group_name %}
+      </optgroup>{% endif %}{% endfor %}
+  </select>
+  <input type="text" x-model="filter_query" placeholder="Filter" style="margin: 0 0 2px 7px;">
+  <button @click.prevent="filter_query=''" class="action_button small_button"
+          style="margin-left: 7px;">Reset
+  </button>
+</div>

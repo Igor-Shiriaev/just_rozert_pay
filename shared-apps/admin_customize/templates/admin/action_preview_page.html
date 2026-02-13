@@ -1,0 +1,52 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}
+<script type="text/javascript" src="/admin/jsi18n/"></script>
+{{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+  &rsaquo; <a
+  href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; <a
+  href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  {% if obj %}&rsaquo;
+  <a href="{% url opts|admin_urlname:'change' object_id=obj.pk %}">{{ obj }}</a>{% endif %}
+  &rsaquo; Action
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <div class="preview">
+    <p><b>Subject:</b> {{ subject }}</p>
+    <iframe id="preview" style="width:100%;border:none"></iframe>
+
+    <script>
+      (function () {
+        const html = `{{ content|escapejs }}`;   // email-HTML
+        const iframe = document.getElementById('preview');
+
+        if ('srcdoc' in iframe) {
+          iframe.srcdoc = html;                 // Chrome/FF/новый Safari
+        } else {
+          const doc = iframe.contentWindow.document;  // старый Safari/iOS
+          doc.open();
+          doc.write(html);
+          doc.close();
+        }
+
+        iframe.onload = () => {
+          iframe.style.height =
+            iframe.contentWindow.document.body.scrollHeight + 20 + 'px';
+          iframe.width = "100%";
+          iframe.style.border = "none";
+        };
+      })();
+    </script>
+  </div>
+</div>
+{% endblock %}

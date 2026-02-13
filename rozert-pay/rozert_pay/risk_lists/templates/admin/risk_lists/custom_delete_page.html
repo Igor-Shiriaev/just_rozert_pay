@@ -1,0 +1,15 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  <h1>{% trans "Confirm deletion" %}</h1>
+
+  <p>{% blocktrans %}Please provide a reason for deleting the selected object(s).{% endblocktrans %}</p>
+
+  <form method="post">{% csrf_token %}
+    <textarea name="deletion_reason" rows="4" cols="60" required></textarea>
+    <br><br>
+    <input type="submit" value="{% trans 'Confirm Delete' %}" class="default">
+    <a href="{{ request.META.HTTP_REFERER }}">{% trans "Cancel" %}</a>
+  </form>
+{% endblock %}

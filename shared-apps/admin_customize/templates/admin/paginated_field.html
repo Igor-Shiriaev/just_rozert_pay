@@ -1,0 +1,47 @@
+{% load admin_urls admin_modify_tags %}
+
+<div class="paginated-field" id="paginated-field-{{ field_name }}">
+  <style>
+    .paginated-field-link {
+      margin: 0 5px;
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    .paginated-field-link:hover {
+      text-decoration: underline;
+    }
+
+    .current-page {
+      font-weight: bold;
+      color: #000;
+    }
+  </style>
+  {% if show_total_count %}
+    <p style="margin-bottom: 5px">
+      <span style="font-weight: bold">Total:</span> {{ total_count }} items
+    </p>
+  {% endif %}
+  {{ data_table|safe }}
+  {% if pages_count != 1 %}
+    <div class="pages-indicator">
+      {% for page_id in pages %}
+        {% if page_id == page_number %}
+          <span class="paginated-field-link current-page">{{ page_id }}</span>
+        {% elif page_id == pages_gap %}
+          <span class="paginated-field-link current-page">{{ page_id }}</span>
+        {% else %}
+          <a
+            class="paginated-field-link"
+            href="#"
+            hx-get="{% url obj_meta|admin_urlname:'paginated_field' object_id=object.id field_name=field_name page_number=page_id %}"
+            hx-target="#paginated-field-{{ field_name }}"
+            hx-swap="innerHTML"
+          >
+            {{ page_id }}
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

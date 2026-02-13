@@ -1,0 +1,14 @@
+<table>
+  <tr>
+    <th>Current program:</th>
+    <td>
+      {{ current_program_type|capfirst }}<br>From: {{ current_program_from }}<br>To: {{ current_program_to }}
+    </td>
+  </tr>
+  {% if next_program_type %}
+  <tr>
+    <th>Next program:</th>
+    <td>{{ next_program_type|capfirst }}<br>From: {{ next_program_from }}<br>To: {{ next_program_to }}</td>
+  </tr>
+  {% endif %}
+</table>

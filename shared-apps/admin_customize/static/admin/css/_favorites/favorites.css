@@ -1,0 +1,27 @@
+.app-table {
+  width: 100%;
+}
+
+[x-cloak] {
+  display: none;
+}
+
+.favorite-star {
+  cursor: pointer;
+  user-select: none;
+  border: none;
+  background-color: transparent;
+  padding: 10px;
+  margin: -8px;
+  line-height: 12px;
+  color: var(--body-quiet-color);
+}
+
+.favorite-star.selected {
+  color: var(--accent);
+}
+
+.model-row{
+  display: flex;
+  justify-content: space-between;
+}

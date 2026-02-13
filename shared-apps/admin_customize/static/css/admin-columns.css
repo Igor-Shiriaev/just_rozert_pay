@@ -1,0 +1,17 @@
+@media (min-width: 1281px) {
+  .django-4 #content-main > form > div:not([class]) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 30px;
+  }
+
+  .django-4 #content-main > form > div > fieldset:not(.col),
+  .django-4 #content-main > form > div > :not(fieldset),
+  .django-4 #content-main > form > div > .submit-row {
+    grid-column: 1 / -1;
+  }
+
+  .django-4 #content-main > form > div > fieldset.col {
+    margin-top: 0;
+  }
+}

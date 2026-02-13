@@ -1,0 +1,37 @@
+<div>
+  <h1><b>Duplicates cluster</b></h1>
+  {% if nodata_message %}
+    {{ nodata_message }}
+  {% else %}
+    <table>
+      <tr>
+        <td>Cluster ID</td>
+        <td>{{ cluster_id }}</td>
+      </tr>
+      <tr>
+        <td>Participants number</td>
+        <td>{{ participants_number }}</td>
+      </tr>
+      <tr>
+        <td>Total company profit eur</td>
+        <td>{{ total_company_profit_eur }}</td>
+      </tr>
+      <tr>
+        <td>Total ggr eur</td>
+        <td>{{ total_ggr_eur }}</td>
+      </tr>
+      <tr>
+        <td>Users balance eur available</td>
+        <td>{{ users_balance_eur_available }}</td>
+      </tr>
+      <tr>
+        <td>Users balance eur on hold</td>
+        <td>{{ users_balance_eur_on_hold }}</td>
+      </tr>
+      <tr>
+        <td>Profit to ggr ratio</td>
+        <td>{{ profit_to_ggr_ratio }}</td>
+      </tr>
+    </table>
+  {% endif %}
+</div>

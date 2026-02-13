@@ -1,0 +1,9 @@
+{% load admin_urls %}
+
+<div
+  hx-get="{% url opts|admin_urlname:'get_async_field' object_id=object_id field_name=field_name %}"
+  hx-trigger="{{ load_on }}"
+  hx-target="closest .readonly"
+  hx-swap="innerHTML"
+>LOADING
+</div>

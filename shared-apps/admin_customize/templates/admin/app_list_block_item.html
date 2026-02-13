@@ -1,0 +1,11 @@
+<div class="model-row"
+     x-cloak
+     x-show="!collapsed">
+  <a href="{{ model.admin_url }}"
+     {% if model.admin_url in request.path|urlencode %}aria-current="page"{% endif %}
+  >{{ model.name }}</a>
+
+  {% if use_favorites %}
+    {% include 'admin/_favorites/favorites_star.html' %}
+  {% endif %}
+</div>

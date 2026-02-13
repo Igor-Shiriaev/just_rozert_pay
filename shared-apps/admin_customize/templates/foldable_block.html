@@ -1,0 +1,12 @@
+<div x-data="{collapsed: {% if collapsed %}true{% else %}false{% endif %}}" class="docstring"
+     style="margin-bottom: 1em;">
+  <b>
+    <a href="#" @click.prevent="collapsed=!collapsed">
+      {{ title }}
+      <span x-text="collapsed ? '↓' : '↑'"></span>
+    </a>
+  </b>
+  <div x-show="!collapsed" x-transition>
+    {{ content|safe }}
+  </div>
+</div>

@@ -1,0 +1,12 @@
+<table>
+  <tr>
+    <th>Current:</th>
+    <td>{{ current_participant_type|capfirst }}: from {{ current_participant_from|date:"Y/m/d H:i" }} to {% if current_participant_to %}{{ current_participant_to|date:"Y/m/d H:i" }}{% else %}-{% endif %}</td>
+  </tr>
+  {% if next_participant_type %}
+  <tr>
+    <th>Next:</th>
+    <td>{{ next_participant_type|capfirst }}: from {{ next_participant_from|date:"Y/m/d H:i" }} to -</td>
+  </tr>
+  {% endif %}
+</table>

@@ -1,0 +1,36 @@
+{% extends "admin/simple_custom_intermediate_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block additional_data_above_fields %}
+    <p><a href="">Request user level again</a></p>
+    {% if error %}
+        <p>Error retrieving user level: {{error}}</p>
+    {% elif current_user_level %}
+        <table>
+            <tr>
+                <td>Custom level:</td>
+                <td>{{ current_user_level }}</td>
+            </tr>
+            <tr>
+                <td>From:</td>
+                <td>{{ valid_from }}</td>
+            </tr>
+            <tr>
+                <td>To:</td>
+                <td>{{ valid_to }}</td>
+            </tr>
+        </table>
+    {% endif %}
+{% endblock %}
+
+{% block submit_row %}
+    {% if submit_button_name %}
+        <div class="submit-row">
+            <input type="submit" name="apply" class="default" value="{{submit_button_name}}">
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block form_action %}
+    {{request.path}}?submit_action={{submit_action}}&current_level={{current_user_level}}
+{% endblock %}

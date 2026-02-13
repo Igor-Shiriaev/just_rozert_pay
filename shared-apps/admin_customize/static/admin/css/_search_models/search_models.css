@@ -1,0 +1,5 @@
+#search-input {
+  width: calc(100% - 95px);
+  padding: 0.5em;
+  margin: 20px 0 20px 40px;
+}

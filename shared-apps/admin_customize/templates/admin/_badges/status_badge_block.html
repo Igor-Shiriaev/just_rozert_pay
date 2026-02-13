@@ -1,0 +1,23 @@
+<div class="status-badge">
+  <div class="status-badge-header">
+    {% if error %}
+      Error
+    {% else %}
+      {{ badge.title }}
+    {% endif %}
+  </div>
+  <div class="status-badge-body">
+    {% if error %}
+      <div class="status-badge-body-row">
+        <p>{{ error }}</p>
+      </div>
+    {% else %}
+      {% for line in badge.values %}
+        <div class="status-badge-body-row">
+          <div class="status-badge-body-row-title">{{ line.name|safe }}</div>
+          <div class="status-badge-body-row-value">{{ line.value }}</div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>

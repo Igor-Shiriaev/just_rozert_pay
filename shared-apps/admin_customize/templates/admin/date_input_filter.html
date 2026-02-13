@@ -1,0 +1,33 @@
+{% load i18n %}
+<h3>{% blocktrans with filter_title=title %} {{ filter_title }} {% endblocktrans %}</h3>
+<ul>
+  <li>
+    {% with choices.0 as all_choice %}
+    <form method="GET" action="">
+      {% for k, v in all_choice.query_parts %}
+      <input type="hidden" name="{{ k }}" value="{{ v }}"/>
+      {% endfor %}
+      <script>
+        function formatDate(input) {
+          let value = input.value.replace(/\D/g, ''); // Remove all non-digits
+          if (value.length > 2) value = value.slice(0, 2) + '.' + value.slice(2);
+          if (value.length > 5) value = value.slice(0, 5) + '.' + value.slice(5, 9);
+          input.value = value;
+        }
+      </script>
+      <input
+        class="form-control"
+        type="text"
+        value="{{ spec.value|default_if_none:'' }}"
+        name="{{ spec.parameter_name }}"
+        placeholder="dd.mm.yyyy"
+        pattern="^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.(19|20)\d\d$"
+        oninput="formatDate(this)"
+        style="width: 92%;margin-left: 2%;"/>
+      {% if not all_choice.selected %}
+      <strong><a href="{{ all_choice.query_string }}" style="margin-left: 2%;">{% trans 'Remove' %}</a></strong>
+      {% endif %}
+    </form>
+    {% endwith %}
+  </li>
+</ul>

@@ -1,0 +1,46 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:app_list' 'payment' %}">Payment</a>
+    &rsaquo; <a href="/admin/payment/paymenttransaction/">Transactions</a>
+    &rsaquo; <a href="/admin/payment/paymenttransaction/{{ trx.id }}">{{ trx }}</a>
+    &rsaquo; {{ title | default:"Actualize transaction" }}
+  </div>
+{% endblock %}
+
+{% block title %}Actualize transaction{% endblock %}
+{% block content %}
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.7.4/jsoneditor.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.7.4/jsoneditor.min.js"></script>
+  {{ form.media }}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table class="form-table" style="width: 100%; border-collapse: collapse;">
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <tr style="border-bottom: 1px solid #ccc;">
+          <th style="text-align: left; padding: 10px; vertical-align: top;">
+            {{ field.label_tag }}
+          </th>
+          <td style="padding: 10px;">
+            {{ field }}
+            {% if field.help_text %}
+              <p class="help" style="margin: 5px 0 0; color: #666; font-size: 90%;">
+                {{ field.help_text }}
+              </p>
+            {% endif %}
+            {% for error in field.errors %}
+              <p style="color: red; margin: 5px 0 0;">{{ error }}</p>
+            {% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+    <div style="margin-top: 20px;">
+      <button type="submit" class="button btn btn-primary">Save</button>
+    </div>
+  </form>
+
+{% endblock %}

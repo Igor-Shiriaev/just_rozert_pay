@@ -1,0 +1,7 @@
+{% load static %}
+<div id="modal" _="on closeModal or refreshPage add .closing then wait for animationend then remove me">
+  <div class="modal-underlay" _="on click or keyup[key is 'Escape'] from <body/> trigger closeModal"></div>
+  <div class="modal-content" style="overflow: auto;">
+    {{ content|safe }}
+  </div>
+</div>

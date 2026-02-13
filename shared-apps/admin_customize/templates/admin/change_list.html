@@ -1,0 +1,111 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    #changelist-filter #changelist-filter-clear a {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .reset-filters:after {
+      content: "";
+      display: block;
+      height: 1em;
+      background-color: var(--body-bg);
+    }
+
+    .filter-group:after {
+      content: "";
+      display: block;
+      height: 1em;
+      background-color: var(--body-bg);
+    }
+
+    .filter-group ul:last-child {
+      border-bottom: 1px solid var(--hairline-color);
+    }
+
+    .filter-group ul:last-child {
+      margin-bottom: 1em;
+      border-bottom: none;
+    }
+
+
+    .filter-group h2 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 5px 15px;
+      margin-bottom: 0 !important;
+      border-bottom: none;
+      background-color: var(--primary);
+      color: var(--header-link-color);
+
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .filter-group .filter-group-header-interactive {
+      cursor: pointer;
+    }
+
+    .filter-group .fold-indicator {
+      display: inline-block;
+    }
+
+    .filter-group .group-wrapper {
+      margin-top: 12px;
+    }
+  </style>
+{% endblock %}
+
+{% block filters %}
+  {% if cl.has_filters %}
+    <div id="changelist-filter">
+      {% if cl.has_active_filters %}
+        <div class="reset-filters">
+          <h3 id="changelist-filter-clear">
+            <a href="{{ cl.clear_all_filters_qs }}">&#10006; {% translate "Clear all filters" %}</a>
+          </h3>
+        </div>
+      {% endif %}
+
+      {% if filter_groups %}
+        {% for filter_group_config in filter_groups %}
+          {% if filter_group_config.group %}
+            <div class="filter-group"
+                 x-data='{{ filter_group_config.group.additional_params.json }}'
+            >
+              <h2 class="filter-group-header-interactive" x-show="foldable" @click="folded = !folded">
+                {{ filter_group_config.group.name }}
+                <span class="fold-indicator"
+                      x-text="folded ? '↓' : '↑'"
+                      x-show="foldable"></span>
+              </h2>
+
+              <h2 x-show="!foldable">{{ filter_group_config.group.name }}</h2>
+              <div class="group-wrapper" x-show="!folded" x-transition>
+                {% for spec in filter_group_config.filters %}
+                  {% admin_list_filter cl spec %}
+                {% endfor %}
+                <p class="help" x-show="hint !== null" x-text="hint"></p>
+              </div>
+            </div>
+          {% else %}
+            <h2>{% translate 'Filter' %}</h2>
+            {% for spec in filter_group_config.filters %}
+              {% admin_list_filter cl spec %}
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <h2>{% translate 'Filter' %}</h2>
+        {% for spec in cl.filter_specs %}
+          {% admin_list_filter cl spec %}
+        {% endfor %}
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}

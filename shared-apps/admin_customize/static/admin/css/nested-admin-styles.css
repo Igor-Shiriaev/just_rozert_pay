@@ -1,0 +1,20 @@
+.inline-related h3 {
+  background: var(--header-bg);
+  color: var(--primary-fg);
+}
+
+.inline-related h3 span.delete label {
+  color: var(--primary-fg);
+}
+
+.inline-related {
+  margin-bottom: 15px;
+  padding-left: 15px;
+}
+
+.inline-related fieldset {
+  margin-bottom: 15px;
+}
+.related-widget-wrapper{
+  overflow: unset;
+}

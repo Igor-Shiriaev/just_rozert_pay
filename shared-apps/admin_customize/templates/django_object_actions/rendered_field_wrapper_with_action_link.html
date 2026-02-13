@@ -1,0 +1,18 @@
+<div class="infield_action_link_wrapper">
+  <a class="infield_action_link"
+     data-tool-name="{{ action_name }}"
+      {% if is_modal %}
+     hx-get="{% url tools_view_name pk=obj.id tool=action_name %}"
+     hx-target="body"
+     hx-swap="beforeend"
+     hx-on="click"
+      {% endif %}
+     href="{% url tools_view_name pk=obj.id tool=action_name %}">
+    {{ action_label }}
+  </a>
+</div>
+{% if root_element and rendered_data %}
+  <p>{{ rendered_data|safe }}</p>
+{% elif not root_element %}
+  {{ rendered_data|safe }}
+{% endif %}

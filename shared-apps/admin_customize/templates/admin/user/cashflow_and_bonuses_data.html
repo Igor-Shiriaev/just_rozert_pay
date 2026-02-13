@@ -1,0 +1,32 @@
+{% extends "admin/simple_custom_intermediate_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block additional_data_above_fields %}
+  <b>Cashflow and Bonuses</b>
+  {% if nodata_message %}
+    {{ nodata_message }}
+  {% else %}
+    <table id="cashflow_and_bonuses_table">
+      <tr>
+        <th>Data updated at</th>
+        <th>Period</th>
+        <th>Cashflow</th>
+        <th>Total Deposits</th>
+        <th>Total Withdrawals</th>
+        <th>Total Bonuses Spent</th>
+      </tr>
+      {% for item in data %}
+        <tr>
+          <td>{{ item.updated_at|date }} {{ item.updated_at|time }}</td>
+          <td>{{ item.period }}</td>
+          <td>{{ item.cashflow }} {{ item.user_currency }}</td>
+          <td>{{ item.total_deposits }} {{ item.user_currency }}</td>
+          <td>{{ item.total_withdrawals }} {{ item.user_currency }}</td>
+          <td>{{ item.total_bonuses_spent }} {{ item.user_currency }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+{% endblock %}
+
+{% block submit_row %}{% endblock %}

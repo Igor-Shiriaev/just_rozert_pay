@@ -1,0 +1,15 @@
+ILIXIUM_PROVINCE_MAP = {
+    "alberta": "CA-AB",
+    "british columbia": "CA-BC",
+    "manitoba": "CA-MB",
+    "new brunswick": "CA-NB",
+    "newfoundland and labrador": "CA-NL",
+    "northwest territories": "CA-NT",
+    "nova scotia": "CA-NS",
+    "nunavut": "CA-NU",
+    "ontario": "CA-ON",
+    "prince edward island": "CA-PE",
+    "quebec": "CA-QC",
+    "saskatchewan": "CA-SK",
+    "yukon": "CA-YT",
+}

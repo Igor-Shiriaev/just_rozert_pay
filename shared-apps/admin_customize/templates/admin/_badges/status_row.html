@@ -1,0 +1,8 @@
+<div class="status-row">
+  <h2>{{ status_badges_data.title }}</h2>
+  <div class="status-badges">
+    {% for badge_data in status_badges_data.badges %}
+      {{ badge_data }}
+    {% endfor %}
+  </div>
+</div>

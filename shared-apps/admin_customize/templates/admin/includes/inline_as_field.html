@@ -1,0 +1,52 @@
+<style>
+  table.inline-as-field-{{ name }} {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .inline-as-field-{{ name }} th {
+    border-collapse: collapse;
+    vertical-align: top;
+    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+    font-weight: 600;
+    text-align: left;
+    color: #666;
+    font-size: 11px;
+    border: none;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    line-height: normal;
+    text-transform: uppercase;
+    background: #f6f6f6;
+    padding: 8px 10px;
+  }
+
+  .inline-as-field-{{ name }} tr {
+    color: #333;
+    border-collapse: collapse;
+    font-size: 13px;
+    line-height: 16px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+    padding: 8px;
+    font-family: "Roboto", "Lucida Grande", Verdana, Arial, sans-serif;
+  }
+  .inline-as-field-{{ name }} tr.odd{
+    background: #f9f9f9;
+  }
+</style>
+
+<table class="inline-as-field-{{ name }}">
+  <tr>
+    {% for field_name in header %}
+      <th>{{ field_name }}</th>
+    {% endfor %}
+  </tr>
+  {% for row in rows %}
+    <tr class="row{% if forloop.counter|divisibleby:2  %} odd{% endif %}">
+      {% for value in row %}
+        <td>{{ value }}</td>
+      {% endfor %}
+    </tr>
+  {% endfor %}
+</table>

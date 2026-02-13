@@ -1,0 +1,46 @@
+{% load user_admin %}
+
+<table>
+  <tr>
+    <th>Sport GGR:</th>
+    <td>{{ sports_ggr }} ({% convert_currency_to_eur sports_ggr %} EUR)</td>
+  </tr>
+  <tr>
+    <th>Racing GGR:</th>
+    <td>{{ racing_ggr }} ({% convert_currency_to_eur racing_ggr %} EUR)</td>
+  </tr>
+  <tr>
+    <th>Casino GGR:</th>
+    <td>{{ casino_ggr }} ({% convert_currency_to_eur casino_ggr %} EUR)</td>
+  </tr>
+  <tr>
+    <th>Virtual sport GGR:</th>
+    <td>{{ vsports_ggr }} ({% convert_currency_to_eur vsports_ggr %} EUR)</td>
+  </tr>
+  <tr>
+    <th>Total user GGR:</th>
+    <td>{{ total_ggr }} ({% convert_currency_to_eur total_ggr %} EUR)</td>
+  </tr>
+</table>
+<br>
+<table>
+  {% for sport_name, sport_ggr in sports %}
+    {% if sport_ggr != 0 %}
+      <tr>
+        <td><b>{{ sport_name }}</b></td>
+        <td>{{ sport_ggr }}</td>
+      </tr>
+    {% endif %}
+  {% endfor %}
+</table>
+<br>
+<table>
+  {% for racing_sport_name, racing_sport_ggr in racing_sports_ggr %}
+    {% if racing_sport_ggr != 0 %}
+      <tr>
+        <td><b>{{ racing_sport_name }}</b></td>
+        <td>{{ racing_sport_ggr }}</td>
+      </tr>
+    {% endif %}
+  {% endfor %}
+</table>

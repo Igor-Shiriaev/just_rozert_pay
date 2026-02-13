@@ -1,0 +1,101 @@
+<div class="preview-container">
+  <style>
+    .{{ id_prefix }}-preview-container {
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      align-content: flex-start;
+      justify-content: flex-start;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .{{ id_prefix }}-preview-container :is(#{{ id_prefix }}preview, #{{ id_prefix }}preview-raw) {
+      width: calc(100% - 2px);
+      height: {{ iframe_height|default_if_none:'auto' }};
+      min-height: {{ min_height|default_if_none:'300px' }};
+      max-height: {{ max_height|default:'auto' }};
+      min-width: {{ min_width|default:'auto' }};
+      max-width: {{ max_width|default:'auto' }};
+    }
+
+    .{{ id_prefix }}-preview-container .json-editor {
+      min-height: 100px;
+      resize: none;
+      width: calc(100% - 13px);
+    }
+  </style>
+
+  <div x-data="{selectedTab: 'previewRaw', allTabs: ['previewRaw', 'preview']}">
+    <div class="toggle-box">
+      <a @click.prevent="selectedTab='previewRaw'"
+         :class="selectedTab == 'previewRaw' ? 'active' : ''">
+        Raw
+      </a>
+      <a @click.prevent="selectedTab='preview'" :class="selectedTab == 'preview' ? 'active' : ''">
+        Interactive
+      </a>
+    </div>
+
+
+    <div class="{{ id_prefix }}-preview-container" x-show="selectedTab === 'previewRaw'">
+      <iframe id="{{ id_prefix }}preview-raw" class="html-preview"
+              srcdoc="{{ template_raw|force_escape }}"
+              {% if iframe_autoheight %}onload="iframe_loaded(this)"{% endif %}></iframe>
+    </div>
+
+    <div class="{{ id_prefix }}-preview-container"
+      {% if iframe_autoheight %}
+         hx-on:htmx:after-settle="iframe_loaded(this.querySelector('iframe'))"
+      {% endif %}
+         x-show="selectedTab === 'preview'">
+
+      <iframe id="{{ id_prefix }}preview" class="html-preview" srcdoc="{{ template|force_escape }}"
+              {% if iframe_autoheight %}onload="iframe_loaded(this)"{% endif %}></iframe>
+      <textarea class="json-editor"
+                id="{{ id_prefix }}json-input"
+                name="{{ id_prefix }}json-input"
+                placeholder="Enter JSON data here"></textarea>
+      <button
+        class="action_button"
+        hx-post="/messaging-admin/{{ opts.app_label }}/{{ opts.model_name }}/{{ object.id }}/html_preview_raw/{{ field_name }}"
+        hx-target="#{{ id_prefix }}preview"
+        hx-swap="outerHTML"
+        hx-trigger="click"
+        hx-include="#{{ id_prefix }}json-input"
+      >
+        Update Preview
+      </button>
+    </div>
+
+  </div>
+
+
+  <script>
+    function iframe_loaded(iframe) {
+      if (!iframe || !iframe.contentWindow) return;
+
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      if (!doc) return;
+
+      const html = doc.documentElement;
+      const body = doc.body;
+
+      iframe.style.height = "0px";
+
+      const cs = body ? iframe.ownerDocument.defaultView.getComputedStyle(body) : null;
+      const mt = cs ? parseFloat(cs.marginTop) || 0 : 0;
+      const mb = cs ? parseFloat(cs.marginBottom) || 0 : 0;
+
+      const contentHeight = Math.max(
+        body ? body.scrollHeight : 0,
+        body ? body.offsetHeight : 0,
+        html ? html.scrollHeight : 0,
+        html ? html.offsetHeight : 0
+      );
+
+      iframe.style.height = (contentHeight + mt + mb) + "px";
+    }
+  </script>
+
+</div>

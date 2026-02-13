@@ -1,0 +1,63 @@
+<style>
+  .django-3 #{{ name }}_editor {
+    padding-left: 170px;
+    width: auto;
+    padding-bottom: 15px
+  }
+
+  .django-4 .flex-container #{{ name }}_editor {
+    padding: 0;
+    width: 100%;
+  }
+
+  @media (max-width: 767px) {
+    #{{ name }}_editor {
+      width: 100%;
+      padding-left: 0;
+    }
+  }
+
+  div.jsoneditor {
+    border-color: #79aec8 !important;
+  }
+
+  div.jsoneditor.jsoneditor-mode-code {
+    height: 750px !important;
+  }
+
+  div.jsoneditor-menu {
+    background-color: var(--primary) !important;
+  }
+</style>
+<div class="json_editor_container" id="{{ name }}_editor" style=""></div>
+
+<textarea cols="40" id="id_{{ name }}" name="{{ name }}" rows="10" required=""
+          style="display: none">{{ data }}</textarea>
+
+
+<script>
+  (function () {
+    var container = document.getElementById("{{ name }}_editor");
+    var options = {
+      modes: ['code', 'tree'],
+      mode: '{{ mode }}',
+      search: true,
+      history: false,
+      onChange: function () {
+        try{
+          var json = editor.get();
+          document.getElementById("id_{{ name }}").value = JSON.stringify(json);
+          document.querySelectorAll('input[type="submit"]').forEach(function(n){n.disabled = false});
+        } catch (e) {
+          document.querySelectorAll('input[type="submit"]').forEach(function(n){n.disabled = true});
+          var corrupted_json = editor.getText();
+          document.getElementById("id_{{ name }}").value = JSON.stringify(corrupted_json);
+          console.error(e);
+        }
+      }
+    };
+    var editor = new JSONEditor(container, options);
+    var json = {{ data|safe }};
+    editor.set(json);
+  })();
+</script>

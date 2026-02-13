@@ -1,0 +1,63 @@
+:root {
+  --badges-border-radius: 10px;
+}
+
+.status-badges {
+  display: flex;
+  gap: 30px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.status-badges .status-badge {
+  min-width: 250px;
+  flex: 1;
+}
+
+.status-badges .status-badge {
+  border-radius: 10px;
+}
+
+.status-badges .status-badge .status-badge-header {
+  padding: 8px;
+  background: var(--primary);
+  color: var(--header-link-color);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-top-left-radius: var(--badges-border-radius);
+  border-top-right-radius: var(--badges-border-radius);
+}
+
+.status-badges .status-badge .status-badge-body {
+  height: calc(100% - 30px);
+  background-color: var(--body-bg);
+  border-bottom-left-radius: var(--badges-border-radius);
+  border-bottom-right-radius: var(--badges-border-radius);
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.status-badges .status-badge .status-badge-body.loading {
+  height: 70px;
+  display: flex;
+}
+
+.status-badge-body-row-value {
+  text-align: right;
+}
+
+.status-badges .status-badge .status-badge-body-row {
+  padding: 8px;
+  display: flex;
+}
+
+/* all except last element */
+.status-badges .status-badge .status-badge-body-row:not(:last-child) {
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+.status-badges .status-badge-body-row > * {
+  width: 100%;
+}

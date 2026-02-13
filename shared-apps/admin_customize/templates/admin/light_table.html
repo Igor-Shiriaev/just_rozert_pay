@@ -1,0 +1,46 @@
+{% load i18n admin_urls static admin_list %}
+
+<div>
+  <div class="search-bar">
+    <form hx-on="submit"
+          hx-target="closest .light-table-container"
+          hx-get="{% url partial_data_url %}">
+      {{ search_form.q }}
+      <input type="submit" value="Search">
+      <a class="view-all-link" href="{% url view_all_url %}">View all</a>
+    </form>
+  </div>
+
+  <div class="light-table-content">
+    <div class="module changelist">
+      <div class="changelist-form-container">
+        {% result_list cl %}
+      </div>
+    </div>
+  </div>
+  <div class="pagination">
+    <button class="pagination-button {% if pages.is_start %} disabled{% endif %}"
+        {% if not pages.is_start %}
+            hx-on="click"
+            hx-get="{{ pages.first_page_url }}"
+            hx-target="closest .light-table-container"
+        {% endif %}
+    >↑ First
+    </button>
+    <button class="pagination-button {% if pages.is_start %} disabled{% endif %}"
+        {% if not pages.is_start %}
+            hx-on="click"
+            hx-get="{{ pages.previous_page_url }}"
+            hx-target="closest .light-table-container"
+        {% endif %}
+    >← Previous
+    </button>
+    <button class="pagination-button"
+            hx-on="click"
+            hx-get="{{ pages.next_page_url }}"
+            hx-target="closest .light-table-container"
+    >Next →
+    </button>
+  </div>
+
+</div>

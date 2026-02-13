@@ -1,0 +1,8 @@
+<div id="favorites"
+     hx-get="{% url 'admin:favorites_block' %}"
+     hx-trigger="update-favorites from:body"
+     hx-target="#favorites"
+     hx-swap="innerHTML"
+>
+  {% include 'admin/_favorites/favorites_block.html' with favorite_models=favorite_models fav_block=True %}
+</div>

@@ -1,0 +1,55 @@
+{% extends "admin/simple_custom_intermediate_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block additional_data_above_fields %}
+  <b>Weekly cashback</b>
+  {% if nodata_message %}
+    {{ nodata_message }}
+  {% else %}
+    <b>for period: {{ reportingweek|date }} - {{ reportingweek_end|date }} </b>
+    <table>
+      <tr>
+        <td>Cashflow amount:</td>
+        <td>{{ cashflow }}</td>
+      </tr>
+      <tr>
+        <td>NGR amount:</td>
+        <td>{{ ngr }}</td>
+      </tr>
+      <tr>
+        <td>Cashback amount:</td>
+        <td>{{ cashback }}</td>
+      </tr>
+      <tr>
+        <td>Cashback percentage:</td>
+        <td>{{ cashback_percentage }}</td>
+      </tr>
+      <tr>
+        <td>Cashback given:</td>
+        <td>{{ issued_cashback_amount }}</td>
+      </tr>
+      <tr>
+        <td>Cashback currency:</td>
+        <td>{{ user_currency }}</td>
+      </tr>
+      <tr>
+        <td>Deposits sum:</td>
+        <td>{{ deposits_sum }}</td>
+      </tr>
+      <tr>
+        <td>Withdrawals sum:</td>
+        <td>{{ withdrawals_sum }}</td>
+      </tr>
+      <tr>
+        <td>User level:</td>
+        <td>{{ user_level }}</td>
+      </tr>
+      <tr>
+        <td>User product group:</td>
+        <td>{{ product_group }}</td>
+      </tr>
+    </table>
+  {% endif %}
+{% endblock %}
+
+{% block submit_row %}{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}
+  <script type="text/javascript" src="/admin/jsi18n/"></script>
+  {{ block.super }}
+{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a
+          href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a
+          href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    {% if obj %}&rsaquo;
+      <a href="{% url opts|admin_urlname:'change' object_id=obj.pk %}">{{ obj.get_full_name|default:obj }}</a>{% endif %}
+    &rsaquo; {{ form.ACTION_TITLE|default_if_none:'Action' }}
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+    {% if back_url %}
+      <p class="form-row">
+        <a class="back_button" href="{{ back_url }}">Back</a>
+      </p>
+    {% endif %}
+    {% if action_title %}
+      <h1>{{ action_title }}</h1>
+    {% endif %}
+    <form method="POST" enctype="multipart/form-data" action="{% block form_action %}{% endblock %}">
+      {% csrf_token %}
+      {% if form.non_field_errors|length > 0 %}
+        <p class="errornote">Please correct the errors below.</p>
+        {{ form.non_field_errors }}
+      {% endif %}
+      <input type="hidden" name="action" value="{{ form.action }}">
+      <input type="hidden" name="do_action" value="yes">
+      {% for field in form.hidden_fields %}
+        {{ field }}
+      {% endfor %}
+      {% block additional_data_above_fields %}{% endblock %}
+      <fieldset class="module aligned">
+        {% if form.PRESETS %}
+          <h2>Presets</h2>
+          <div x-data="formPreset" class="presets-container">
+            {% for preset in form.get_presets_context %}
+              <button
+                type="button"
+                class="action_button"
+                @click='apply({{ preset.data_json|safe }})'
+              >
+                {{ preset.label }}
+              </button>
+            {% endfor %}
+            <button
+              type="button"
+              class="action_button"
+              @click='resetToInitial()'
+            >
+              Reset
+            </button>
+          </div>
+          <h2>&nbsp;</h2>
+        {% endif %}
+        {% if form.has_fieldsets %}
+          {% include 'admin/forms/inline_form_row.html' with fieldsets=form.fieldsets %}
+        {% else %}
+          {% include 'admin/forms/regular_form_row.html' with form=form %}
+        {% endif %}
+      </fieldset>
+      {% block additional_data_below_fields %}
+        {% if extended_help %}
+          <div style="display: flex; gap: 15px; width: 40%; padding-bottom: 20px;">
+            <div style="flex: 1; font-family: monospace; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 5px; overflow-x: auto;">
+              {{ extended_help|safe }}
+            </div>
+          </div>
+        {% endif %}
+      {% endblock %}
+      {% block submit_row %}
+        <div class="submit-row">
+          <input type="submit" name="apply" class="default"
+                 value="{% if confirming_action %}Confirm {{ confirming_action }}{% else %}Submit{% endif %}">
+        </div>
+      {% endblock %}
+      {% if queryset %}
+        <div>
+          <p>Objects to be processed:</p>
+          <ul>{% for obj in queryset %}
+            <li><input type="hidden" name="_selected_action" value="{{ obj.pk }}">{{ obj }}</li>
+          {% endfor %}</ul>
+        </div>
+      {% endif %}
+    </form>
+    {% block additional_data %}{% endblock %}
+  </div>
+  {% include 'forms/lock_submit_script.html' %}
+{% endblock %}

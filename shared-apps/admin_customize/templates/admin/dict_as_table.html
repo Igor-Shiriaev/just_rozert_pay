@@ -1,0 +1,40 @@
+{% load admin_modify_tags %}
+
+<style>
+  .responsive-table {
+    overflow-x: auto;
+  }
+
+  .context_table {
+    overflow-x: scroll;
+  }
+</style>
+
+<div class="responsive-table">
+  {% if name %}
+    <h3>{{ name }}</h3>
+  {% endif %}
+  <table{% if full_width %} width="100%"{% endif %} class="context_table">
+    {% if header_row %}
+      <tr>
+        <th>{{ base_header_col }}</th>
+        {% for key in header_row %}
+          <th>{{ key|safe }}</th>
+        {% endfor %}
+      </tr>
+    {% endif %}
+    {% for context_item,context_data in context.items %}
+      <tr>
+        <td>{{ context_item|safe }}</td>
+        {% if flat %}
+          <td>{{ context_data|safe }}</td>
+        {% else %}
+          {% for key in header_row %}
+            <td>{{ context_data|dict_key:key|show_empty_if_none|safe }}</td>
+          {% endfor %}
+        {% endif %}
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+

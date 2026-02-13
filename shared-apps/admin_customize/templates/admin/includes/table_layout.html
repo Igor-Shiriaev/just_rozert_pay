@@ -1,0 +1,150 @@
+{% load static %}
+
+<div x-data="{darkBackgroundAll: false}">
+  <style>
+    {% if show_background_toggler %}
+      .toggle-background-button {
+        border: none;
+        width: 30px;
+        height: 30px;
+        position: absolute;
+        background: none;
+        top: 0;
+        right: 0;
+        cursor: pointer;
+      }
+
+      .toggle-background-button img {
+        width: 20px;
+        height: 20px;
+      }
+
+      .toggle-background-button img.inverted {
+        filter: invert(1);
+        -webkit-filter: invert(1);
+      }
+
+      .image-preview-light-background {
+        background: #cccccc;
+      }
+
+      .image-preview-dark-background {
+        background: #333333;
+      }
+    {% endif %}
+
+    .image-preview-container {
+      padding: 4px;
+      display: inline-block;
+      border-radius: 4px;
+      position: relative;
+    }
+
+  </style>
+  {% if show_background_toggler %}
+    <button class="infield_action_link" @click.prevent="darkBackgroundAll = !darkBackgroundAll">
+      Toggle table background
+    </button>
+  {% endif %}
+  <table>
+    {% if not hide_header %}
+      <tr>
+        {% for header in headers %}
+          <th {% if forloop.counter0 < key_fields_count|default_if_none:0 %}style="width: 1%;white-space: nowrap;" {% endif %}>
+            {{ header|capfirst }}
+          </th>
+        {% endfor %}
+      </tr>
+    {% endif %}
+    {% if not is_complex %}
+      {% for key, value in data_to_render.items %}
+        <tr>
+          <td>{{ key }}</td>
+          <td>
+            {% if use_links %}
+              <a href="{{ value }}">Link</a>
+            {% endif %}
+            {% if use_images %}
+              <div x-data="{darkBackground: false}">
+                <div
+                  class="image-preview-container"
+                  :class="(darkBackground | darkBackgroundAll) ? 'image-preview-dark-background' : 'image-preview-light-background'"
+                >
+                  <img
+                    class="image-preview"
+                    src="{{ value }}"
+                    alt=""
+                    height="{{ image_height }}px">
+                  {% if show_background_toggler %}
+                    <button class="toggle-background-button"
+                            x-show="!darkBackgroundAll"
+                            @click.prevent="darkBackground = !darkBackground">
+                      <img
+                        :class="(darkBackground | darkBackgroundAll) ? 'inverted' : ''"
+                        src="{% static 'admin/img/icon-eye.svg' %}"
+                        alt=""
+                      >
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+            {% if not use_links and not use_images %}
+              {% if safe_content %}
+                {% include 'admin/includes/preview_widget.html' with content=value %}
+              {% else %}
+                {{ value }}
+              {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    {% else %}
+      {% for key, value in data_to_render.items %}
+        <tr>
+          <td>{{ key.0 }}</td>
+          <td>{{ key.1 }}</td>
+          <td>
+            {% if use_links %}
+              <a href="{{ value }}">Link</a>
+            {% endif %}
+            {% if use_images %}
+              <div x-data="{darkBackground: false}">
+                <div
+                  class="image-preview-container"
+                  :class="(darkBackground | darkBackgroundAll) ? 'image-preview-dark-background' : 'image-preview-light-background'"
+                >
+                  <img
+                    class="image-preview"
+                    src="{{ value }}"
+                    alt=""
+                    height="{{ image_height }}px">
+                  {% if show_background_toggler %}
+                    <button class="toggle-background-button"
+                            x-show="!darkBackgroundAll"
+                            @click.prevent="darkBackground = !darkBackground">
+                      <img
+                        :class="(darkBackground | darkBackgroundAll) ? 'inverted' : ''"
+                        src="{% static 'admin/img/icon-eye.svg' %}"
+                        alt=""
+                      >
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+            {% if not use_links and not use_images %}
+              {% if safe_content %}
+                {% include 'admin/includes/preview_widget.html' with content=value %}
+              {% else %}
+                {{ value }}
+              {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    {% endif %}
+
+  </table>
+
+</div>

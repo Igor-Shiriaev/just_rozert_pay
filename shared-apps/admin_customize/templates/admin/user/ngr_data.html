@@ -1,0 +1,33 @@
+{% extends "admin/simple_custom_intermediate_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block additional_data_above_fields %}
+  <b>NGR({{ currency }}) for last 7D</b>
+  <b>for period: {{ reporting_period_start|date }} - {{ reporting_period_end|date }} </b>
+  {% if error is not None %}
+    {{ error|default_if_none:"No data" }}
+  {% else %}
+    <table>
+      <tr>
+        <td>24H NGR</td>
+        <td>{{ ngr_24h }}</td>
+      </tr>
+      <tr>
+        <td>7D NGR</td>
+        <td>{{ ngr_7d }}</td>
+      </tr>
+    </table>
+
+    <table>
+      {% for ngr_record in ngr_data %}
+      <tr>
+        <td>{{ ngr_record.datetime|date:"Y/m/d (D)" }} {{ ngr_record.datetime|time:"H:i" }}</td>
+        <td>{{ ngr_record.amount }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+  {% endif %}
+{% endblock %}
+
+{% block submit_row %}{% endblock %}

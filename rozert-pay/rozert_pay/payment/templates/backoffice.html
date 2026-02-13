@@ -1,0 +1,12 @@
+{% load render_bundle from webpack_loader %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Rozert backoffice</title>
+    {% render_bundle 'main' 'css' %}
+  </head>
+  <body>
+    <div id="root"></div>
+    {% render_bundle 'main' 'js' %}
+  </body>
+</html>

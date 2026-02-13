@@ -1,0 +1,10 @@
+<div class="status-row">
+  <h2>{{ dashboard_table.title }}</h2>
+  <div class="light-table">
+    <div hx-get="{{ dashboard_table.initial_url }}"
+         hx-trigger="load"
+         class="light-table-container"
+      >
+    </div>
+  </div>
+</div>

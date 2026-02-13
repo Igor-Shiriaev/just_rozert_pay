@@ -1,0 +1,382 @@
+@import "theme-vars.css";
+@import "preview_widget.css";
+@import "scroll-bars.css";
+@import "admin-columns.css";
+
+div.form-row:has([required]) label {
+  font-weight: bold;
+}
+
+#header #site-name {
+  font-weight: bold;
+}
+
+.action_button, .infield_action_link {
+  overflow-wrap: break-word;
+  font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+  line-height: 20px;
+  margin-bottom: 5px;
+  border-radius: 15px;
+  display: inline-block;
+  padding: 3px 12px;
+  background: var(--object-tools-bg);
+  font-weight: 400;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--object-tools-fg) !important;
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+  border: 0;
+  cursor: pointer;
+}
+
+.small_button {
+  height: 20px;
+  line-height: 15px;
+  margin-top: 5px;
+}
+
+.infield_action_link:hover, .action_button:hover {
+  background: var(--object-tools-hover-bg);
+}
+
+.infield_action_link_wrapper {
+  display: inline-block;
+}
+
+.readonly > .infield_action_link_wrapper:last-child:after {
+  white-space: pre;
+  content: "\A";
+}
+
+.readonly:has(.responsive-table-container):has(table.full-width) {
+  width: 100%;
+}
+
+.readonly:has(.admin-comments) {
+  width: 100%;
+}
+
+.min-width-wrapper {
+  display: inline-block;
+}
+
+.form-row {
+  padding: 4px 2px 2px 2px !important;
+}
+
+div.flex-container:has(input[required]) > label {
+  font-weight: bold;
+}
+
+.flex-container.form-multiline > div {
+  flex: 1;
+}
+
+p.intended_block {
+  margin-left: 10px !important;
+}
+
+table.table .table-cell-05 {
+  width: 5vw;
+  max-width: 5vw;
+}
+
+table.table .table-cell-10 {
+  width: 10vw;
+  max-width: 10vw;
+}
+
+table.table .table-cell-15 {
+  width: 15vw;
+  max-width: 15vw;
+}
+
+table.table .table-date {
+  width: 130px;
+}
+
+.nested-table td {
+  padding: 0;
+}
+
+.nested-table tr {
+  background: none;
+}
+
+.nested-table td, .nested-table th {
+  border: none;
+}
+
+.form-row > label + div {
+  display: flex;
+  flex-flow: column;
+}
+
+:is(textarea, input[type]).full-width {
+  width: calc(100% - 185px);
+}
+
+@media (max-width: 1024px) {
+  :is(textarea, input[type]).full-width {
+    width: calc(100% - 170px);
+  }
+}
+
+@media (max-width: 767px) {
+  .aligned .form-row, .aligned .form-row > div {
+    flex-flow: column !important;
+  }
+
+  :is(textarea, input[type]).full-width {
+    width: calc(100% - 20px) !important;
+  }
+
+  .html-preview {
+    width: calc(100% - 20px) !important;
+  }
+}
+
+input[type='date'] {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 5px 6px;
+  margin-top: 0;
+  color: var(--body-fg);
+  background-color: var(--body-bg);
+}
+
+.django-3 .form-row:has(.fieldBox) {
+  display: flex;
+}
+
+fieldset.collapsed .form-row:has(.fieldBox) {
+  display: none;
+}
+
+.form-row:has(.fieldBox) > .fieldBox {
+  flex: 1;
+}
+
+.form-row .columns {
+  column-count: 1;
+}
+
+.form-row .columns > div {
+  width: 100%;
+}
+
+.form-row .columns label {
+  float: none;
+  width: max-content;
+}
+
+@media screen and (max-width: 1340px) {
+  .form-row:has(.fieldBox) {
+    flex-direction: column;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .related-widget-wrapper {
+    width: calc(100% - 170px);
+  }
+
+  .related-widget-wrapper:has(.add-related):has(.selector-available):has(.selector-chosen) {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 10px;
+  }
+
+  .add-related {
+    padding: 10px;
+  }
+
+  .related-widget-wrapper .selector {
+    display: grid;
+    grid-template-columns: 1fr 30px 1fr;
+    width: 100%;
+  }
+
+  .related-widget-wrapper .selector .selector-available {
+    grid-column: 1;
+    width: 100%;
+  }
+
+  .related-widget-wrapper .selector .selector-available select, .related-widget-wrapper .selector .selector-chosen select {
+    width: 100%;
+  }
+
+  .related-widget-wrapper .selector .selector-available input {
+    width: calc(100% - 40px);
+  }
+
+  .related-widget-wrapper .selector .selector-chooser {
+    grid-column: 2;
+    height: 44px;
+  }
+
+  .related-widget-wrapper .selector .selector-chosen {
+    grid-column: 3;
+    width: 100%;
+  }
+
+  .form-row .columns {
+    column-count: 2;
+  }
+}
+
+
+@media screen and (min-width: 768px) {
+  select[multiple] {
+    resize: vertical;
+  }
+}
+
+@media screen and (min-width: 1340px) and (max-width: 1535px) {
+  .form-row .columns {
+    column-count: 3;
+  }
+}
+
+@media screen and (min-width: 1536px) {
+  .form-row .columns {
+    column-count: 4;
+  }
+}
+
+
+.loading-indicator {
+  width: 32px;
+  height: 32px;
+  clear: both;
+  margin: auto;
+  border: 4px rgba(0, 0, 0, 0.25) solid;
+  border-top: 4px rgba(0, 0, 0, 1) solid;
+  border-radius: 50%;
+  -webkit-animation: spCircRot .6s infinite linear;
+  animation: spCircRot .6s infinite linear;
+}
+
+@-webkit-keyframes spCircRot {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+@keyframes spCircRot {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+div.checkbox_select_vertical {
+  display: flex;
+  flex-direction: column;
+}
+
+div.checkbox_select_vertical.full-width > div > label {
+  width: auto;
+}
+
+/* Styles for TableData */
+table.dict-table {
+  border: none;
+
+  & tr {
+    background: none;
+  }
+
+  &.striped {
+    & tr:nth-child(even) {
+      background: var(--darkened-bg);
+    }
+  }
+
+  & th {
+    text-transform: none !important;
+    font-size: 13px;
+  }
+
+  & :where(th, td) {
+    border: none;
+  }
+
+  &.capitalize-headers th {
+    text-transform: capitalize !important;
+    font-size: 11px;
+  }
+
+  &.full-width {
+    width: 100%;
+  }
+
+  &.bordered {
+    border: 1px solid var(--hairline-color);
+
+    & :where(th, td) {
+      border: 1px solid var(--hairline-color);
+    }
+  }
+
+  &.equal-cell-widths {
+    table-layout: fixed;
+  }
+}
+
+div.responsive-table-container {
+  overflow-x: auto;
+}
+
+div.responsive-table-container > h3 {
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+div.responsive-table-container > table {
+  overflow-x: scroll;
+}
+
+label:has(.wide-labels) {
+  width: auto !important;
+}
+
+.paginated-field {
+  & .pages-indicator {
+    margin: 10px 0;
+    display: flex;
+    flex-direction: row;
+
+    & .paginated-field-link {
+      height: 30px;
+      width: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 4px;
+      background-color: var(--primary);
+      color: var(--header-link-color);
+      text-decoration: none;
+      font-size: 13px;
+
+      &.current-page {
+        background-color: var(--header-link-color);
+        color: var(--primary);
+      }
+    }
+  }
+}
+
+.presets-container {
+  display: flex;
+  margin: 10px 0 5px 0;
+  justify-content: flex-end;
+  gap: 10px;
+}

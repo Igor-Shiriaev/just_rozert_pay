@@ -1,0 +1,31 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <script defer src="{% static 'js/alpine-3.14.9.min.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/custom-admin-styles.css' %}">
+  {{ admin_site_media }}
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script defer src="{% static 'admin/js/theme_default.js' %}"></script>
+{% endblock %}
+
+{% block userlinks %}
+  <span>
+  Current timezone: <a href="{% url 'admin:set_timezone' %}">{{ current_timezone }}</a>
+  </span>
+  {% if DJANGO_VERSION >= '4.2' %}
+    {% include "admin/color_theme_toggle.html" %}
+  {% endif %}
+  <br>
+  {% for link_name, link_url in additional_header_links %}
+    <a href="{{ link_url }}">{{ link_name }}</a> /
+  {% endfor %}
+  <a href="{% url 'admin:logout' %}">Logout</a>
+
+{% endblock %}
+
+{% block bodyclass %}{% if user.is_authenticated %}{% if DJANGO_VERSION >= '4' and DJANGO_VERSION < '5' %}django-4{% elif DJANGO_VERSION >= '3' and DJANGO_VERSION < '4' %}django-3{% endif %}{% endif %}{% endblock %}

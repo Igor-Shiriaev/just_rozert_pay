@@ -1,0 +1,75 @@
+{% load i18n %}
+<h3>{% blocktranslate with filter_title=title %} By {{ filter_title }} {% endblocktranslate %}</h3>
+
+<style>
+    .multiple-choice-filter .button {
+        background: var(--button-bg);
+        padding: 4px 5px;
+        border: none;
+        border-radius: 4px;
+        color: var(--button-fg);
+        cursor: pointer;
+    }
+
+    .multiple-choice-filter fieldset {
+        border: none;
+    }
+</style>
+
+<ul>
+    <li>
+        <div class="multiple-choice-filter wrapper">
+            <fieldset class="{{ spec.parameter_name }}-options">
+                {% for choice in choices %}
+                    <p>
+                        <input type="checkbox" name="{{ spec.parameter_name }}"
+                               value="{{ choice.lookup }}"
+                               id="{{ param }}-{{ forloop.counter }}"
+                               {% if choice.selected %}checked="checked"{% endif %}/>
+                        <label for="{{ param }}-{{ forloop.counter }}">{{ choice.display }}</label>
+                    </p>
+                {% endfor %}
+            </fieldset>
+            <form action="." method="get" id="{{ spec.parameter_name }}-filter-form"
+                  onsubmit="submit_checkbox_form(event, this)"
+                  onreset="reset_checkbox_form(event, this)">
+                <input type="hidden" name="{{ spec.parameter_name }}"
+                       value="{{ spec.parameter_value }}"/>
+                <div class="controls">
+                    <input type="submit" class="button" value={% trans "Search" %}>
+                    <input type="reset" class="button" value={% trans "Reset" %}>
+                </div>
+            </form>
+        </div>
+    </li>
+</ul>
+
+<script>
+    function submit_checkbox_form(event, form) {
+        event.preventDefault();
+        let selected_values = [];
+        let checkboxes = form.closest('.wrapper').querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                selected_values.push(checkbox.value);
+            }
+        });
+        let param_input = form.querySelector('input[type="hidden"]');
+        param_input.value = selected_values.join(',');
+        let current_search_query = new URLSearchParams(window.location.search);
+        current_search_query.set(param_input.name, param_input.value);
+        window.location.search = current_search_query.toString();
+    }
+
+    function reset_checkbox_form(event, form) {
+        event.preventDefault();
+        let checkboxes = form.closest('.wrapper').querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(function (checkbox) {
+            checkbox.checked = false;
+        });
+        let param_input = form.querySelector('input[type="hidden"]');
+        let current_search_query = new URLSearchParams(window.location.search);
+        current_search_query.delete(param_input.name);
+        window.location.search = current_search_query.toString();
+    }
+</script>

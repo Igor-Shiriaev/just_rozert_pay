@@ -1,0 +1,540 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{% if IS_PRODUCTION %}PROD {% endif %}{{ title }} |
+  {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+  <div id="site-name">
+    <a href="{% url 'admin:index' %}">
+      {% if IS_PRODUCTION %}
+        PROD Django administration
+      {% else %}
+        Django administration
+      {% endif %}
+    </a>
+  </div>
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'admin/js/jquery.init.js' %}"></script>
+  <style>
+    {% if not IS_PRODUCTION %}
+      :root,
+      :root[data-theme="light"],
+      :root[data-theme="auto"] {
+        --header-bg: #474c52 !important;
+      }
+
+      :root[data-theme="light"] #header,
+      :root[data-theme="auto"] #header,
+      :root:not([data-theme]) #header {
+        background: #474c52 !important;
+      }
+
+      :root[data-theme="dark"] #header {
+        background: #474c52 !important;
+      }
+
+      div.breadcrumbs {
+        background: #323943;
+      }
+
+      :root[data-theme="dark"] div.breadcrumbs,
+      :root[data-theme="auto"] div.breadcrumbs {
+        background: #323943 !important;
+      }
+
+      .select2-container--admin-autocomplete .select2-results__option--highlighted[aria-selected] {
+        background-color: #292D32;
+      }
+
+      .paginator a:link, .paginator a:visited {
+        background: #292D32;
+      }
+
+      .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: #474c52;
+      }
+
+      .button:hover, input[type=submit]:hover,
+      input[type=button]:hover, .button:active, .button:focus, input[type=submit]:active, input[type=submit]:focus,
+      input[type=button]:active, input[type=button]:focus {
+        background: #878787;
+      }
+
+      :root[data-theme="light"] .module h2,
+      :root[data-theme="light"] .module caption,
+      :root[data-theme="light"] .inline-group h2,
+      :root:not([data-theme]) .module h2,
+      :root:not([data-theme]) .module caption,
+      :root:not([data-theme]) .inline-group h2,
+      :root[data-theme="dark"] .module h2,
+      :root[data-theme="dark"] .module caption,
+      :root[data-theme="dark"] .inline-group h2,
+      :root[data-theme="auto"] .module h2,
+      :root[data-theme="auto"] .module caption,
+      :root[data-theme="auto"] .inline-group h2 {
+        background: #323943 !important;
+        color: #fff !important;
+      }
+
+      .selector-chosen h2 {
+        background: #323943 !important;
+      }
+
+      .calendar td.selected a {
+        background: #323943 !important;
+      }
+
+      .calendar td a:focus, .timelist a:focus,
+      .calendar td a:hover, .timelist a:hover {
+        background: #323943 !important;
+      }
+
+      .calendar td a:active, .timelist a:active {
+        background: #444;
+      }
+
+      .paginator a:focus, .paginator a:hover {
+        background: var(--link-fg);
+      }
+
+      .calendar td a:active, .timelist a:active {
+        background: #292D32;
+      }
+
+      .calendar caption, .calendarbox h2 {
+        background: #999;
+      }
+
+      .button.default, input[type=submit].default, .submit-row input.default {
+        background: #323943;
+      }
+
+      .button.default:hover, input[type=submit].default:hover,
+      .button.default:active, .button.default:focus,
+      input[type=submit].default:active, input[type=submit].default:focus {
+        background: #474c52;
+      }
+
+      .select2-container--admin-autocomplete .select2-results__option--highlighted[aria-selected] {
+        background-color: #292D32;
+      }
+
+      .object-tools a:focus, .object-tools a:hover {
+        background-color: #292D32;
+      }
+
+      input[type=file]::-webkit-file-upload-button:hover {
+        background: #292D32;
+      }
+
+    {% endif %}
+
+    @keyframes pulseGlow {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(240, 173, 78, 0.8);
+        background-color: #f0ad4e;
+      }
+      40% {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px 5px rgba(240, 173, 78, 0.9);
+        background-color: #ffb84d;
+      }
+      70% {
+        transform: scale(0.98);
+        box-shadow: 0 0 10px 2px rgba(240, 173, 78, 0.7);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(240, 173, 78, 0);
+      }
+    }
+
+    @keyframes shake {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      20% {
+        transform: translateX(-3px);
+      }
+      40% {
+        transform: translateX(3px);
+      }
+      60% {
+        transform: translateX(-3px);
+      }
+      80% {
+        transform: translateX(3px);
+      }
+    }
+
+    #header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #alert-header {
+      display: none;
+      cursor: pointer;
+      background-color: #f0ad4e;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-weight: bold;
+      margin-left: auto;
+      line-height: 1;
+      order: 2;
+    }
+
+    #alert-header:hover {
+      background-color: #ec971f;
+    }
+
+    #alert-header.new-alerts {
+      animation: pulseGlow 1.5s ease-in-out infinite, shake 0.4s ease-in-out 2;
+    }
+
+    #alert-header .alert-count {
+      font-weight: bold;
+    }
+
+    #user-tools {
+      order: 3;
+    }
+
+    #branding {
+      order: 1;
+    }
+
+    #persistent-alert-container {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 350px;
+      height: 100%;
+      background-color: #f8f9fa;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 10px;
+      padding-top: 20px;
+      overflow-y: auto;
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+      transform: translateX(100%);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    #persistent-alert-container.visible {
+      transform: translateX(0);
+    }
+
+    #persistent-alert-container h4 {
+      margin: 0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #persistent-alert-container .dismiss-all-btn {
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      background-color: #5cb85c;
+      border-color: #4cae4c;
+      color: white;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #persistent-alert-container .dismiss-all-btn:hover {
+      background-color: #449d44;
+    }
+
+    #alert-list {
+      padding-bottom: 40px;
+    }
+
+    .persistent-alert {
+      padding: 15px;
+      border-radius: 4px;
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      position: relative;
+      padding-right: 40px;
+      margin-bottom: 10px;
+    }
+
+    .persistent-alert.regular {
+      background-color: #17a2b8;
+    }
+
+    .persistent-alert.critical {
+      background-color: #dc3545;
+    }
+
+    .persistent-alert a {
+      color: #fff;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    .persistent-alert .dismiss-alert {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    :root[data-theme="dark"] #alert-header {
+      background-color: #c87b27;
+      color: #fff;
+    }
+
+    :root[data-theme="dark"] #alert-header:hover {
+      background-color: #d68934;
+    }
+
+    @keyframes pulseGlow-dark {
+      0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(200, 123, 39, 0.6);
+        background-color: #c87b27;
+      }
+      40% {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px 5px rgba(220, 150, 70, 0.8);
+        background-color: #d68934;
+      }
+      70% {
+        transform: scale(0.98);
+        box-shadow: 0 0 10px 2px rgba(200, 123, 39, 0.5);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(200, 123, 39, 0);
+      }
+    }
+
+    :root[data-theme="dark"] #persistent-alert-container {
+      background-color: #202124;
+      color: #e8e6e3;
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.6);
+    }
+
+    :root[data-theme="dark"] #persistent-alert-container h4 {
+      border-bottom-color: #444;
+    }
+
+    :root[data-theme="dark"] #persistent-alert-container .dismiss-all-btn {
+      background-color: #256b47;
+      border-color: #1e5739;
+      color: #f0f0f0;
+    }
+
+    :root[data-theme="dark"] #persistent-alert-container .dismiss-all-btn:hover {
+      background-color: #1e5739;
+    }
+
+    :root[data-theme="dark"] .persistent-alert.regular {
+      background-color: #275b8a;
+    }
+
+    :root[data-theme="dark"] .persistent-alert.critical {
+      background-color: #8a2f2f;
+    }
+
+  </style>
+
+  <div id="alert-header">
+    <span>New Alerts: </span><span class="alert-count">0</span>
+  </div>
+  <div id="persistent-alert-container">
+    <h4>Active Alerts</h4>
+    <button class="dismiss-all-btn">Acknowledge All Visible Alerts</button>
+    <div id="alert-list"></div>
+  </div>
+
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+      (function ($) {
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        const alertHeader = $('#alert-header');
+        const header = $('#header');
+        if (header.length && alertHeader.length) {
+          header.append(alertHeader);
+        }
+
+        let hasUnseenAlerts = false;
+
+        function createAlertElement(alertData) {
+          const alertClass = alertData.is_critical ? 'critical' : 'regular';
+          const alertHtml = `
+                    <div class="persistent-alert ${alertClass}" id="alert-${alertData.id}">
+                        <button type="button" class="dismiss-alert" data-alert-id="${alertData.id}" title="Acknowledge this alert">&times;</button>
+                        <strong>${alertClass.charAt(0).toUpperCase() + alertClass.slice(1)} Alert</strong>
+                        ${alertData.text ? '<p>Text: ' + alertData.text + '</p>' : ''}
+                        <p>${alertData.description}</p>
+                        <a href="${alertData.limit_url}" target="_blank">Limit</a> |
+                        <a href="${alertData.transaction_url}" target="_blank">Transaction</a>
+                    </div>
+                `;
+          return alertHtml;
+        }
+
+        function updateAlertsView(alerts) {
+          const container = $('#alert-list');
+          const countSpan = alertHeader.find('.alert-count');
+          const receivedAlertIds = new Set(alerts.map(a => a.id));
+          let newAlertsAdded = false;
+
+          container.children('.persistent-alert').each(function () {
+            const alertId = parseInt($(this).attr('id').replace('alert-', ''));
+            if (!receivedAlertIds.has(alertId)) {
+              $(this).remove();
+            }
+          });
+
+          alerts.forEach(function (alert) {
+            if (!$('#alert-' + alert.id).length) {
+              const alertElement = createAlertElement(alert);
+              container.prepend(alertElement);
+              newAlertsAdded = true;
+            }
+          });
+
+          if (newAlertsAdded) {
+            hasUnseenAlerts = true;
+          }
+
+          const currentCount = container.children('.persistent-alert').length;
+          countSpan.text(currentCount);
+
+          if (currentCount > 0) {
+            alertHeader.show();
+            if (hasUnseenAlerts) {
+              alertHeader.addClass('new-alerts');
+            }
+          } else {
+            alertHeader.hide();
+            $('#persistent-alert-container').removeClass('visible');
+            alertHeader.removeClass('new-alerts');
+            hasUnseenAlerts = false;
+          }
+        }
+
+        function fetchAndDisplayAlerts() {
+          $.ajax({
+            url: '/api/backoffice/v1/alerts/unacknowledged/',
+            method: 'GET',
+            success: function (newAlerts) {
+              updateAlertsView(newAlerts || []);
+            },
+            error: function () {
+              console.error("Failed to fetch alerts.");
+            }
+          });
+        }
+
+        $(function () {
+          alertHeader.on('click', function (e) {
+            e.stopPropagation();
+            $('#persistent-alert-container').toggleClass('visible');
+            $(this).removeClass('new-alerts');
+            hasUnseenAlerts = false;
+          });
+
+          $(document).on('click', function (e) {
+            const container = $('#persistent-alert-container');
+            if (container.hasClass('visible') && !container.is(e.target) && container.has(e.target).length === 0) {
+              container.removeClass('visible');
+            }
+          });
+          $('#persistent-alert-container').on('click', function (e) {
+            e.stopPropagation();
+          });
+
+
+          $('#alert-list').on('click', '.dismiss-alert', function (e) {
+            e.stopPropagation();
+            const alertId = $(this).data('alert-id');
+            const alertElement = $(this).closest('.persistent-alert');
+
+            $.ajax({
+              url: `/api/backoffice/v1/alerts/${alertId}/acknowledge/`,
+              method: 'POST',
+              beforeSend: function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+              },
+              success: function () {
+                alertElement.fadeOut(300, function () {
+                  $(this).remove();
+                  const container = $('#alert-list');
+                  const currentCount = container.children('.persistent-alert').length;
+                  const countSpan = alertHeader.find('.alert-count');
+                  countSpan.text(currentCount);
+                  if (currentCount === 0) {
+                    alertHeader.hide();
+                    $('#persistent-alert-container').removeClass('visible');
+                    alertHeader.removeClass('new-alerts');
+                    hasUnseenAlerts = false;
+                  }
+                });
+              }
+            });
+          });
+
+          $('#persistent-alert-container').on('click', '.dismiss-all-btn', function () {
+            $.ajax({
+              url: `/api/backoffice/v1/alerts/acknowledge-all/`,
+              method: 'POST',
+              beforeSend: function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+              },
+              success: function () {
+                $('#alert-list').fadeOut(300, function () {
+                  $(this).empty().show();
+                  updateAlertsView([]);
+                });
+              }
+            });
+          });
+
+          fetchAndDisplayAlerts();
+        });
+
+      })(django.jQuery);
+    });
+  </script>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

@@ -1,0 +1,173 @@
+{% extends "admin/change_form.html" %}
+{% load i18n static %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function() {
+        function rowOf($el) {
+            return $el.closest('.form-row, .fieldBox, .grp-row');
+        }
+        function showRow(id) { rowOf($('#id_' + id)).show(); }
+        function hideRow(id) { rowOf($('#id_' + id)).hide(); }
+
+        const $limitType = $('#id_limit_type');
+        const $scope = $('#id_scope');
+        const $category = $('#id_category');
+
+        const allFields = [
+            'max_operations', 'max_overall_decline_percent', 'max_withdrawal_decline_percent',
+            'max_deposit_decline_percent', 'min_amount', 'max_amount', 'total_amount',
+            'max_ratio', 'burst_minutes', 'period'
+        ];
+
+        const originalScopeOptions = [];
+        if ($scope.length) {
+            $scope.find('option').each(function() {
+                originalScopeOptions.push({value: $(this).val(), text: $(this).text()});
+            });
+        }
+
+        function clearFieldValue(field) {
+            const $field = $('#id_' + field);
+            if (!$field.length) { return; }
+            const inputType = ($field.attr('type') || '').toLowerCase();
+            if (inputType === 'checkbox' || inputType === 'radio') {
+                $field.prop('checked', false);
+            } else {
+                $field.val('');
+            }
+            $field.trigger('change');
+        }
+
+        function toggleFields() {
+            if (!$limitType.length) {
+                $('.errorlist, .errors').each(function() { rowOf($(this)).show(); });
+                return;
+            }
+
+            const limitType = $limitType.val();
+            const fieldVisibility = {
+                'max_successful_deposits': ['max_operations', 'period'],
+                'max_overall_decline_percent': ['max_overall_decline_percent', 'period'],
+                'max_withdrawal_decline_percent': ['max_withdrawal_decline_percent', 'period'],
+                'max_deposit_decline_percent': ['max_deposit_decline_percent', 'period'],
+                'min_amount_single_operation': ['min_amount'],
+                'max_amount_single_operation': ['max_amount'],
+                'total_amount_deposits_period': ['total_amount', 'period'],
+                'total_amount_withdrawals_period': ['total_amount', 'period'],
+                'max_withdrawal_to_deposit_ratio': ['max_ratio', 'period'],
+                'max_operations_burst': ['max_operations', 'burst_minutes']
+            };
+
+            allFields.forEach(function(field) { hideRow(field); });
+
+            (fieldVisibility[limitType] || []).forEach(function(field) { showRow(field); });
+
+            if (limitType === 'min_amount_single_operation' || limitType === 'max_amount_single_operation') {
+                hideRow('period');
+            }
+
+            $('.errorlist, .errors').each(function() { rowOf($(this)).show(); });
+        }
+
+        function toggleScopeFields() {
+            if (!$scope.length) return;
+
+            const category = $category.length ? $category.val() : '';
+            const limitType = $limitType.length ? $limitType.val() : '';
+            const currentScope = $scope.val();
+
+            if (category === 'global_risk') {
+                hideRow('merchant');
+                showRow('wallet');
+                return;
+            }
+
+            if (limitType === 'max_operations_burst') {
+                $scope.find('option[value="wallet"]').remove();
+                if (!$scope.find('option[value="merchant"]').length) {
+                    const merchantOpt = originalScopeOptions.find(function(opt) { return opt.value === 'merchant'; });
+                    if (merchantOpt) {
+                        $scope.append($('<option>', {value: merchantOpt.value, text: merchantOpt.text}));
+                    }
+                }
+
+                if (currentScope !== 'merchant') {
+                    $scope.val('merchant');
+                }
+                hideRow('wallet');
+                showRow('merchant');
+                return;
+            }
+
+            const $merchantOption = $scope.find('option[value="merchant"]');
+            const $walletOption = $scope.find('option[value="wallet"]');
+
+            if (!$merchantOption.length) {
+                const merchantOpt = originalScopeOptions.find(function(opt) { return opt.value === 'merchant'; });
+                if (merchantOpt) {
+                    $scope.append($('<option>', {value: merchantOpt.value, text: merchantOpt.text}));
+                }
+            }
+            if (!$walletOption.length) {
+                const walletOpt = originalScopeOptions.find(function(opt) { return opt.value === 'wallet'; });
+                if (walletOpt) {
+                    $scope.append($('<option>', {value: walletOpt.value, text: walletOpt.text}));
+                }
+            }
+
+            if (currentScope === 'merchant') {
+                hideRow('wallet');
+                showRow('merchant');
+            } else if (currentScope === 'wallet') {
+                hideRow('merchant');
+                showRow('wallet');
+            } else {
+                // No scope selected - hide both fields until scope is chosen
+                hideRow('merchant');
+                hideRow('wallet');
+            }
+        }
+
+        if ($limitType.length) {
+            let previousLimitType = $limitType.val();
+            $limitType.on('change', function() {
+                const newType = $limitType.val();
+                if (newType !== previousLimitType) {
+                    allFields.forEach(clearFieldValue);
+                    previousLimitType = newType;
+                }
+                toggleFields();
+                toggleScopeFields();
+            });
+        }
+
+        if ($scope.length) {
+            $scope.on('change', function() {
+                toggleScopeFields();
+            });
+        }
+
+        toggleFields();
+        toggleScopeFields();
+
+        const cancelText = "{% translate 'Cancel' %}";
+        const originalColor = '#ba2121';
+        const hoverColor = '#a41515';
+
+        const cancelButton = $('<input type="button" value="' + cancelText + '" onclick="window.history.back();" name="_cancel">')
+            .addClass('button')
+            .css('background', originalColor);
+
+        cancelButton.hover(
+            function() { $(this).css('background', hoverColor); },
+            function() { $(this).css('background', originalColor); }
+        );
+
+        $('input[name="_continue"]').after(cancelButton);
+    });
+})(django.jQuery);
+</script>
+{% endblock %}

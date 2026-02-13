@@ -1,0 +1,51 @@
+STP_CODI_ESTADO_PETICION_CODES_TO_DESCRIPTION: dict[int, str] = {
+    0: "EDO SUCCESS",
+    -1: "EDO ERROR NON-EXISTING INFORMATION",
+    -3: "EDO ERROR INPUT PARAMETERS INCORRECT",
+    -7: "EDO ERROR NUMBER OF INVALID FIELDS CHAIN INFO",
+    -8: "EDO CHAIN ERROR INFO CONTAINS EMPTY FIELDS",
+    -9: "EDO ERROR FIELDS INVALID LENGTH",
+    -11: "EDO ERROR MALFORMED TIME STAMP",
+    -13: "EDO INVALID AMOUNT ERROR",
+    -18: "EDO INVALID ACCOUNT TYPE ERROR",
+    -19: "EDO INVALID BANK ERROR",
+    -20: "EDO INVALID ACCOUNT LENGTH ERROR",
+    -21: "EDO INVALID DIGITAL SEAL ERROR",
+    -22: "EDO NON-EXISTING CERTIFICATE ERROR",
+    -23: "EDO ERROR AMOUNT OUT OF RANGE",
+    -24: "EDO CELLULAR CUSTOMER ERROR NO FUNCTIONS",
+    -25: "EDO ERROR BENEFICIARY DATA NOT REGISTERED",
+    -26: "EDO CELLULAR FORMAT ERROR INVALID CUSTOMER",
+    -27: "EDO INVALID CERTIFICATE FORMAT ERROR",
+    -28: "EDO NUMERICAL REFERENCE ERROR",
+    -29: "EDO FOLIO OR CONTRACT FORMAT ERROR",
+    -30: "EDO ERROR TAM CONCEPT",
+    -31: "EDO COMMISSION PAYMENT TYPE ERROR",
+    -32: "CODI PAYMENT TYPE EDO ERROR",
+}
+
+STP_CODI_ESTADO_CODI_ERRORS = {
+    -1: "MC sent, no action by receiving user",
+    0: "Accepted MC by the buyer client",
+    1: "CoDi(R) Transfer accreditation",
+    2: "Rejected MC",
+    3: "Accreditation of a corresponding refund. A non-accredited CoDi(R) Transfer",
+    4: "Postponed MC",
+    6: "Accreditation of a corresponding refund to an accredited CoDi(R) Transfer",
+    21: "CoDi(R) transfer not settled due to problems of the issuing participant",
+    22: "CoDi(R) transfer not settled due to beneficiary participant problems",
+    23: "Transfer CoDi(R) not settled due to Administrator problems",
+    24: "Cancellation of CoDi(R) transfer by the issuing participant",
+    31: "Return of an uncredited CoDi(R) Transfer, not settled due to problems of the participant issuing the original transfer.",
+    32: "Return of an uncredited CoDi(R) Transfer, not settled due to problems of the beneficiary participant of the original transfer.",
+    33: "Return of an accredited or non-accredited CoDi(R) Transfer, not settled due to Administrator problems",
+    34: "Return of an uncredited CoDi(R) Transfer",
+    61: "Return of an accredited CoDi(R) Transfer",
+    62: "Return of an accredited CoDi(R) Transfer not settled due to problems of the participant issuing the original transfer",
+    63: "Return of an accredited CoDi(R) Transfer not settled due to problems of the participant beneficiary of the original transfer",
+}
+
+STP_CODI_ESTADO_SUCCESS = [1]
+STP_CODI_ESTADO_FAIL = [
+    2,
+]

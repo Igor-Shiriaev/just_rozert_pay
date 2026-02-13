@@ -1,0 +1,13 @@
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+    var submit_btns = document.querySelectorAll('input[type="submit"]');
+    var form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+      for (var i = 0; i < submit_btns.length; i++) {
+        submit_btns[i].disabled = true;
+        submit_btns[i].style.cursor = 'wait';
+        submit_btns[i].value = 'Submitting...';
+      }
+    });
+  });
+</script>

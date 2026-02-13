@@ -1,0 +1,56 @@
+[x-cloak] {
+  display: none !important;
+}
+
+.toggle-collapse {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: var(--header-link-color);
+  float: right;
+  width: 50px;
+  height: 30px;
+  text-align: right;
+  margin-top: -8px;
+  margin-right: -8px;
+  padding-bottom: 4px;
+}
+
+.app-list-menu .module {
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.app-list-menu .module.collapsed {
+  margin-bottom: 1px;
+}
+
+.app-list-menu .module > * {
+  padding-left: 40px;
+}
+
+.app-list-menu .module > h2 {
+  background: var(--primary);
+  color: var(--header-link-color);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+
+}
+
+.app-list-menu .module .model-row {
+  padding-top: 8px;
+  padding-right: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.app-list-menu .module .model-row a {
+  color: var(--link-fg);
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 16px;
+}
+

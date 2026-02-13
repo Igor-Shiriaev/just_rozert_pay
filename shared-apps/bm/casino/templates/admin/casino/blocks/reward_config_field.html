@@ -1,0 +1,78 @@
+<a
+  href="{{ widget.attrs.base_url|default:"" }}/admin/casino/reward-config-form/{{ widget.attrs.reward_type }}/{% if widget.attrs.user_currency %}?user_currency={{ widget.attrs.user_currency }}{% endif %}"
+  class="js-reward-config-open-link edit-config-button"
+>Edit config</a>
+<span class="js-reward-config-clear edit-config-button">Clear</span>
+<div class="readonly_json" id="field_{{ widget.name }}"></div>
+<textarea id="{{ widget.attrs.id }}_textarea" name="{{ widget.name }}" required="" style="display: none">{{ widget.value }}</textarea>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-jsonview/1.2.3/jquery.jsonview.min.css">
+
+<style>
+  .readonly_json .jsonview ul {
+    margin-left: 20px;
+  }
+  .readonly_json .jsonview {
+    word-break: break-all;
+  }
+
+  .edit-config-button {
+    display: inline-block;
+
+    padding: 10px 15px;
+
+    background: #79aec8;
+    border-radius: 4px;
+
+    color: #fff !important;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    font-weight: 400;
+    font-size: 13px;
+
+    cursor: pointer;
+  }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-jsonview/1.2.3/jquery.jsonview.min.js"></script>
+<script>
+  const channel = new BroadcastChannel('reward-config-form');
+  channel.addEventListener('message', function(event) {
+    $('[name="{{ widget.name }}"]').val(JSON.stringify(event.data));
+
+    $('#field_{{ widget.name }}').JSONView(
+      $.parseJSON(JSON.stringify(event.data), {collapsed: true})
+    )
+  });
+
+  $(document).on('click', '.js-reward-config-open-link', function(e) {
+      e.preventDefault();
+      showAdminPopup(this);
+  });
+
+  $('.js-reward-config-clear').on('click', function(event) {
+    event.preventDefault();
+
+    $('#{{ widget.attrs.id }}_textarea').val('{}');
+    $('#field_{{ widget.name }}').text('');
+  });
+
+  $(function () {
+      $('#field_{{ widget.name }}').JSONView(
+        $.parseJSON($('#{{ widget.attrs.id }}_textarea').val()), {collapsed: true}
+      )
+  })
+
+  function showAdminPopup(triggeringLink) {
+    const name = 'reward_config_form';
+    const href = new URL(triggeringLink.href);
+    const $configField = $('[name="{{ widget.name }}"]');
+
+    if ($configField.val() !== '{}') {
+      href.searchParams.set('initial_data', $configField.val());
+    }
+    const win = window.open(href, name, 'height=500,width=800,resizable=yes,scrollbars=yes');
+    win.focus();
+    return false;
+  }
+</script>

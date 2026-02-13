@@ -1,0 +1,17 @@
+{% if favorite_models %}
+  <div class="module">
+    <h2>Favorites</h2>
+    {% for favorite_model in favorite_models %}
+      <div class="model-row">
+        <a href="{{ favorite_model.admin_url }}">{{ favorite_model.verbose_name }}</a>
+        <span
+            class="model-{{ model.object_name }} favorite-star selected"
+            hx-post="{% url 'admin:favorites_remove' model_name=favorite_model.object_name %}"
+            hx-trigger="click"
+            hx-target="#favorite-star-{{ favorite_model.object_name }}"
+            hx-swap="outerHTML"
+        >★</span>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

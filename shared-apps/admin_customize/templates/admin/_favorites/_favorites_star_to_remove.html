@@ -1,0 +1,8 @@
+<button
+    {% if not fav_block %}id="favorite-star-{{ model.object_name }}"{% endif %}
+    class="model-{{ model.object_name }} favorite-star selected"
+    hx-post="{% url 'admin:favorites_remove' model_name=model.object_name %}"
+    hx-trigger="click"
+    hx-target="#favorite-star-{{ model.object_name }}"
+    hx-swap="outerHTML"
+>★</button>

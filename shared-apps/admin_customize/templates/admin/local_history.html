@@ -1,0 +1,28 @@
+{% load admin_urls admin_modify_tags %}
+
+{% if history_elements %}
+  <p>Total history elements: {{ total_history_elements }}</p>
+  <p><a href="{% url opts|admin_urlname:'history' object_id=current_object.id %}">View history</a></p>
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>User</th>
+      <th>Message</th>
+    </tr>
+    {% for history_element in history_elements %}
+      <tr>
+        <td>{{ history_element.action_time|formatted_date }}</td>
+        <td>
+          {% if history_element.user.is_staff %}
+            {{ history_element.user.get_full_name }}
+          {% else %}
+            {{ history_element.user.get_masked_name }}
+          {% endif %}
+        </td>
+        <td>{{ history_element.change_message }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>No history yet</p>
+{% endif %}

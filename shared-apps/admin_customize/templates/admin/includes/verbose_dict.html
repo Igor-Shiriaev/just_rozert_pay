@@ -1,0 +1,8 @@
+{% for line in data %}
+  <p class="{% if intend %}intended_block{% endif %}">
+    <span class="line_name"><b>{{ line.name }}</b></span>: <span class="line_value">{{ line.value }}</span>
+  </p>
+{% endfor %}
+{% if intend %}
+  <hr>
+{% endif %}

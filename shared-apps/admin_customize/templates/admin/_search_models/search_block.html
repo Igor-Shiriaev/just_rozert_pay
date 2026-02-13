@@ -1,0 +1,39 @@
+<div id="search-block">
+  <script>
+      function getFilteredModels(data) {
+          let filter = data.filter.toLowerCase()
+          if (!filter) {
+              return []
+          }
+          let found_models = data.available_models.filter(model => {
+              return model.model.toLowerCase().includes(filter) ||
+                  model.app.toLowerCase().includes(filter) ||
+                  model.verbose_name.toLowerCase().includes(filter)
+          })
+          return found_models
+      }
+
+      function getAllModels() {
+          return JSON.parse(document.querySelector('#apps-data').innerText) || []
+      }
+  </script>
+  {{ apps_search_data|json_script:"apps-data" }}
+  <div class="app-search module"
+       x-data="{filter: '', available_models: getAllModels()}"
+  >
+    <h2>Search</h2>
+    <input type="text"
+           id="search-input"
+           placeholder="Press Ctrl+K to search..."
+           x-model="filter"
+           @keydown.window.prevent.ctrl.k="$el.focus()"
+           @keydown.window.prevent.escape="$el.value = ''; filter = ''"
+    >
+    <template x-for="model in getFilteredModels($data)">
+      <div class="model-row search-result">
+        <a :href="model.admin_url" x-text="model.verbose_name"></a>
+      </div>
+    </template>
+  </div>
+</div>
+

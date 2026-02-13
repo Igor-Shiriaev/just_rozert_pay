@@ -1,0 +1,20 @@
+:root {
+  --scrollbar-track-color: #FFFFFF;
+  --scrollbar-thumb-color: #8b8b8b;
+}
+
+:root[data-theme="dark"] {
+  --scrollbar-track-color: #2b2b2b;
+  --scrollbar-thumb-color: #6b6b6b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --scrollbar-track-color: #2b2b2b;
+    --scrollbar-thumb-color: #6b6b6b;
+  }
+}
+
+* {
+  scrollbar-color: var(--scrollbar-thumb-color) var(--scrollbar-track-color);
+}

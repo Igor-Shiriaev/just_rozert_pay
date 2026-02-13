@@ -1,0 +1,12 @@
+{% for link, field_name in links %}
+  <a href="{{ link }}" target="_blank" onclick="open_preview(this, event)">Preview {{ field_name }}</a><br>
+{% endfor %}
+
+<script>
+  function open_preview(button, event){
+    event.preventDefault();
+    let url = button.href;
+    let win = window.open(url, '_blank', "location=no,menubar=no,status=no,toolbar=no")
+    console.log(win);
+  }
+</script>

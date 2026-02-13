@@ -1,0 +1,17 @@
+<div x-data="{selected_tab: 'code'}">
+  <div class="toggle-box">
+    <a @click.prevent="selected_tab='code'"
+       :class="selected_tab == 'code' ? 'active' : ''"
+    >Code</a>
+    <a @click.prevent="selected_tab='preview'"
+       :class="selected_tab == 'preview' ? 'active' : ''"
+    >Preview</a>
+  </div>
+  <div class="html_preview">
+    <div x-show="selected_tab=='preview'" class="preview_data">
+    </div>
+    <div x-show="selected_tab=='code'" class="raw_data">
+      <code>{{ content }}</code>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,5 @@
+{% if model.object_name in user_favorite_models %}
+  {% include 'admin/_favorites/_favorites_star_to_remove.html' with model=model %}
+{% else %}
+  {% include 'admin/_favorites/_favorites_star_to_add.html' with model=model %}
+{% endif %}

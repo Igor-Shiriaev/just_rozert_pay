@@ -1,0 +1,27 @@
+{% extends "admin/simple_custom_intermediate_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block additional_data_above_fields %}
+    <b>Weekly tuesday bonus — Freespin</b>
+    {% if nodata_message %}
+        {{nodata_message}}
+    {% else %}
+        <b>for the period: {{reportingdate|date}}</b>
+        <table>
+            <tr>
+                <td>Issued freespins:</td><td>{{issued_freespins_amount}}</td>
+            </tr>
+            <tr>
+                <td>Casino turnover:</td><td>{{qualifying_casino_turnover}}</td>
+            </tr>
+            <tr>
+                <td>Sport turnover:</td><td>{{qualifying_sport_turnover}}</td>
+            </tr>
+            <tr>
+                <td>Qualifying currency:</td><td>{{qualifying_turnover_currency}}</td>
+            </tr>
+        </table>
+    {% endif %}
+{% endblock %}
+
+{% block submit_row %}{% endblock %}

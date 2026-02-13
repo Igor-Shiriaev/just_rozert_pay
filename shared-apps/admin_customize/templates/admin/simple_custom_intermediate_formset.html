@@ -1,0 +1,117 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+{% block extrahead %}{{block.super}}{{formset.media}}{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a
+          href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a
+          href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    {% if obj %}&rsaquo;
+      <a href="{% url opts|admin_urlname:'change' object_id=obj.pk %}">{{ obj.get_full_name|default:obj }}</a>{% endif %}
+    &rsaquo; Action
+  </div>
+{% endblock %}
+
+{% block content %}
+  <style>
+  fieldset.module{
+    display: contents;
+  }
+  </style>
+  <div id="content-main">
+    <form action="" method="POST" enctype="multipart/form-data">
+      {% csrf_token %} {% if formset.non_form_errors %}
+      <p class="errornote">
+        "Please correct the errors below."
+      </p>
+      {{ formset.non_form_errors }} {% endif %}
+      {{ formset.management_form }}
+      <div class="forms">
+        {% for form in formset %}
+          <fieldset class="module aligned">
+            <h2>#<span class="counter">{{ forloop.counter }}</span></h2>
+            {% for field in form.hidden_fields %}
+              {{ field }}
+            {% endfor %}
+            {% if form.has_fieldsets %}
+              {% include 'admin/forms/inline_form_row.html' with fieldsets=form.fieldsets %}
+            {% else %}
+              {% include 'admin/forms/regular_form_row.html' with form=form %}
+            {% endif %}
+          </fieldset>
+
+        {% endfor %}
+      </div>
+      <div class="submit-row">
+        <input type="submit" class="default" value="Submit">
+      </div>
+    </form>
+  {% if addable|default_if_none:True %}
+    <div class="add-row">
+      <a href="#" id="add-row">Add new form</a>
+    </div>
+    <div id="empty_form" style="display:none">
+      <fieldset class="module aligned">
+        <h2>#<span class="counter"></span></h2>
+        {% if formset.empty_form.has_fieldsets %}
+          {% include 'admin/forms/inline_form_row.html' with fieldsets=formset.empty_form.fieldsets %}
+        {% else %}
+          {% include 'admin/forms/regular_form_row.html' with form=formset.empty_form %}
+        {% endif %}
+        <div class="form-row delete-action-row">
+          <a href="#" class="delete-obj">Delete form</a>
+        </div>
+      </fieldset>
+    </div>
+  {% endif %}
+  </div>
+  <script src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'admin/js/jquery.init.js' %}"></script>
+  {% if addable|default_if_none:True %}
+  <script>
+    $ = django.jQuery
+
+    function cloneMore(selector) {
+      var newElement = $('#empty_form fieldset').clone(true);
+      var total = parseInt($('#id_form-TOTAL_FORMS').val());
+      newElement.find(':input').each(function () {
+        var name = $(this).attr('name').replace('-__prefix__-', '-' + total + '-');
+        var id = 'id_' + name;
+        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+      });
+      newElement.find('label').each(function () {
+        var newFor = $(this).attr('for').replace('-__prefix__-', '-' + total + '-');
+        $(this).attr('for', newFor);
+      });
+      newElement.find('span.counter').each(function () {
+        $(this)[0].innerHTML = (total + 1)
+      })
+      $('.forms').append(newElement);
+      total++;
+      $('#id_form-TOTAL_FORMS').val(total);
+    }
+
+    function deleteForm(object) {
+      var total = parseInt($('#id_form-TOTAL_FORMS').val());
+      var common_fieldset = object.closest('fieldset').remove();
+      total--;
+      $('form fieldset').each(function (num, el) {
+        $(el).find('h2 span.counter')[0].innerText = num + 1;
+      })
+      $('#id_form-TOTAL_FORMS').val(total);
+    }
+
+    $('.delete-obj').click(function (e) {
+      e.preventDefault();
+      deleteForm($(this));
+    })
+
+    $('#add-row').click(function (e) {
+      e.preventDefault();
+      cloneMore();
+    })</script>
+  {% endif %}
+{% endblock %}

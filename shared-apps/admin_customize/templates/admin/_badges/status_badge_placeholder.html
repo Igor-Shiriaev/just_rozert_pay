@@ -1,0 +1,14 @@
+{% load static %}
+
+<div class="status-badge"
+     hx-get="{% url 'admin:status-badge' status_badge_name=status_badge_name %}"
+     hx-trigger="load"
+     hx-swap="outerHTML"
+>
+  <div class="status-badge-header">
+    {{ badge_title }}
+  </div>
+  <div class="status-badge-body loading">
+    <div class="loading-indicator"></div>
+  </div>
+</div>

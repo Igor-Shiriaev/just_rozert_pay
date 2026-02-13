@@ -1,0 +1,18 @@
+<div
+    class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}"
+    x-data="{collapsed: {{ collapse_models|lower }}}"
+    :class="{collapsed: collapsed}"
+>
+  <h2 @click.stop="collapsed = !collapsed">
+    <a @click.stop href="{{ app.app_url }}"
+       class="section"
+    >{{ app.name }}
+    </a>
+    <button class="toggle-collapse"
+            @click.stop="collapsed = !collapsed"
+            x-text="collapsed ? '▼' : '▲'"></button>
+  </h2>
+  {% for model in app.models %}
+    {% include 'admin/app_list_block_item.html' %}
+  {% endfor %}
+</div>

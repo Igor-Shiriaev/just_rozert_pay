@@ -1,0 +1,31 @@
+{% load admin_modify_tags %}
+
+
+<div class="wrapper">
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+          crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-jsonview/1.2.3/jquery.jsonview.min.js"></script>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/jquery-jsonview/1.2.3/jquery.jsonview.min.css">
+  <style>
+    .readonly_json .jsonview ul {
+      margin-left: 20px;
+    }
+    .readonly_json .jsonview{
+      word-break: break-all;
+    }
+    .readonly_json ul li {
+      list-style-type: none !important;
+    }
+  </style>
+  <div class="readonly_json" id="field_{{ name }}"></div>
+  <textarea style="display: none" id="field_{{ name }}_code" cols="30"
+            rows="10">{{ data_to_render|dict_as_json:wrapper_name }}</textarea>
+  <script>
+      $(function () {
+          $('#field_{{ name }}').JSONView(
+              $.parseJSON($('#field_{{ name }}_code').val()), {collapsed: true}
+          );
+      })
+  </script>
+</div>

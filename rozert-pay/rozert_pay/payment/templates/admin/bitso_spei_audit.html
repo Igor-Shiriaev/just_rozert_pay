@@ -1,0 +1,39 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans "Home" %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' 'payment' %}">{% trans "Payment" %}</a>
+  &rsaquo; <a href="{% url 'admin:payment_paymenttransaction_changelist' %}">{% trans "Payment transactions" %}</a>
+  &rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="module">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <fieldset class="module aligned">
+      {% for field in form %}
+      <div class="form-row">
+        {{ field.errors }}
+        <div>
+          {{ field.label_tag }}
+        </div>
+        <div>
+          {{ field }}
+          {% if field.help_text %}
+          <p class="help">{{ field.help_text }}</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </fieldset>
+    <div class="submit-row">
+      <input type="submit" value="{% trans 'Run audit' %}" class="default">
+    </div>
+  </form>
+</div>
+{% endblock %}

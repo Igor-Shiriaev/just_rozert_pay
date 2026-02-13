@@ -1,0 +1,12 @@
+<table>
+    <tr>
+        <th>Currency</th><th>Available balance</th><th>Balance on hold</th>
+    </tr>
+    {% for balance in balances %}
+        <tr>
+            <td>{{balance.currency}}</td>
+            <td>{{balance.balance_available}}</td>
+            <td>{{balance.balance_on_hold}}</td>
+        </tr>
+    {% endfor %}
+</table>

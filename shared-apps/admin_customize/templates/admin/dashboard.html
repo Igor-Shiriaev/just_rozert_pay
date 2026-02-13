@@ -1,0 +1,10 @@
+{% load static %}
+
+<div class="content-related">
+  {% for status_badges_data in status_badges %}
+    {% include 'admin/_badges/status_row.html' with status_badges_data=status_badges_data %}
+  {% endfor %}
+  {% for dashboard_table in dashboard_tables %}
+    {% include 'admin/_dashboard/dashboard_table.html' %}
+  {% endfor %}
+</div>

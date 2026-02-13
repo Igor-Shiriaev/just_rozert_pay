@@ -1,0 +1,42 @@
+{% load i18n %}
+
+<div class="app-list-menu"
+     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+>
+  {% if app_list %}
+
+    {% if apps_search_data %}
+      {% include 'admin/_search_models/search_block.html' %}
+    {% endif %}
+
+    {% if use_favorites %}
+      {% include 'admin/_favorites/favorites.html' %}
+      {% for app in app_list %}
+        {% include 'admin/app_list_block.html' %}
+      {% endfor %}
+    {% else %}
+      {% for app in app_list %}
+        <div
+            class="app-{{ app.app_label }} module{% if app.app_url in request.path|urlencode %} current-app{% endif %}">
+          <h2>
+            <a href="{{ app.app_url }}" class="section"
+               title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">{{ app.name }}</a>
+          </h2>
+          {% for model in app.models %}
+            <div class="model-row">
+              <a href="{{ model.admin_url }}"
+                 {% if model.admin_url in request.path|urlencode %}aria-current="page"{% endif %}>{{ model.name }}</a>
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% else %}
+    <div class="module">
+      <h2>Error</h2>
+      <div class="model-row">
+        <p>{% translate 'You don’t have permission to view or edit anything.' %}</p>
+      </div>
+    </div>
+  {% endif %}
+</div>

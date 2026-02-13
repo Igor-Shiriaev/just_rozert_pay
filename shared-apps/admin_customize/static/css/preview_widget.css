@@ -1,0 +1,40 @@
+.toggle-box {
+    display: flex;
+    flex-flow: row;
+    align-items: flex-start;
+}
+
+.toggle-box > a {
+    border-radius: 0;
+    cursor: pointer;
+    font-family: "Roboto", "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
+    line-height: 20px;
+    margin-bottom: 5px;
+    text-decoration: none;
+    display: inline-block;
+    padding: 3px 12px;
+    background: #999;
+    font-weight: 400;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background-image: initial;
+    color: #FFFFFF !important;
+}
+
+.toggle-box > a:first-child {
+    border-radius: 15px 0 0 15px;
+}
+
+.toggle-box > a:last-child {
+    border-radius: 0 15px 15px 0;
+}
+
+.toggle-box > a.active {
+    background: var(--object-tools-bg);
+    color: var(--object-tools-fg) !important;
+}
+
+.toggle-box > a:hover {
+    background: var(--object-tools-hover-bg);
+}

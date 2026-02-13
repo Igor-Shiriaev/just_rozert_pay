@@ -1,0 +1,165 @@
+{% load admin_modify %}
+
+<div class="admin-comments">
+  {% if comments %}
+    <style>
+      .user_comments table {
+        width: 100%;
+      }
+
+      .user_comments .module.comments:not(.collapsed) h2 {
+        margin: 0;
+        padding: 8px;
+        font-weight: 400;
+        font-size: 13px;
+        text-align: left;
+        display: block;
+        background: #f8f8f8;
+        color: #666;
+        border: 1px solid #eee;
+      }
+
+      .user_comments .comment-date {
+        width: 140px;
+        text-align: center;
+      }
+
+      .user_comments .comment-author {
+        width: auto;
+      }
+
+      .user_comments .comment-pinned {
+        width: 17px;
+        text-align: center;
+      }
+
+      .user_comments .comment-delete {
+        width: 40px;
+        text-align: center;
+      }
+
+      .user_comments .module.comments h2 a.collapse-toggle {
+        color: #447e9b !important;
+      }
+
+      .user_comments .user_comments tr.odd {
+        background: #f9f9f9;
+      }
+
+      .user_comments .user_comments table {
+        width: 100%;
+      }
+
+      .user_comments .user_comments p {
+        overflow-wrap: anywhere;
+      }
+
+      .user_comments .favorite-star {
+        background-color: transparent;
+        padding: 10px;
+        margin: -8px;
+        line-height: 12px;
+      }
+
+      .user_comments .favorite-star.pinned {
+        color: #f1c40f;
+      }
+
+    </style>
+    <div class="user_comments" x-data="{collapsed_comments: true}">
+      <fieldset class="module aligned">
+        <table>
+          {% for comment in comments %}
+            <tr class="odd">
+              <td class="comment-date"><b>{{ comment.created_at|date:"d.m.Y G:i:s" }}</b></td>
+              <td class="comment-author">{{ comment.created_by }}</td>
+              <td class="comment-pinned">
+                {% if show_pin %}
+                  <a
+                    class="favorite-star {% if comment.pinned %}pinned{% endif %}"
+                    href="{% url pin_comment_url_name comment_id=comment.id %}"
+                    hx-get="{% url pin_comment_url_name comment_id=comment.id %}"
+                    hx-target="closest .admin-comments"
+                    hx-swap="outerHTML"
+                  >
+                    ★
+                  </a>
+                {% else %}
+                  <span class="favorite-star {% if comment.pinned %}pinned{% endif %}">
+                  ★
+                </span>
+                {% endif %}
+              <td class="comment-delete">
+                {% if show_delete %}
+                  <a
+                    href="{% url delete_comment_url_name comment_id=comment.id %}"
+                    hx-get="{% url delete_comment_url_name comment_id=comment.id %}"
+                    hx-target="closest .admin-comments"
+                    hx-swap="outerHTML"
+                  >
+                    Delete
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4">{{ comment.get_interactive_comment|linebreaks }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </fieldset>
+      {% if hidden_comments %}
+        <fieldset class="module aligned comments" :class="collapsed_comments ? 'collapsed' : ''">
+          <h2>Previous comments:
+          (<a
+            style="display: inline;"
+            @click.prevent="collapsed_comments=!collapsed_comments"
+            x-text="collapsed_comments ? 'Show' : 'Hide'"
+            href="#">Show</a>)
+          </h2>
+          <table>
+            {% for comment in hidden_comments %}
+              <tr class="odd">
+                <td class="comment-date"><b>{{ comment.created_at|date:"d.m.Y G:i:s" }}</b></td>
+                <td class="comment-author">{{ comment.created_by }}</td>
+                <td class="comment-pinned">
+                  {% if show_pin %}
+                    <a
+                      class="favorite-star {% if comment.pinned %}pinned{% endif %}"
+                      href="{% url pin_comment_url_name comment_id=comment.id %}"
+                      hx-get="{% url pin_comment_url_name comment_id=comment.id %}"
+                      hx-target="closest .admin-comments"
+                      hx-swap="outerHTML"
+                    >
+                      ★
+                    </a>
+                  {% else %}
+                    <span class="favorite-star {% if comment.pinned %}pinned{% endif %}">
+                  ★
+                </span>
+                  {% endif %}
+                <td class="comment-delete">
+                  {% if show_delete %}
+                    <a
+                      href="{% url delete_comment_url_name comment_id=comment.id %}"
+                      hx-get="{% url delete_comment_url_name comment_id=comment.id %}"
+                      hx-target="closest .admin-comments"
+                      hx-swap="outerHTML"
+                    >
+                      Delete
+                    </a>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td colspan="4">{{ comment.get_interactive_comment|linebreaks }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </fieldset>
+      {% endif %}
+    </div>
+  {% else %}
+    <p>No comments yet.</p>
+  {% endif %}
+</div>

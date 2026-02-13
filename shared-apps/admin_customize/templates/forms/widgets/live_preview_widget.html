@@ -1,0 +1,45 @@
+<div class="md_editor"
+     x-data="{value: '{{ widget.value|default_if_none:""|escapejs }}', selected_tab: '{{ widget.default_preview_mode }}'}"
+     style="display: flex; flex-direction: row">
+  <script>
+      function htmlDecode(input) {
+          var doc = new DOMParser().parseFromString(input, "text/html");
+          return doc.documentElement.textContent;
+      }
+
+      function render_preview(container) {
+          const previewContainer = container.querySelector('.preview_data');
+          const shadowRoot = previewContainer.shadowRoot || previewContainer.attachShadow({mode: 'open'});
+          const sourceContainer = container.querySelector('.raw_data');
+          const styles = document.createElement('style');
+          styles.innerHTML = "* {line-height: initial;}";
+          const rawHTML = htmlDecode(sourceContainer.innerHTML);
+          shadowRoot.innerHTML = styles.outerHTML + rawHTML;
+      }
+
+  </script>
+  <textarea name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} x-model="value"
+            @input.debounce="render_preview($event.target.parentNode.querySelector('.html_preview'))"
+            style="flex: 1">
+  {% if widget.value %}{% endif %}
+  </textarea>
+  <div style="flex: 1; margin-left: 10px">
+    <div class="toggle-box">
+      <a @click.prevent="selected_tab='code'"
+         :class="selected_tab == 'code' ? 'active' : ''">
+        Raw
+      </a>
+      <a @click.prevent="selected_tab='preview'"
+         :class="selected_tab == 'preview' ? 'active' : ''">
+        Preview
+      </a>
+    </div>
+    <div class="html_preview">
+      <div x-show="selected_tab=='preview'" class="preview_data">
+      </div>
+      <div x-show="selected_tab=='code'" class="raw_data">
+        <code x-text="value"></code>
+      </div>
+    </div>
+  </div>
+</div>

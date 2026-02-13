@@ -1,0 +1,11 @@
+[MASTER]
+load-plugins=code_checks.correct_imports,code_checks.english_only
+ignore=migrations
+
+[MESSAGES CONTROL]
+disable=all
+enable=
+    forbidden-import,
+    non-english-text,
+    non-english-validation-error,
+    non-english-fieldset,

@@ -1,0 +1,14 @@
+<table class="simple_table">
+  <tr>
+    {% for title in header %}
+      <th>{{ title|upper }}</th>
+    {% endfor %}
+  </tr>
+  {% for row in rows %}
+    <tr>
+      {% for value in row %}
+        <td>{{ value }}</td>
+      {% endfor %}
+    </tr>
+  {% endfor %}
+</table>
