@@ -1,0 +1,270 @@
+import hashlib
+import typing as ty
+from decimal import Decimal
+from typing import Optional
+from urllib.parse import urlencode
+
+import xmltodict
+from bm.datatypes import Money
+from pydantic import BaseModel, SecretStr
+from rozert_pay.common import const
+from rozert_pay.payment import entities
+from rozert_pay.payment.models import PaymentTransaction
+from rozert_pay.payment.services import base_classes
+
+
+class WorldpayCreds(BaseModel):
+    base_url: str = "https://secure-test.worldpay.com"
+    username: SecretStr
+    password: SecretStr
+    merchant_code: SecretStr
+    installation_id: SecretStr
+
+
+class WorldpayClient(base_classes.BasePaymentClient[WorldpayCreds]):
+    payment_system_name = const.PaymentSystemType.WORLDPAY
+    credentials_cls = WorldpayCreds
+
+    _deposit_status_by_foreign_status = {
+        "AUTHORISED": entities.TransactionStatus.SUCCESS,
+        "SENT_FOR_AUTHORISATION": entities.TransactionStatus.PENDING,
+        "REFUSED": entities.TransactionStatus.FAILED,
+        "ERROR": entities.TransactionStatus.FAILED,
+    }
+    _withdrawal_status_by_foreign_status = {
+        "AUTHORISED": entities.TransactionStatus.SUCCESS,
+        "SENT_FOR_REFUND": entities.TransactionStatus.PENDING,
+        "REFUSED": entities.TransactionStatus.FAILED,
+    }
+
+    def deposit(self) -> entities.PaymentClientDepositResponse:
+        assert self.trx.user_data
+        assert self.trx.customer_card
+        card_data: entities.CardData = self.trx.customer_card.card_data_entity
+        assert card_data.card_cvv
+
+        assert self.trx.customer
+
+        xml_payload: str = self._build_xml_payload(
+            self._build_deposit_payload(card_data, self.trx.user_data)
+        )
+
+        resp = self.session.post(
+            url=f"{self.creds.base_url}/jsp/merchant/xml/paymentService.jsp",
+            headers={"Content-Type": "text/xml"},
+            data=xml_payload.encode("utf-8"),
+            timeout=30,
+        )
+        resp.raise_for_status()
+        parsed_data: dict[str, ty.Any] = xmltodict.parse(resp.text)
+
+        foreign_status = parsed_data["paymentService"]["reply"]["orderStatus"]["payment"][
+            "lastEvent"
+        ]
+        status = self._deposit_status_by_foreign_status[foreign_status]
+        decline_code = None
+        decline_reason = None
+        if status == entities.TransactionStatus.FAILED:
+            decline_code = parsed_data["paymentService"]["reply"]["orderStatus"][
+                "payment"
+            ]["ISO8583ReturnCode"]["@code"]
+            decline_reason = parsed_data["paymentService"]["reply"]["orderStatus"][
+                "payment"
+            ]["ISO8583ReturnCode"]["@description"]
+
+        return entities.PaymentClientDepositResponse(
+            status=status,
+            raw_response=parsed_data,
+            # `id_in_payment_system` is equal to `trx.uuid.hex`
+            id_in_payment_system=parsed_data["paymentService"]["reply"]["orderStatus"][
+                "@orderCode"
+            ],
+            decline_code=decline_code,
+            decline_reason=decline_reason,
+        )
+
+    def withdraw(self) -> entities.PaymentClientWithdrawResponse:
+        assert self.trx.user_data
+        assert self.trx.customer_card
+        card_data: entities.CardData = self.trx.customer_card.card_data_entity
+        assert card_data.card_cvv
+
+        assert self.trx.customer
+
+        xml_payload: str = self._build_xml_payload(
+            self._build_withdraw_payload(card_data, self.trx.user_data)
+        )
+
+        resp = self.session.post(
+            url=f"{self.creds.base_url}/jsp/merchant/xml/paymentService.jsp",
+            headers={"Content-Type": "text/xml"},
+            data=xml_payload.encode("utf-8"),
+            timeout=30,
+        )
+        resp.raise_for_status()
+        parsed_data: dict[str, ty.Any] = xmltodict.parse(resp.text)
+
+        return entities.PaymentClientWithdrawResponse(
+            status=entities.TransactionStatus.PENDING,
+            # `id_in_payment_system` is equal to `trx.uuid.hex`
+            id_in_payment_system=parsed_data["paymentService"]["reply"]["ok"][
+                "refundReceived"
+            ]["@orderCode"],
+            raw_response=parsed_data,
+            decline_code=None,
+            decline_reason=None,
+        )
+
+    def _get_transaction_status(self) -> entities.RemoteTransactionStatus:
+        xml_payload: str = self._build_xml_payload(self._build_get_status_payload())
+
+        resp = self.session.post(
+            url=f"{self.creds.base_url}/jsp/merchant/xml/paymentService.jsp",
+            headers={"Content-Type": "text/xml"},
+            data=xml_payload.encode("utf-8"),
+            timeout=30,
+        )
+        resp.raise_for_status()
+        parsed_data: dict[str, ty.Any] = xmltodict.parse(resp.text)
+
+        foreign_status = parsed_data["paymentService"]["reply"]["orderStatus"]["payment"]["lastEvent"]
+        if self.trx.type == const.TransactionType.DEPOSIT:
+            status = self._deposit_status_by_foreign_status[foreign_status]
+        else:
+            status = self._withdrawal_status_by_foreign_status[foreign_status]
+
+        decline_code = None
+        decline_reason = None
+        remote_amount = None
+        if status == entities.TransactionStatus.FAILED:
+            decline_code = parsed_data["paymentService"]["reply"]["orderStatus"][
+                "payment"
+            ]["ISO8583ReturnCode"]["@code"]
+            decline_reason = parsed_data["paymentService"]["reply"]["orderStatus"][
+                "payment"
+            ]["ISO8583ReturnCode"]["@description"]
+        else:
+            amount_entity = parsed_data["paymentService"]["reply"]["orderStatus"]["payment"]["balance"]["amount"]
+            remote_amount = Money(
+                value=Decimal(amount_entity["@value"]),
+                currency=amount_entity["@currencyCode"],
+            )
+
+        return entities.RemoteTransactionStatus(
+            operation_status=status,
+            raw_data=parsed_data,
+            id_in_payment_system=parsed_data["paymentService"]["reply"]["orderStatus"]["@orderCode"],
+            decline_code=decline_code,
+            decline_reason=decline_reason,
+            remote_amount=remote_amount,
+        )
+
+    def _build_xml_payload(self, payload: dict[str, ty.Any]) -> str:
+        xml_str = xmltodict.unparse(
+            payload, pretty=True, full_document=True, encoding="UTF-8"
+        )
+        doctype = (
+            "<!DOCTYPE paymentService PUBLIC "
+            '"-//Worldpay//DTD Worldpay PaymentService v1//EN" '
+            '"http://dtd.worldpay.com/paymentService_v1.dtd">'
+        )
+        parts = xml_str.split("\n", 1)
+        return f"{parts[0]}\n{doctype}\n{parts[1]}"
+
+    def _build_deposit_payload(
+        self, card_data: entities.CardData, user_data: entities.UserData
+    ) -> str:
+        return {
+            "paymentService": {
+                "@version": "1.4",
+                "@merchantCode": self.creds.merchant_code.get_secret_value(),
+                "submit": {
+                    "order": {
+                        "@orderCode": self.trx.uuid.hex,
+                        "@installationId": self.creds.installation_id.get_secret_value(),
+                        "description": f"Order {self.trx.uuid.hex}",
+                        "amount": {
+                            "@value": str(self.trx.amount),
+                            "@currencyCode": self.trx.currency,
+                            "@exponent": "2",
+                        },
+                        "paymentDetails": {
+                            "CARD-SSL": {
+                                "cardNumber": card_data.card_num.get_secret_value(),
+                                "expiryDate": {
+                                    "date": {
+                                        "@month": card_data.expiry_month,
+                                        "@year": card_data.expiry_year,
+                                    }
+                                },
+                                "cardHolderName": card_data.card_holder,
+                                "cvc": card_data.card_cvv.get_secret_value(),
+                                "cardAddress": {
+                                    "address": {
+                                        "address1": user_data.address,
+                                        "postalCode": user_data.post_code,
+                                        "city": user_data.city,
+                                        "countryCode": user_data.country,
+                                    }
+                                },
+                            },
+                            "session": {
+                                "@shopperIPAddress": "123.123.123.123",
+                                "@id": "0215ui8ib1",
+                            },
+                        },
+                    },
+                },
+            },
+        }
+
+    def _build_withdraw_payload(self, card_data: entities.CardData) -> str:
+        return {
+            "paymentService": {
+                "@version": "1.4",
+                "@merchantCode": self.creds.merchant_code.get_secret_value(),
+                "submit": {
+                    "order": {
+                        "@orderCode": self.trx.uuid.hex,
+                        "@installationId": self.creds.installation_id.get_secret_value(),
+                        "description": f"Order {self.trx.uuid.hex}",
+                        "amount": {
+                            "@value": str(self.trx.amount),
+                            "@currencyCode": self.trx.currency,
+                            "@exponent": "2",
+                        },
+                        "paymentDetails": {
+                            # Yes, `REFUND` is correct here.
+                            "@action": "REFUND",
+                            "CARD-SSL": {
+                                "cardNumber": card_data.card_num.get_secret_value(),
+                                "expiryDate": {
+                                    "date": {
+                                        "@month": card_data.expiry_month,
+                                        "@year": card_data.expiry_year,
+                                    }
+                                },
+                                "cardHolderName": card_data.card_holder,
+                            },
+                        },
+                    },
+                },
+            },
+        }
+
+    def _build_get_status_payload(self) -> str:
+        return {
+            "paymentService": {
+                "@version": "1.4",
+                "@merchantCode": self.creds.merchant_code.get_secret_value(),
+                "inquiry": {
+                    "orderInquiry": {"@orderCode": self.trx.uuid.hex},
+                },
+            },
+        }
+
+
+class WorldpaySandboxClient(
+    base_classes.BaseSandboxClientMixin[WorldpayCreds], WorldpayClient
+):
+    pass

@@ -1,0 +1,82 @@
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: rozert-pay-api.dev.betmaster.co
+      paths:
+        - path: /api
+          name: rozert-pay-backend
+          port: 5200
+        - path: /admin
+          name: rozert-pay-backend
+          port: 5200
+        - path: /backoffice
+          name: rozert-pay-backend
+          port: 5200
+        - path: /static
+          name: rozert-pay-backend
+          port: 5200
+    - host: ps-stage.rozert.cloud
+      paths:
+        - path: /api
+          name: rozert-pay-backend
+          port: 5200
+        - path: /admin
+          name: rozert-pay-backend
+          port: 5200
+        - path: /backoffice
+          name: rozert-pay-backend
+          port: 5200
+        - path: /static
+          name: rozert-pay-backend
+          port: 5200
+        - path: /redoc
+          name: rozert-pay-backend
+          port: 5200
+        - path: /schema
+          name: rozert-pay-backend
+          port: 5200
+  tls:
+    - hosts:
+        - rozert-pay-api.dev.betmaster.co
+      secretName: rozert-pay-api.dev.betmaster.co-tls
+
+env:
+  - name: DJANGO_SETTINGS_MODULE
+    value: rozert_pay.settings_k8s
+  - name: EXTERNAL_ROZERT_HOST
+    value: https://ps-stage.rozert.cloud
+
+  - name: POSTGRES_HOST
+    value: pg-backend-pooler.rozert-pay-db.svc
+  - name: REDIS_HOST
+    value: redis-backend.rozert-pay-db.svc
+  - name: CLICKHOUSE_HOST
+    value: clickhouse-rozertpay.rozert-pay-db.svc
+
+  - name: S3_BUCKET_NAME
+    value: rozert-pay-dev
+  - name: S3_ENDPOINT_URL
+    value: https://fsn1.your-objectstorage.com
+  - name: S3_REGION
+    value: fsn1
+
+  - name: IS_PRODUCTION
+    value: "false"
+  - name: USE_JSON_LOGGING
+    value: "true"
+  - name: S3_BUCKET_NAME
+    value: rozert-pay-dev
+  - name: S3_ENDPOINT_URL
+    value: https://fsn1.your-objectstorage.com
+  - name: S3_REGION
+    value: fsn1
+  - name: LOG_LEVEL
+    value: INFO
+  - name: SENTRY_DSN
+    value: https://cb957075fba816b886ab0d753dc186ea@o4506200956993536.ingest.us.sentry.io/4508924728049664
+  - name: SLACK_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: rozert-pay-backend
+        key: SLACK_TOKEN

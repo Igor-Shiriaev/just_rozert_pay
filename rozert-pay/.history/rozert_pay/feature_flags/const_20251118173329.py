@@ -1,0 +1,3 @@
+
+
+class FeatureFlagName(str, Enum):

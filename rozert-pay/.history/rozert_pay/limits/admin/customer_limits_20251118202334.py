@@ -1,0 +1,134 @@
+from typing import Any, Optional
+
+from auditlog.mixins import LogEntryAdminMixin
+from django.contrib import admin
+from django.db.models import Model
+from django.forms import ModelForm
+from django.http import HttpRequest
+from django.utils.translation import gettext_lazy as _
+from rozert_pay.limits.admin.base import BaseLimitAdmin
+from rozert_pay.limits.admin.forms import CustomerLimitForm
+from rozert_pay.limits.admin.mixins import RiskControlActionsMixin
+from rozert_pay.limits.models.customer_limits import (
+    BusinessCustomerLimit,
+    RiskCustomerLimit,
+)
+from rozert_pay.payment.models import Customer
+
+
+class CustomerLimitAdmin(LogEntryAdminMixin, BaseLimitAdmin):
+    form = CustomerLimitForm
+    change_form_template = "limits/change_form.html"
+    list_display = (  # type: ignore[assignment]
+        "status_colored",
+        "customer",
+        "description",
+        "period_display",
+        "max_successful_operations",
+        "max_failed_operations",
+        "min_operation_amount",
+        "max_operation_amount",
+        "total_successful_amount",
+        "decline_on_exceed",
+        "is_critical",
+        "links",
+    )
+    list_filter = ("active", "period", "decline_on_exceed", "is_critical", "customer")  # type: ignore[assignment]
+    search_fields = ("description", "customer__email")  # type: ignore[assignment]
+    raw_id_fields = ("customer",)
+    list_select_related = ("customer",)
+    filter_horizontal = ("notification_groups",)
+
+    def get_fieldsets(
+        self, request: HttpRequest, obj: Optional[Model] = None
+    ) -> list[Any]:
+        fieldsets: list[Any] = super().get_fieldsets(request, obj)
+        fieldsets.append(
+            (
+                str(_("Limit Settings")),
+                {
+                    "fields": [
+                        "period",
+                        "customer",
+                        "max_successful_operations",
+                        "max_failed_operations",
+                        "min_operation_amount",
+                        "max_operation_amount",
+                        "total_successful_amount",
+                    ],
+                },
+            ),
+        )
+        return fieldsets
+
+    def get_form(
+        self,
+        request: HttpRequest,
+        obj: Any | None = None,
+        change: bool = False,
+        **kwargs: Any,
+    ) -> type[ModelForm]:
+        form: type[ModelForm] = super().get_form(request, obj, change, **kwargs)
+        if "customer" in form.base_fields:
+            form.base_fields["customer"].queryset = Customer.objects.all()  # type: ignore[attr-defined]
+        return form
+
+
+@admin.register(RiskCustomerLimit)
+class RiskCustomerLimitAdmin(
+    CustomerLimitAdmin,
+    RiskControlActionsMixin,
+):
+    changelist_actions = (
+        *RiskControlActionsMixin.changelist_actions,
+        *CustomerLimitAdmin.changelist_actions,
+    )
+
+    def get_changeform_initial_data(self, request: HttpRequest) -> dict[str, Any]:
+        from rozert_pay.limits.models.common import LimitCategory
+
+        initial = super().get_changeform_initial_data(request)
+        initial["category"] = LimitCategory.RISK
+        return initial
+
+    def save_model(
+        self,
+        request: HttpRequest,
+        obj: RiskCustomerLimit,
+        form: ModelForm,
+        change: bool,
+    ) -> None:
+        from rozert_pay.limits.models.common import LimitCategory
+
+        obj.category = LimitCategory.RISK
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(BusinessCustomerLimit)
+class BusinessCustomerLimitAdmin(CustomerLimitAdmin):
+    changelist_actions = (*CustomerLimitAdmin.changelist_actions,)
+
+    def get_readonly_fields(
+        self, request: HttpRequest, obj: Optional[Model] = None
+    ) -> tuple[str, ...]:
+        readonly = super().get_readonly_fields(request, obj)
+        return (*readonly, "category")
+
+    def get_changeform_initial_data(self, request: HttpRequest) -> dict[str, Any]:
+        from rozert_pay.limits.models.common import LimitCategory
+
+        initial = super().get_changeform_initial_data(request)
+        initial["category"] = LimitCategory.BUSINESS
+        return initial
+
+    def save_model(
+        self,
+        request: HttpRequest,
+        obj: BusinessCustomerLimit,
+        form: ModelForm,
+        change: bool,
+    ) -> None:
+        from rozert_pay.limits.models.common import LimitCategory
+
+        obj.category = LimitCategory.BUSINESS
+        super().save_model(request, obj, form, change)

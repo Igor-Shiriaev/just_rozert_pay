@@ -1,0 +1,96 @@
+{% extends "admin/change_form.html" %}
+{% load i18n static %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function() {
+        function rowOf($el) {
+            return $el.closest('.form-row, .fieldBox, .grp-row');
+        }
+        function showRow(id) { rowOf($('#id_' + id)).show(); }
+        function hideRow(id) { rowOf($('#id_' + id)).hide(); }
+
+        var $limitType = $('#id_limit_type');
+
+        const allFields = [
+            'max_operations', 'max_overall_decline_percent', 'max_withdrawal_decline_percent',
+            'max_deposit_decline_percent', 'min_amount', 'max_amount', 'total_amount',
+            'max_ratio', 'burst_minutes', 'period'
+        ];
+
+        function clearFieldValue(field) {
+            const $field = $('#id_' + field);
+            if (!$field.length) { return; }
+            const inputType = ($field.attr('type') || '').toLowerCase();
+            if (inputType === 'checkbox' || inputType === 'radio') {
+                $field.prop('checked', false);
+            } else {
+                $field.val('');
+            }
+            $field.trigger('change');
+        }
+
+        function toggleFields() {
+            if (!$limitType.length) {
+                $('.errorlist, .errors').each(function() { rowOf($(this)).show(); });
+                return;
+            }
+
+            const limitType = $limitType.val();
+            const fieldVisibility = {
+                'max_successful_deposits': ['max_operations', 'period'],
+                'max_overall_decline_percent': ['max_overall_decline_percent', 'period'],
+                'max_withdrawal_decline_percent': ['max_withdrawal_decline_percent', 'period'],
+                'max_deposit_decline_percent': ['max_deposit_decline_percent', 'period'],
+                'min_amount_single_operation': ['min_amount'],
+                'max_amount_single_operation': ['max_amount'],
+                'total_amount_deposits_period': ['total_amount', 'period'],
+                'total_amount_withdrawals_period': ['total_amount', 'period'],
+                'max_withdrawal_to_deposit_ratio': ['max_ratio', 'period'],
+                'max_operations_burst': ['max_operations', 'burst_minutes']
+            };
+
+            allFields.forEach(function(field) { hideRow(field); });
+
+            (fieldVisibility[limitType] || []).forEach(function(field) { showRow(field); });
+
+            if (limitType === 'min_amount_single_operation' || limitType === 'max_amount_single_operation') {
+                hideRow('period');
+            }
+
+            $('.errorlist, .errors').each(function() { rowOf($(this)).show(); });
+        }
+
+        if ($limitType.length) {
+            let previousLimitType = $limitType.val();
+            $limitType.on('change', function() {
+                const newType = $limitType.val();
+                if (newType !== previousLimitType) {
+                    allFields.forEach(clearFieldValue);
+                    previousLimitType = newType;
+                }
+                toggleFields();
+            });
+        }
+        toggleFields();
+
+        const cancelText = "{% translate 'Cancel' %}";
+        const originalColor = '#ba2121';
+        const hoverColor = '#a41515';
+
+        const cancelButton = $('<input type="button" value="' + cancelText + '" onclick="window.history.back();" name="_cancel">')
+            .addClass('button')
+            .css('background', originalColor);
+
+        cancelButton.hover(
+            function() { $(this).css('background', hoverColor); },
+            function() { $(this).css('background', originalColor); }
+        );
+
+        $('input[name="_continue"]').after(cancelButton);
+    });
+})(django.jQuery);
+</script>
+{% endblock %}

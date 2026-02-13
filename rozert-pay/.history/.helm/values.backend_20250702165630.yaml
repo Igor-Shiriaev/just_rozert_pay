@@ -1,0 +1,159 @@
+fullnameOverride: rozert-pay-backend
+priorityClassName: production-medium
+
+image:
+  repository: reg.betmaster.co/rozert-pay-backend
+  tag: develop
+
+podLabels:
+  project: rozert-pay
+
+env:
+  - name: DJANGO_SETTINGS_MODULE
+    value: rozert_pay.settings_k8s
+  - name: POSTGRES_HOST
+    value: pg-backend-1.rozert-pay-db.svc
+  - name: RABBITMQ_HOST
+    value: mq-backend
+  - name: REDIS_HOST
+    value: rozert-pay-redis-loadbalancer.rozert-pay-db.svc
+  - name: USE_JSON_LOGGING
+    value: "true"
+  - name: LOG_LEVEL
+    value: INFO
+
+services:
+  rozert-pay-backend:
+    enabled: true
+    replicaCount: 2
+    metricsPort: 5200
+    command:
+      [
+        "gunicorn",
+        "--bind",
+        "0.0.0.0:5200",
+        "rozert_pay.wsgi:application",
+        "--workers",
+        "3",
+      ]
+    router:
+      enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "5200"
+      prometheus.io/scrape-speed: often
+
+workers:
+  celery: &base_celery
+    enabled: true
+    command: ["/bin/sh", "-c", "exec $WORKER_COMMAND"]
+    metricsPort: 5200
+    env:
+      - name: WORKER_COMMAND
+        value: "celery -A rozert_pay.celery_app worker -l info --pool=threads -c 20"
+      - name: CELERY_METRICS
+        value: "1"
+    nodeAffinityPreset:
+      expressions:
+        - key: project.io/acl
+          values: ["all"]
+    resources:
+      limits:
+        cpu: 1
+        memory: 2Gi
+      requests:
+        cpu: 100m
+        memory: 512Mi
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "5200"
+      prometheus.io/scrape-speed: often
+    hostAliases:
+      - ip: 10.200.2.240 # kube -n vpn get svc ipsec-spei
+        hostnames:
+          - prod.stpmex.com
+
+  celery-normal-only:
+    <<: *base_celery
+    enabled: false
+    env:
+      - name: WORKER_COMMAND
+        value: "celery -A rozert_pay.celery_app worker -l info -Q high,normal --pool=threads -c 20"
+    podAnnotations: {}
+
+  celery-high-only:
+    <<: *base_celery
+    enabled: false
+    env:
+      - name: WORKER_COMMAND
+        value: "celery -A rozert_pay.celery_app worker -l info -Q high --pool=threads -c 20"
+    podAnnotations: {}
+
+  celery-beat:
+    <<: *base_celery
+    enabled: true
+    env:
+      - name: WORKER_COMMAND
+        value: "celery -A rozert_pay.celery_app beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    podAnnotations: {}
+
+jobs:
+  migrate:
+    enabled: true
+    command: ["python3", "manage.py", "migrate"]
+    resources:
+      limits:
+        cpu: 1
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+  rabbitmq:
+    enabled: false
+    command: ["python3", "manage.py", "configure_rabbitmq"]
+    resources:
+      limits:
+        cpu: 1
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+startupProbe:
+  startupProbe:
+    httpGet:
+      path: /health
+      port: http
+      scheme: HTTP
+  initialDelaySeconds: 30
+  periodSeconds: 15
+  timeoutSeconds: 10
+  failureThreshold: 10
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+    scheme: HTTP
+  initialDelaySeconds: 30
+  periodSeconds: 60
+
+nodeAffinityPreset:
+  type: hard
+  expressions:
+    - key: project.io/acl
+      values: ["all"]
+    - key: project.io/node-pool
+      values: ["web", "worker"]
+podAntiAffinityPreset: soft
+
+podAnnotations:
+  cluster-autoscaler.kubernetes.io/safe-to-evict: "true"

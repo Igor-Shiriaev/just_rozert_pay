@@ -1,0 +1,105 @@
+imagePullSecrets:
+  - name: bmio
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: ps.rozert.cloud
+      paths:
+        - path: /api
+          name: rozert-pay-backend
+          port: 5200
+        - path: /admin
+          name: rozert-pay-backend
+          port: 5200
+        - path: /backoffice
+          name: rozert-pay-backend
+          port: 5200
+        - path: /static
+          name: rozert-pay-backend
+          port: 5200
+  tls:
+    - hosts:
+        - ps.rozert.cloud
+      secretName: rozert.cloud-cf-tls
+
+env:
+  - name: DJANGO_SETTINGS_MODULE
+    value: rozert_pay.settings_k8s
+  - name: POSTGRES_DATABASE
+    value: rozertpay
+  - name: POSTGRES_USER
+    value: rozertpay
+  - name: POSTGRES_HOST
+    value: pg-backend-1.rozert-pay-db.svc
+  - name: RABBITMQ_HOST
+    value: mq-backend
+  - name: EXTERNAL_ROZERT_HOST
+    value: https://ps.rozert.cloud
+  - name: REDIS_HOST
+    value: redis-backend-loadbalancer.rozert-pay-db.svc
+
+  - name: IS_PRODUCTION
+    value: "true"
+  - name: USE_JSON_LOGGING
+    value: "true"
+  - name: LOG_LEVEL
+    value: INFO
+  - name: S3_BUCKET_NAME
+    value: rozert-pay-prod
+igorshiryaev/sc-274549/backend-ilixuim-withdrawals-verify-user-first  - name: S3_ENDPOINT_URL
+    value: https://s3.uk.io.cloud.ovh.net/
+  - name: S3_REGION
+    value: uk
+  - name: SENTRY_DSN
+    value: https://183510b96e672b9a23f28de338963e6f@o4504690192351232.ingest.us.sentry.io/4508449768275968
+  - name: RABBITMQ_VHOST
+    value: /rozertpay
+  - name: SLACK_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: rozert-pay-backend
+        key: SLACK_TOKEN
+
+services:
+  rozert-pay-backend:
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 1
+        memory: 2Gi
+      requests:
+        cpu: 400m
+        memory: 512Mi
+
+workers:
+  celery:
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 1
+        memory: 2Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi
+
+  celery-normal-only:
+    enabled: true
+    resources:
+      limits:
+        cpu: 1
+        memory: 2Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi
+
+  celery-high-only:
+    enabled: true
+    resources:
+      limits:
+        cpu: 1
+        memory: 2Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi

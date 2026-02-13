@@ -1,0 +1,37 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from rozert_pay.account.models import User
+
+
+class Permission(BaseModel):
+    app: str
+    name: str
+    display_name: str
+
+    def to_meta_tuple(self) -> tuple[str, str]:
+        return (
+            self.name,
+            self.display_name,
+        )
+
+    def allowed_for(self, user: User) -> bool:
+        return user.has_perm(f"{self.app}.{self.name}")
+
+
+class PaymentPermissions:
+    CAN_ACTUALIZE_TRANSACTION = "can_actualize_transaction"
+    CAN_SET_TRANSACTION_STATUS = "can_set_transaction_status"
+
+
+class CommonUserPermissions:
+    CAN_VIEW_PERSONAL_DATA = Permission(
+        app="account",
+        name="can_view_personal_data",
+        display_name="[!WARNING!] Can View User Personal Data",
+    )
+    CAN

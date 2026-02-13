@@ -1,0 +1,48 @@
+fullnameOverride: rozert-pay-frontend
+priorityClassName: production-low
+
+podLabels:
+  project: frontend
+
+ingress:
+  enabled: false
+  className: nginx
+
+services:
+  rozert-pay-frontend:
+    enabled: true
+    replicaCount: 1
+    securityContext:
+      capabilities:
+        add: ["NET_BIND_SERVICE"]
+    volumeMounts:
+      - name: tmp
+        mountPath: /tmp
+
+jobs:
+  sync:
+    enabled: false
+
+startupProbe:
+  httpGet:
+    path: /health-check
+    port: 18080
+    scheme: HTTP
+  initialDelaySeconds: 3
+  timeoutSeconds: 2
+  failureThreshold: 5
+  periodSeconds: 5
+
+volumes:
+  - name: tmp
+    emptyDir: {}
+
+nodeAffinityPreset:
+  type: hard
+  expressions:
+    - key: kubernetes.io/role
+      values: ["web", "worker"]
+podAntiAffinityPreset: soft
+
+podAnnotations:
+  cluster-autoscaler.kubernetes.io/safe-to-evict: "true"

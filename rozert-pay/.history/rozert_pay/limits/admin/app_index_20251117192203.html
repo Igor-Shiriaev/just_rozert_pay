@@ -1,0 +1,269 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{# Breadcrumbs: Home › Limits #}
+{% block breadcrumbs %}
+  {% if not is_popup %}
+    <div class="breadcrumbs">
+      <a href="{% url 'admin:index' %}">{% trans "Home" %}</a>
+      {% for app in app_list %}
+        &rsaquo;
+        {% blocktrans with name=app.name %}{{ name }}{% endblocktrans %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}
+
+{# Optional: keep default sidebar behavior, or empty it like stock app_index.html #}
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+  <div id="content-main">
+
+    {# There will be exactly one app in app_list for this page #}
+    {% with app=app_list.0 %}
+      <h1>{{ app.name }}</h1>
+
+      <div class="limits-tabs">
+        <button
+          type="button"
+          class="limits-tab-button active"
+          data-tab-target="client-limits-tab"
+        >
+          {% trans "Client Limits" %}
+        </button>
+        <button
+          type="button"
+          class="limits-tab-button"
+          data-tab-target="merchant-limits-tab"
+        >
+          {% trans "Merchant Limits" %}
+        </button>
+      </div>
+
+      {% with show_changelinks=True %}
+
+        {# ---------------------- CLIENT LIMITS TAB ---------------------- #}
+        <div id="client-limits-tab" class="limits-tab-content active">
+          <div class="module">
+            <h2>{% trans "Business limits" %}</h2>
+            <table>
+              <tbody>
+                {% for model in app.models %}
+                  {% if model.object_name == "BusinessCustomerLimit" %}
+                    <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path|urlencode %} current-model{% endif %}">
+                      {% if model.admin_url %}
+                        <th scope="row">
+                          <a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>
+                            {{ model.name }}
+                          </a>
+                        </th>
+                      {% else %}
+                        <th scope="row">{{ model.name }}</th>
+                      {% endif %}
+
+                      {% if model.add_url %}
+                        <td><a href="{{ model.add_url }}" class="addlink">{% trans "Add" %}</a></td>
+                      {% else %}
+                        <td></td>
+                      {% endif %}
+
+                      {% if model.admin_url and show_changelinks %}
+                        {% if model.view_only %}
+                          <td><a href="{{ model.admin_url }}" class="viewlink">{% trans "View" %}</a></td>
+                        {% else %}
+                          <td><a href="{{ model.admin_url }}" class="changelink">{% trans "Change" %}</a></td>
+                        {% endif %}
+                      {% elif show_changelinks %}
+                        <td></td>
+                      {% endif %}
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="module">
+            <h2>{% trans "Risk limits" %}</h2>
+            <table>
+              <tbody>
+                {% for model in app.models %}
+                  {% if model.object_name == "RiskCustomerLimit" %}
+                    <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path|urlencode %} current-model{% endif %}">
+                      {% if model.admin_url %}
+                        <th scope="row">
+                          <a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>
+                            {{ model.name }}
+                          </a>
+                        </th>
+                      {% else %}
+                        <th scope="row">{{ model.name }}</th>
+                      {% endif %}
+
+                      {% if model.add_url %}
+                        <td><a href="{{ model.add_url }}" class="addlink">{% trans "Add" %}</a></td>
+                      {% else %}
+                        <td></td>
+                      {% endif %}
+
+                      {% if model.admin_url and show_changelinks %}
+                        {% if model.view_only %}
+                          <td><a href="{{ model.admin_url }}" class="viewlink">{% trans "View" %}</a></td>
+                        {% else %}
+                          <td><a href="{{ model.admin_url }}" class="changelink">{% trans "Change" %}</a></td>
+                        {% endif %}
+                      {% elif show_changelinks %}
+                        <td></td>
+                      {% endif %}
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {# -------------------- MERCHANT LIMITS TAB ---------------------- #}
+        <div id="merchant-limits-tab" class="limits-tab-content">
+          <div class="module">
+            <h2>{% trans "Business limits" %}</h2>
+            <table>
+              <tbody>
+                {% for model in app.models %}
+                  {% if model.object_name == "BusinessMerchantLimit" %}
+                    <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path|urlencode %} current-model{% endif %}">
+                      {% if model.admin_url %}
+                        <th scope="row">
+                          <a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>
+                            {{ model.name }}
+                          </a>
+                        </th>
+                      {% else %}
+                        <th scope="row">{{ model.name }}</th>
+                      {% endif %}
+
+                      {% if model.add_url %}
+                        <td><a href="{{ model.add_url }}" class="addlink">{% trans "Add" %}</a></td>
+                      {% else %}
+                        <td></td>
+                      {% endif %}
+
+                      {% if model.admin_url and show_changelinks %}
+                        {% if model.view_only %}
+                          <td><a href="{{ model.admin_url }}" class="viewlink">{% trans "View" %}</a></td>
+                        {% else %}
+                          <td><a href="{{ model.admin_url }}" class="changelink">{% trans "Change" %}</a></td>
+                        {% endif %}
+                      {% elif show_changelinks %}
+                        <td></td>
+                      {% endif %}
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="module">
+            <h2>{% trans "Risk limits" %}</h2>
+            <table>
+              <tbody>
+                {% for model in app.models %}
+                  {% if model.object_name == "RiskMerchantLimit" %}
+                    <tr class="model-{{ model.object_name|lower }}{% if model.admin_url in request.path|urlencode %} current-model{% endif %}">
+                      {% if model.admin_url %}
+                        <th scope="row">
+                          <a href="{{ model.admin_url }}"{% if model.admin_url in request.path|urlencode %} aria-current="page"{% endif %}>
+                            {{ model.name }}
+                          </a>
+                        </th>
+                      {% else %}
+                        <th scope="row">{{ model.name }}</th>
+                      {% endif %}
+
+                      {% if model.add_url %}
+                        <td><a href="{{ model.add_url }}" class="addlink">{% trans "Add" %}</a></td>
+                      {% else %}
+                        <td></td>
+                      {% endif %}
+
+                      {% if model.admin_url and show_changelinks %}
+                        {% if model.view_only %}
+                          <td><a href="{{ model.admin_url }}" class="viewlink">{% trans "View" %}</a></td>
+                        {% else %}
+                          <td><a href="{{ model.admin_url }}" class="changelink">{% trans "Change" %}</a></td>
+                        {% endif %}
+                      {% elif show_changelinks %}
+                        <td></td>
+                      {% endif %}
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      {% endwith %}
+    {% endwith %}
+  </div>
+
+  <style>
+    .limits-tabs {
+      margin: 0 0 15px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .limits-tab-button {
+      display: inline-block;
+      padding: 6px 14px;
+      margin: 0 4px 0 0;
+      border: 1px solid #e5e5e5;
+      border-bottom: none;
+      border-radius: 4px 4px 0 0;
+      background: #f5f5f5;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .limits-tab-button.active {
+      background: #fff;
+      font-weight: bold;
+    }
+    .limits-tab-content {
+      display: none;
+    }
+    .limits-tab-content.active {
+      display: block;
+    }
+  </style>
+
+  <script>
+    (function() {
+      document.addEventListener('DOMContentLoaded', function() {
+        var buttons = document.querySelectorAll('.limits-tab-button');
+        var contents = document.querySelectorAll('.limits-tab-content');
+
+        function activateTab(targetId) {
+          buttons.forEach(function(btn) {
+            btn.classList.toggle(
+              'active',
+              btn.getAttribute('data-tab-target') === targetId
+            );
+          });
+          contents.forEach(function(pane) {
+            pane.classList.toggle('active', pane.id === targetId);
+          });
+        }
+
+        buttons.forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            activateTab(this.getAttribute('data-tab-target'));
+          });
+        });
+
+        // Default: make sure Client Limits is active
+        activateTab('client-limits-tab');
+      });
+    })();
+  </script>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "admin/change_form.html" %}
+{% load i18n static %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function() {
+        // Helper: find the form-row wrapper across Django admin variants (incl. Grappelli)
+        function rowOf($el) {
+            return $el.closest('.form-row, .fieldBox, .grp-row');
+        }
+        function showRow(id) { rowOf($('#id_' + id)).show(); }
+        function hideRow(id) { rowOf($('#id_' + id)).hide(); }
+
+        var $limitType = $('#id_limit_type');
+
+        function toggleFields() {
+            // If the controlling field doesn't exist on this form, don't hide anything.
+            if (!$limitType.length) {
+                // But make sure any rows with errors are visible.
+                $('.errorlist, .errors').each(function() { rowOf($(this)).show(); });
+                return;
+            }
+
+            const limitType = $limitType.val();
+            const fieldVisibility = {
+                'max_successful_deposits': ['max_operations', 'period'],
+                'max_overall_decline_percent': ['max_overall_decline_percent', 'period'],
+                'max_withdrawal_decline_percent': ['max_withdrawal_decline_percent', 'period'],
+                'max_deposit_decline_percent': ['max_deposit_decline_percent', 'period'],
+                'min_amount_single_operation': ['min_amount'],
+                'max_amount_single_operation': ['max_amount'],
+                'total_amount_deposits_period': ['total_amount', 'period'],
+                'total_amount_withdrawals_period': ['total_amount', 'period'],
+                'max_withdrawal_to_deposit_ratio': ['max_ratio', 'period'],
+                'max_operations_burst': ['max_operations', 'burst_minutes']
+            };
+
+            const allFields = [
+                'max_operations', 'max_overall_decline_percent', 'max_withdrawal_decline_percent',
+                'max_deposit_decline_percent', 'min_amount', 'max_amount', 'total_amount',
+                'max_ratio', 'burst_minutes', 'period'
+            ];
+
+            // Hide all known fields first
+            allFields.forEach(function(field) { hideRow(field); });
+
+            // Then show those required for the chosen limit type
+            (fieldVisibility[limitType] || []).forEach(function(field) { showRow(field); });
+
+            // Special case: single-operation min/max do not use period
+            if (limitType === 'min_amount_single_operation' || limitType === 'max_amount_single_operation') {
+                hideRow('period');
+            }
+
+            $('.errorlist, .errors').each(function() { rowOf($(this)).show(); });
+        }
+
+        if ($limitType.length) {
+            $limitType.on('change', toggleFields);
+        }
+        toggleFields();
+
+        // --- Cancel button styling (unchanged) ---
+        const cancelText = "{% translate 'Cancel' %}";
+        const originalColor = '#ba2121';
+        const hoverColor = '#a41515';
+
+        const cancelButton = $('<input type="button" value="' + cancelText + '" onclick="window.history.back();" name="_cancel">')
+            .addClass('button')
+            .css('background', originalColor);
+
+        cancelButton.hover(
+            function() { $(this).css('background', hoverColor); },
+            function() { $(this).css('background', originalColor); }
+        );
+
+        $('input[name="_continue"]').after(cancelButton);
+    });
+})(django.jQuery);
+</script>
+{% endblock %}

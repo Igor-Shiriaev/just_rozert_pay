@@ -1,0 +1,429 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'admin/js/jquery.init.js' %}"></script>
+<style>
+    /* Limits Sidebar (left) */
+    #limits-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 300px;
+        height: 100%;
+        background-color: #f8f9fa;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px 12px 16px 12px;
+        padding-top: 20px;
+        overflow-y: auto;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+    }
+    #limits-sidebar.visible {
+        transform: translateX(0);
+    }
+    #limits-sidebar h4 {
+        margin: 0 0 8px 0;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    #limits-header {
+        display: none;
+        cursor: pointer;
+        background-color: #6c757d;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-left: 10px;
+        line-height: 1;
+        order: 2;
+    }
+    #limits-header:hover {
+        background-color: #5a6268;
+    }
+    #limits-controls .select-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+    #limits-controls label {
+        font-weight: bold;
+        margin-bottom: 2px;
+    }
+    #limits-controls select {
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: #fff;
+    }
+    #limits-categories {
+        display: none;
+        flex-direction: column;
+        gap: 8px;
+    }
+    #limits-categories .category-link {
+        display: inline-block;
+        padding: 8px 10px;
+        border-radius: 4px;
+        background-color: #337ab7;
+        color: #fff;
+        text-decoration: none;
+        font-weight: bold;
+        text-align: center;
+    }
+    #limits-categories .category-link:hover {
+        background-color: #286090;
+    }
+    @keyframes pulseGlow {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(240, 173, 78, 0.8);
+            background-color: #f0ad4e;
+        }
+        40% {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px 5px rgba(240, 173, 78, 0.9);
+            background-color: #ffb84d;
+        }
+        70% {
+            transform: scale(0.98);
+            box-shadow: 0 0 10px 2px rgba(240, 173, 78, 0.7);
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(240, 173, 78, 0);
+        }
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-3px); }
+        40% { transform: translateX(3px); }
+        60% { transform: translateX(-3px); }
+        80% { transform: translateX(3px); }
+    }
+
+    #header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    #alert-header {
+        display: none;
+        cursor: pointer;
+        background-color: #f0ad4e;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-left: auto;
+        line-height: 1;
+        order: 2;
+    }
+    #alert-header:hover {
+        background-color: #ec971f;
+    }
+    #alert-header.new-alerts {
+        animation: pulseGlow 1.5s ease-in-out infinite, shake 0.4s ease-in-out 2;
+    }
+    #alert-header .alert-count {
+        font-weight: bold;
+    }
+
+    #user-tools {
+        order: 3;
+    }
+    #branding {
+        order: 1;
+    }
+
+
+    #persistent-alert-container {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 350px;
+        height: 100%;
+        background-color: #f8f9fa;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+        padding-top: 20px;
+        overflow-y: auto;
+        box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+    }
+    #persistent-alert-container.visible {
+        transform: translateX(0);
+    }
+    #persistent-alert-container h4 {
+        margin: 0;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    #persistent-alert-container .dismiss-all-btn {
+        padding: 10px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+        color: white;
+        border-radius: 4px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    #persistent-alert-container .dismiss-all-btn:hover {
+        background-color: #449d44;
+    }
+    #alert-list {
+        padding-bottom: 40px;
+    }
+
+    .persistent-alert {
+        padding: 15px;
+        border-radius: 4px;
+        color: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        position: relative;
+        padding-right: 40px;
+        margin-bottom: 10px;
+    }
+    .persistent-alert.regular {
+        background-color: #17a2b8;
+    }
+    .persistent-alert.critical {
+        background-color: #dc3545;
+    }
+    .persistent-alert a {
+        color: #fff;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+    .persistent-alert .dismiss-alert {
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+        font-weight: bold;
+        line-height: 1;
+    }
+</style>
+
+<div id="limits-sidebar">
+    <h4>Limits</h4>
+    <div id="limits-controls">
+        <div class="select-row">
+            <label for="limit-kind-select">Select kind</label>
+            <select id="limit-kind-select">
+                <option value="" selected>Choose...</option>
+                <option value="customer">Customer Limits</option>
+                <option value="merchant">Merchant Limits</option>
+            </select>
+        </div>
+    </div>
+    <div id="limits-categories">
+        <a class="category-link" id="link-risk" href="#" target="_self">Risk</a>
+        <a class="category-link" id="link-business" href="#" target="_self">Business</a>
+    </div>
+    <div style="margin-top: 8px; color:#666; font-size: 12px;">
+        Select a kind to reveal category links.
+    </div>
+</div>
+
+<div id="limits-header">Limits</div>
+
+<div id="alert-header">
+    <span>New Alerts: </span><span class="alert-count">0</span>
+</div>
+<div id="persistent-alert-container">
+    <h4>Active Alerts</h4>
+    <button class="dismiss-all-btn">Acknowledge All Visible Alerts</button>
+    <div id="alert-list"></div>
+</div>
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {
+        (function($) {
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            const csrftoken = getCookie('csrftoken');
+
+            const alertHeader = $('#alert-header');
+            const header = $('#header');
+            if (header.length && alertHeader.length) {
+                header.append(alertHeader);
+            }
+
+            let hasUnseenAlerts = false;
+
+            function createAlertElement(alertData) {
+                const alertClass = alertData.is_critical ? 'critical' : 'regular';
+                const alertHtml = `
+                    <div class="persistent-alert ${alertClass}" id="alert-${alertData.id}">
+                        <button type="button" class="dismiss-alert" data-alert-id="${alertData.id}" title="Acknowledge this alert">&times;</button>
+                        <strong>${alertClass.charAt(0).toUpperCase() + alertClass.slice(1)} Alert</strong>
+                        ${alertData.text ? '<p>Text: ' + alertData.text + '</p>' : ''}
+                        <p>${alertData.description}</p>
+                        <a href="${alertData.limit_url}" target="_blank">Limit</a> |
+                        <a href="${alertData.transaction_url}" target="_blank">Transaction</a>
+                    </div>
+                `;
+                return alertHtml;
+            }
+
+            function updateAlertsView(alerts) {
+                const container = $('#alert-list');
+                const countSpan = alertHeader.find('.alert-count');
+                const receivedAlertIds = new Set(alerts.map(a => a.id));
+                let newAlertsAdded = false;
+
+                container.children('.persistent-alert').each(function() {
+                    const alertId = parseInt($(this).attr('id').replace('alert-', ''));
+                    if (!receivedAlertIds.has(alertId)) {
+                        $(this).remove();
+                    }
+                });
+
+                alerts.forEach(function(alert) {
+                    if (!$('#alert-' + alert.id).length) {
+                         const alertElement = createAlertElement(alert);
+                         container.prepend(alertElement);
+                         newAlertsAdded = true;
+                    }
+                });
+
+                if (newAlertsAdded) {
+                    hasUnseenAlerts = true;
+                }
+
+                const currentCount = container.children('.persistent-alert').length;
+                countSpan.text(currentCount);
+
+                if (currentCount > 0) {
+                    alertHeader.show();
+                    if (hasUnseenAlerts) {
+                        alertHeader.addClass('new-alerts');
+                    }
+                } else {
+                    alertHeader.hide();
+                    $('#persistent-alert-container').removeClass('visible');
+                    alertHeader.removeClass('new-alerts');
+                    hasUnseenAlerts = false;
+                }
+            }
+
+            function fetchAndDisplayAlerts() {
+                $.ajax({
+                    url: '/api/backoffice/v1/alerts/unacknowledged/',
+                    method: 'GET',
+                    success: function(newAlerts) {
+                        updateAlertsView(newAlerts || []);
+                    },
+                    error: function() {
+                        console.error("Failed to fetch alerts.");
+                    }
+                });
+            }
+
+            $(function() {
+                alertHeader.on('click', function(e) {
+                    e.stopPropagation();
+                    $('#persistent-alert-container').toggleClass('visible');
+                    $(this).removeClass('new-alerts');
+                    hasUnseenAlerts = false;
+                });
+
+                $(document).on('click', function(e) {
+                    const container = $('#persistent-alert-container');
+                    if (container.hasClass('visible') && !container.is(e.target) && container.has(e.target).length === 0) {
+                        container.removeClass('visible');
+                    }
+                });
+                $('#persistent-alert-container').on('click', function(e){
+                    e.stopPropagation();
+                });
+
+
+                $('#alert-list').on('click', '.dismiss-alert', function(e) {
+                    e.stopPropagation();
+                    const alertId = $(this).data('alert-id');
+                    const alertElement = $(this).closest('.persistent-alert');
+
+                    $.ajax({
+                        url: `/api/backoffice/v1/alerts/${alertId}/acknowledge/`,
+                        method: 'POST',
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        },
+                        success: function() {
+                            alertElement.fadeOut(300, function() {
+                                $(this).remove();
+                                const container = $('#alert-list');
+                                const currentCount = container.children('.persistent-alert').length;
+                                const countSpan = alertHeader.find('.alert-count');
+                                countSpan.text(currentCount);
+                                if (currentCount === 0) {
+                                    alertHeader.hide();
+                                    $('#persistent-alert-container').removeClass('visible');
+                                    alertHeader.removeClass('new-alerts');
+                                    hasUnseenAlerts = false;
+                                }
+                            });
+                        }
+                    });
+                });
+
+                $('#persistent-alert-container').on('click', '.dismiss-all-btn', function() {
+                    $.ajax({
+                        url: `/api/backoffice/v1/alerts/acknowledge-all/`,
+                        method: 'POST',
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        },
+                        success: function() {
+                            $('#alert-list').fadeOut(300, function() {
+                                $(this).empty().show();
+                                updateAlertsView([]);
+                            });
+                        }
+                    });
+                });
+
+                fetchAndDisplayAlerts();
+                setInterval(fetchAndDisplayAlerts, 15000);
+            });
+
+        })(django.jQuery);
+    });
+</script>
+{% endblock %}

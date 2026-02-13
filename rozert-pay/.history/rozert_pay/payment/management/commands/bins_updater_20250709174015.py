@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""
+Usage:
+fab prod run:"cp ../bank_bins/bins.json.zip backend-cronjob-7b6c7d4c78-c8vvc:/www/back/back"
+fab prod run:"cp ../bank_bins/bins_updater.py backend-cronjob-7b6c7d4c78-c8vvc:/www/back/back/betmaster/management/commands"
+nohup python3 manage.py bins_updater &>/dev/null &
+jobs
+"""
+import ijson
+from argparse import ArgumentParser
+from typing import Any
+
+from django.core.management import BaseCommand
+from rozert_pay.payment.models import Bank, PaymentCardBank
+
+
+class Command(BaseCommand):
+    def add_arguments(self, parser: ArgumentParser) -> None:
+        parser.add_argument("--path")
+
+    def handle(self, **options: Any) -> None:
+        path = options.get("path", "bins.json")
+
+        banks_by_name = {}
+        self.stdout.write(f"Try to open file: {path}")
+        with open(path, 'rb') as file:
+            self.stdout.write("File is opened")
+            # Row example:
+            # {"213100": {"br": 11, "bn": "Jcb Co., Ltd.", "cc": "JP"}}
+            # {"<bin>": {"br": <card type>, "bn": "<bank name>", "cc": "country"}}
+            self.stdout.write("Try to load json")
+            for bin, bin_data in ijson.kvitems(file, ''):
+                bank, _ = Bank.objects.get_or_create(name=bin_data["bn"])
+                banks_by_name[bin_data["bn"]] = bank.pk
+                self.stdout.write(f"Created/found bank: {bin_data['bn']}")
+
+                _, created = PaymentCardBank.objects.update_or_create(
+                    bin=bin,
+                    defaults={
+                        "bank_id": banks_by_name[bin_data["bn"]],
+                        "card_type": bin_data["br"],
+                        "card_class": bin_data["type"],
+                        "country": bin_data["cc"],
+                        "is_virtual": bin_data["virtual"],
+                        "is_prepaid": bin_data["prepaid"],
+                        "raw_category": bin_data["raw_category"],
+                    },
+                )
+                self.stdout.write(f"Processed bin {bin}, created: {created}")

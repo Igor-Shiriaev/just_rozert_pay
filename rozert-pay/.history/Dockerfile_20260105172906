@@ -1,0 +1,66 @@
+# syntax = docker/dockerfile:1.16
+########################################
+
+FROM registry.k8s.io/pause:3.10 AS pause
+
+########################################
+
+FROM python:3.13-slim AS base
+
+ENV DEBIAN_FRONTEND=noninteractive TERM=xterm-color LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+RUN --mount=type=cache,id=apt-cache-python,target=/var/cache/apt,sharing=locked \
+    LC_ALL=C apt-get update -y && \
+    LC_ALL=C apt-get install -y --no-install-recommends locales ca-certificates mime-support make libpq5 vim gettext procps tzdata && \
+    sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen && LC_ALL=C locale-gen && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* /tmp/* && \
+    adduser --disabled-password --home /home/app --uid 1100 --gecos "Payment" app
+
+########################################
+
+FROM base AS release
+LABEL org.opencontainers.image.source="https://github.com/nvnv/betmaster" \
+      org.opencontainers.image.description="Payment aggregator"
+
+COPY --from=pause /pause /pause
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    PIP_DEFAULT_TIMEOUT=100 \
+    POETRY_VIRTUALENVS_CREATE=false
+RUN --mount=type=cache,id=apt-cache-python,target=/var/cache/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends build-essential python3-dev libpq-dev git && \
+    rm -rf /var/lib/apt/lists/* /tmp/*
+RUN --mount=type=cache,id=pip,target=/root/.cache pip install "poetry==2.2.1"
+
+COPY --chown=app:app rozert-pay/poetry.lock rozert-pay/pyproject.toml /www/rozert-pay/
+WORKDIR /www/rozert-pay
+
+RUN poetry config virtualenvs.create false
+
+# If ENV != production, install dev dependencies. Otherwise, install only production dependencies
+ARG ENV=production
+RUN if [ "${ENV}" = "production" ]; then \
+    poetry install --no-interaction --no-ansi --no-root --only main || \
+    poetry lock --no-update && poetry install --no-interaction --no-ansi --no-root --only main; else \
+    poetry install --no-interaction --no-ansi --no-root || \
+    poetry lock --no-update && poetry install --no-interaction --no-ansi --no-root; fi
+
+# Verify Django is installed
+RUN python -c "import django; print(f'Django {django.__version__} installed successfully')" || \
+    (echo "Django installation verification failed" && exit 1)
+
+ENV PYTHONPATH=/www/shared-apps:/www/rozert-pay
+
+USER app
+COPY --chown=app:app shared-apps /www/shared-apps
+COPY --chown=app:app common /www/common
+COPY --chown=app:app rozert-pay /www/rozert-pay
+COPY Makefile-common.mk /www/Makefile-common.mk
+
+ARG SHA
+ENV GIT_SHA=${SHA} SENTRY_RELEASE=${SHA}
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
