@@ -1,0 +1,594 @@
+#@ load("spec-payment.autogenerate.lib.yml", "deposit_extra_spec", "extra_spec_components", "withdraw_extra_spec", "extra_http_actions")
+#@ load("@ytt:template", "template")
+
+#@ def payment_paths():
+/payment/v2/{system}/deposit/check:
+  post:
+    description: Method for getting deposit converstion amounts
+    tags:
+      - payment
+    operationId: payment_deposit_check
+    parameters:
+      - in: path
+        name: system
+        description: Payment system name. "cards" for cards systems
+        required: true
+        schema:
+          type: string
+
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/payment.deposit_check_request'
+
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payment.deposit_check_response'
+      "400":
+        description: Bad request
+        content:
+          application/json:
+            schema:
+              anyOf:
+                - $ref: '#/components/schemas/core.http_error'
+                - $ref: '#/components/schemas/core.templated_http_error'
+
+/payment/v2/{system}/deposit:
+  post:
+    description: Method for creating deposit
+    tags:
+      - payment
+    operationId: payment_deposit
+    parameters:
+      - in: path
+        name: system
+        description: Payment system name. "cards" for cards systems
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/payment.deposit_request'
+
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payment.transaction_status_response'
+
+
+/payment/v2/transaction/{transaction_id}:
+  get:
+    description: Method for getting transaction status
+    tags:
+      - payment
+    operationId: payment_transaction_status
+    parameters:
+      - in: path
+        name: transaction_id
+        description: Transaction UUID
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payment.transaction_status_response'
+
+
+/payment/v2/{system}/withdraw/check:
+  post:
+    description: Method for getting withdraw converstion amounts
+    tags:
+      - payment
+    operationId: payment_withdraw_check
+    parameters:
+      - in: path
+        name: system
+        description: Payment system name. "cards" for cards systems
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/payment.withdraw_check_request'
+
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payment.withdraw_check_response'
+      "400":
+        description: Bad request
+        content:
+          application/json:
+            schema:
+              anyOf:
+                - $ref: '#/components/schemas/core.http_error'
+                - $ref: '#/components/schemas/core.templated_http_error'
+
+/payment/v2/{system}/withdraw:
+  post:
+    description: Method for creating withdrawal
+    tags:
+      - payment
+    operationId: payment_withdraw
+    parameters:
+      - in: path
+        name: system
+        description: Payment system name. "cards" for cards systems
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/payment.withdraw_request'
+
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payment.transaction_status_response'
+
+/payment/v2/withdrawal_fees:
+  get:
+    description: Method for getting withdrawal fees
+    tags:
+      - payment
+    operationId: payment_withdrawal_fees
+
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payment.withdrawal_fees_response'
+
+/payment/v2/deposit_net:
+  get:
+    description: Method for getting deposit net
+    tags:
+      - payment
+    operationId: payment_deposit_net
+
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payment.deposit_net_response'
+
+/payment/v2/spei_gateway/pregenerated-clabe:
+  get:
+    description: Method for getting pregenerated CLABE account number for SPEI deposits
+    tags:
+      - payment
+    operationId: payment_spei_gateway_pregenerated_clabe
+
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payment.pregenerated_clabe_response'
+_: #@ template.replace(extra_http_actions())
+
+#@ end
+
+#@ def payment_components():
+payment.transaction_status_response:
+  type: object
+  required:
+  - transaction
+  properties:
+    transaction:
+      $ref: '#/components/schemas/payment.transaction_status'
+
+payment.withdrawal_fees_response:
+  type: object
+  required:
+  - fees
+  properties:
+    fees:
+      type: array
+      items:
+        $ref: '#/components/schemas/payment.withdrawal_fee_info'
+
+payment.deposit_net_info:
+  type: object
+  required:
+    - net
+    - number_of_deposits
+    - number_of_withdrawals
+  properties:
+    net:
+      $ref: '#/components/schemas/core.decimal_value'
+    number_of_deposits:
+      type: integer
+    number_of_withdrawals:
+      type: integer
+
+payment.deposit_net_response:
+  type: object
+  required:
+  - for_7_days
+  - for_28_days
+  - for_183_days
+  - for_365_days
+  - for_all_time
+  properties:
+    for_7_days:
+      $ref: '#/components/schemas/payment.deposit_net_info'
+    for_28_days:
+      $ref: '#/components/schemas/payment.deposit_net_info'
+    for_183_days:
+      $ref: '#/components/schemas/payment.deposit_net_info'
+    for_365_days:
+      $ref: '#/components/schemas/payment.deposit_net_info'
+    for_all_time:
+      $ref: '#/components/schemas/payment.deposit_net_info'
+
+payment.pregenerated_clabe_response:
+  type: object
+  required:
+    - clabe
+  properties:
+    clabe:
+      type: string
+      nullable: true
+      description: Pregenerated CLABE account number, or null if not available for user
+
+payment.cards_worldpay_ddc_token_response:
+  type: object
+  required:
+    - card_number
+  properties:
+    token:
+      type: string
+    card_number:
+      type: string
+
+payment.worldpay_wallet:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    card:
+      $ref: '#/components/schemas/payment.card'
+
+payment.cards_worldpay_ddc_token_request:
+  type: object
+  required:
+    - wallet
+    - amount
+  properties:
+    wallet:
+      $ref: '#/components/schemas/payment.worldpay_wallet'
+    amount:
+      type: object
+      required:
+        - face
+      properties:
+        face:
+          $ref: '#/components/schemas/core.money'
+
+payment.transaction_status:
+  type: object
+  required:
+    - id
+    - status
+    - payment_system_name
+  properties:
+    id:
+      type: string
+      format: uuid
+    amount_face:
+      $ref: '#/components/schemas/core.money'
+    status:
+      type: string
+      enum:
+      - initial
+      - success
+      - failed
+      - redirect
+      - form_submit
+    redirect_data:
+      type: object
+      required:
+        - action_url
+        - method
+        - fields
+      properties:
+        action_url:
+          type: string
+          format: urls
+        method:
+          type: string
+          enum:
+          - get
+          - post
+        fields:
+          type: object
+    client_extra:
+      type: object
+      description: Extra instruction data for client
+    payment_system_name:
+      type: string
+      format: bm.models.PAYMENT_SYSTEM
+    extra_data:
+      type: object
+    error:
+      type: object
+      properties:
+        code:
+          type: number
+        reason:
+          type: string
+
+    withdrawal_fee_info:
+      $ref: '#/components/schemas/payment.withdrawal_fee_info'
+
+payment.card:
+  type: object
+  description: Card data, only for card payments
+  required:
+    - num
+    - expires
+    - holder
+    - cvv
+  properties:
+    num:
+      type: string
+    expires:
+      type: string
+    holder:
+      type: string
+    cvv:
+      type: string
+
+payment.wallet:
+  type: object
+  properties:
+    uuid:
+      type: string
+      format: uuid
+      description: Wallet UUID for bound deposits
+    identity:
+      type: string
+      description: Wallet account for new deposits
+    extra:
+      type: object
+      description: Extra wallet data
+    card:
+      $ref: '#/components/schemas/payment.card'
+    card_cvv:
+      description: Card CVV, only for card deposit bound payments
+      type: string
+      format: password
+
+
+payment.deposit_check_request:
+  type: object
+  required:
+    - amount_face
+  properties:
+    amount_face:
+      $ref: '#/components/schemas/core.money'
+    wallet:
+      $ref: '#/components/schemas/payment.wallet'
+    amount_foreign:
+      $ref: '#/components/schemas/core.money'
+
+payment.deposit_check_response:
+  type: object
+  required:
+    - amount_face
+    - amount_foreign
+  properties:
+    amount_face:
+      $ref: '#/components/schemas/core.money'
+    amount_foreign:
+      $ref: '#/components/schemas/core.money'
+
+payment.deposit_request:
+  type: object
+  required:
+    - amount_face
+    - amount_foreign
+  properties:
+    amount_face:
+      $ref: '#/components/schemas/core.money'
+    amount_foreign:
+      $ref: '#/components/schemas/core.money'
+    wallet:
+      $ref: '#/components/schemas/payment.wallet'
+    extra: #@ deposit_extra_spec()
+
+_: #@ template.replace(extra_spec_components())
+
+payment.withdraw_request:
+  type: object
+  required:
+    - amount_face
+    - amount_effective
+    - amount_foreign
+    - wallet_id
+  properties:
+    amount_face:
+      $ref: '#/components/schemas/core.money'
+    amount_effective:
+      $ref: '#/components/schemas/core.money'
+    amount_foreign:
+      $ref: '#/components/schemas/core.money'
+    wallet_id:
+      type: string
+      format: uuid
+    withdrawal_fee_uuid:
+      type: string
+      format: uuid
+      nullable: true
+    extra: #@ withdraw_extra_spec()
+
+
+payment.withdraw_check_request:
+  type: object
+  required:
+    - amount_face
+    - wallet_id
+  properties:
+    amount_face:
+      $ref: '#/components/schemas/core.money'
+    wallet_id:
+      type: string
+      format: uuid
+    withdrawal_fee_uuid:
+      type: string
+      format: uuid
+      nullable: true
+
+payment.withdrawal_fee_info:
+  type: object
+  required:
+    - uuid
+    - name
+    - bonus_wallet_percent
+    - bonus_promo_percent
+    - fee_percent
+    - delay_seconds
+    - type
+  properties:
+    uuid:
+      type: string
+      format: uuid
+    name:
+      type: string
+    bonus_wallet_percent:
+      $ref: '#/components/schemas/core.decimal_value'
+    bonus_promo_percent:
+      $ref: '#/components/schemas/core.decimal_value'
+    fee_percent:
+      $ref: '#/components/schemas/core.decimal_value'
+    delay_seconds:
+      type: number
+    disabled:
+      type: boolean
+    type:
+      type: string
+      enum:
+      - express
+      - no_fee
+      - popular
+      - smart
+      - fast
+
+payment.withdraw_check_response:
+  type: object
+  required:
+    - amount_face
+    - amount_effective
+    - amount_foreign
+  properties:
+    amount_face:
+      $ref: '#/components/schemas/core.money'
+    amount_effective:
+      $ref: '#/components/schemas/core.money'
+    amount_foreign:
+      $ref: '#/components/schemas/core.money'
+    withdrawal_fee_info:
+      $ref: '#/components/schemas/payment.withdrawal_fee_info'
+
+payment.errors.too_small_deposit_amount:
+  type: object
+  required:
+    - code
+    - reason
+    - min_amount
+  properties:
+    code:
+      type: integer
+      enum:
+        - 711
+    reason:
+      type: string
+    min_amount:
+      $ref: '#/components/schemas/core.money'
+
+payment.errors.too_small_withdraw_amount:
+  type: object
+  required:
+    - code
+    - reason
+    - min_amount
+  properties:
+    code:
+      type: integer
+      enum:
+        - 712
+    reason:
+      type: string
+    min_amount:
+      $ref: '#/components/schemas/core.money'
+
+payment.errors.too_big_deposit_amount:
+  type: object
+  required:
+    - code
+    - reason
+    - max_amount
+  properties:
+    code:
+      type: integer
+      enum:
+        - 724
+    reason:
+      type: string
+    max_amount:
+      $ref: '#/components/schemas/core.money'
+
+payment.errors.daily_withdraw_limit_exceeded:
+  type: object
+  required:
+    - code
+    - reason
+    - max_amount
+  properties:
+    code:
+      type: integer
+      enum:
+        - 719
+    reason:
+      type: string
+    max_amount:
+      $ref: '#/components/schemas/core.money'
+
+
+#@ end

@@ -1,0 +1,2282 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:template", "template")
+
+#@ def promotion_campaign_presets():
+
+promotion.campaign_preset.dummy:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - DUMMY
+        - DUMMY_SPORT_BET
+    params:
+      type: object
+
+promotion.campaign_preset.cashback:
+  type: object
+  required:
+    - preset_type
+    - params
+    - widget
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - CASHBACK
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.cashback_params'
+    widget:
+      nullable: true
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          $ref: '#/components/schemas/promotion.campaign_preset.money_amount'
+
+promotion.campaign_preset.freebet:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - FREEBET
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.freebet_params'
+
+promotion.campaign_preset.casino_freebet:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - CASINO_FREEBET
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.casino_freebet_params'
+
+promotion.campaign_preset.freespin:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - FREESPIN
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.freespin_params'
+
+promotion.campaign_preset.promo_wager:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_params'
+
+promotion.campaign_preset.wager_get_freebet:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - WAGER_GET_FREEBET
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.wager_get_freebet_params'
+
+promotion.campaign_preset.wager_on_sport_lose:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - WAGER_ON_SPORT_LOSE
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.wager_on_sport_lose_params'
+
+promotion.campaign_preset.freebet_on_sport_lose:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - FREEBET_ON_SPORT_LOSE
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.freebet_on_sport_lose_params'
+
+promotion.campaign_preset.promo_wager_on_sport_lose:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_SPORT_LOSE
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_sport_lose_params'
+
+promotion.campaign_preset.promo_wager_on_freebet_on_sport_lose:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_FREEBET_ON_SPORT_LOSE
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_freebet_on_sport_lose_params'
+
+promotion.campaign_preset.wager_on_deposit_get_freebet_with_promo_wager:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - WAGER_ON_DEPOSIT_GET_FREEBET_WITH_PROMO_WAGER
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.wager_on_deposit_get_freebet_with_promo_wager_params'
+    widget:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.widget_deposit_amount'
+
+promotion.campaign_preset.wager_on_deposit_get_freebet:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - WAGER_ON_DEPOSIT_GET_FREEBET
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.wager_on_deposit_get_freebet_params'
+    widget:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.widget_deposit_amount'
+
+promotion.campaign_preset.wager_on_deposit_get_cashback:
+  type: object
+  required:
+    - preset_type
+    - params
+    - widget
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - WAGER_ON_DEPOSIT_GET_CASHBACK
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.wager_on_deposit_get_cashback_params'
+    widget:
+      nullable: true
+      type: object
+      required:
+        - amount
+        - deposit_amount
+      properties:
+        amount:
+          $ref: '#/components/schemas/promotion.campaign_preset.money_amount'
+        deposit_amount:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.money_amount'
+
+promotion.campaign_preset.wager_on_deposit_get_freespin:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - WAGER_ON_DEPOSIT_GET_FREESPIN
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.wager_on_deposit_get_freespin_params'
+    widget:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.widget_deposit_amount'
+
+promotion.campaign_preset.wager_get_freespin:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - WAGER_GET_FREESPIN
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.wager_get_freespin_params'
+
+promotion.campaign_preset.promo_wager_on_deposit:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_DEPOSIT
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_deposit_params'
+    widget:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.widget_deposit_amount'
+
+promotion.campaign_preset.promo_wager_on_bet:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_BET
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_bet_params'
+
+promotion.campaign_preset.promo_wager_on_deposit_parametrized:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_DEPOSIT_PARAMETRIZED
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_deposit_parametrized_params'
+    widget:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.widget_deposit_amount'
+
+promotion.campaign_preset.promo_wager_on_deposit_plus_freespin:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_DEPOSIT_PLUS_FREESPIN
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_deposit_plus_freespin_params'
+    widget:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.widget_deposit_amount'
+
+promotion.campaign_preset.promo_wager_on_freebet:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_FREEBET
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_freebet_params'
+
+promotion.campaign_preset.promo_wager_on_casino_freebet:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_CASINO_FREEBET
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_casino_freebet_params'
+
+promotion.campaign_preset.promo_wager_on_freespin:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_FREESPIN
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_freespin_params'
+
+promotion.campaign_preset.promo_wager_on_losses:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_LOSSES
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_losses_params'
+
+promotion.campaign_preset.promo_wager_on_deposit_get_freespin_with_promo_wager:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_DEPOSIT_GET_FREESPIN_WITH_PROMO_WAGER
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_deposit_get_freespin_with_promo_wager_params'
+    widget:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.widget_deposit_amount'
+
+promotion.campaign_preset.promo_wager_on_deposit_get_freebet_with_promo_wager:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_DEPOSIT_GET_FREEBET_WITH_PROMO_WAGER
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_deposit_get_freebet_with_promo_wager_params'
+    widget:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.widget_deposit_amount'
+
+promotion.campaign_preset.wager_on_freespin:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - WAGER_ON_FREESPIN
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.wager_on_freespin_params'
+
+promotion.campaign_preset.freebet_on_sport_bet:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - FREEBET_ON_SPORT_BET
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.freebet_on_sport_bet_params'
+
+promotion.campaign_preset.promo_wager_on_freebet_on_sport_bet:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - PROMO_WAGER_ON_FREEBET_ON_SPORT_BET
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_freebet_on_sport_bet_params'
+
+promotion.campaign_preset.freebet_on_deposit_on_sport_lose:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - FREEBET_ON_DEPOSIT_ON_SPORT_LOSE
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.freebet_on_deposit_on_sport_lose_params'
+    widget:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.widget_deposit_amount'
+
+promotion.campaign_preset.wager_get_next_campaign:
+  type: object
+  required:
+    - preset_type
+    - params
+  properties:
+    preset_type:
+      type: string
+      enum:
+        - WAGER_GET_NEXT_CAMPAIGN
+    params:
+      $ref: '#/components/schemas/promotion.campaign_preset.wager_get_next_campaign_params'
+
+promotion.campaign_preset.cashback_params:
+  type: object
+  required:
+    - amount_by_currency
+    - cashback_expires_in_days
+    - start_after_deposit
+  properties:
+    start_after_deposit:
+      type: boolean
+    min_deposit_amount_by_currency:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+    deposit_valid_to:
+      nullable: true
+      type: integer
+    deposit_valid_for_days:
+      nullable: true
+      type: number
+
+    amount_by_currency:
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+    cashback_expires_in_days:
+      type: number
+
+promotion.campaign_preset.freespin_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - start_after_contact_confirmed
+        - start_after_deposit
+
+        - freespin_quantity
+        - freespin_expires_in_days
+        - freespin_config
+      properties:
+        start_after_contact_confirmed:
+          type: boolean
+        start_after_deposit:
+          type: boolean
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        freespin_quantity:
+          oneOf:
+            - type: integer
+            - type: object
+              additionalProperties:
+                $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        freespin_expires_in_days:
+          type: number
+        freespin_config:
+          $ref: '#/components/schemas/promotion.campaign_preset.params_config_casino'
+
+promotion.campaign_preset.freebet_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_freebet'
+
+promotion.campaign_preset.casino_freebet_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - freebet_amount_by_currency
+        - freebet_expires_in_days
+        - freebet_config
+      properties:
+        freebet_amount_by_currency:
+          oneOf:
+            - allOf:
+                - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+            - $ref: '#/components/schemas/promotion.campaign_preset.freebet_amount_by_currency_array'
+        freebet_expires_in_days:
+          type: number
+        freebet_config:
+          $ref: '#/components/schemas/promotion.campaign_preset.params_config_casino'
+
+promotion.campaign_preset.wager_on_freespin_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - start_after_deposit
+        - freespin_quantity
+        - freespin_expires_in_days
+        - freespin_config
+        - cashback_limit_amount_by_currency
+        - cashback_expires_in_days
+      properties:
+        start_after_deposit:
+          type: boolean
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: string
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        freespin_quantity:
+          oneOf:
+            - type: integer
+            - type: object
+              additionalProperties:
+                $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        freespin_expires_in_days:
+          type: number
+        freespin_config:
+          $ref: '#/components/schemas/promotion.campaign_preset.params_config_casino'
+
+        cashback_limit_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        cashback_expires_in_days:
+          type: number
+
+promotion.campaign_preset.wager_get_freespin_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - type: object
+      required:
+        - start_after_deposit
+        - target_amount_by_currency
+        - expires_in_days
+        - freespin_quantity
+        - freespin_expires_in_days
+        - freespin_config
+      properties:
+        start_after_deposit:
+          type: boolean
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        target_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        expires_in_days:
+          type: number
+
+        freespin_quantity:
+          type: integer
+        freespin_expires_in_days:
+          type: number
+        freespin_config:
+          $ref: '#/components/schemas/promotion.campaign_preset.params_config_casino'
+
+promotion.campaign_preset.wager_get_freebet_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - start_after_deposit
+        - target_amount_by_currency
+        - expires_in_days
+        - freebet_quantity
+        - freebet_amount_by_currency
+        - freebet_expires_in_days
+      properties:
+        start_after_deposit:
+          type: boolean
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        target_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        expires_in_days:
+          type: number
+
+        freebet_quantity:
+          type: integer
+        freebet_amount_by_currency:
+          oneOf:
+            - allOf:
+                - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+            - $ref: '#/components/schemas/promotion.campaign_preset.freebet_amount_by_currency_array'
+        freebet_expires_in_days:
+          type: number
+        freebet_sport_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_match_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_min_odds:
+          nullable: true
+          type: string
+        freebet_max_odds:
+          nullable: true
+          type: string
+        freebet_bet_type:
+          nullable: true
+          type: string
+          enum:
+            - EXPRESS
+            - SINGLE
+
+promotion.campaign_preset.wager_on_deposit_get_freespin_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - type: object
+      required:
+        - wager_multiplier
+        - expires_in_days
+        - freespin_quantity
+        - freespin_expires_in_days
+        - freespin_config
+      properties:
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        wager_multiplier:
+          type: integer
+        expires_in_days:
+          type: number
+
+        freespin_quantity:
+          oneOf:
+            - type: integer
+            - type: object
+              additionalProperties:
+                $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        freespin_expires_in_days:
+          type: number
+        freespin_config:
+          $ref: '#/components/schemas/promotion.campaign_preset.params_config_casino'
+
+promotion.campaign_preset.wager_on_deposit_get_cashback_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - type: object
+      required:
+        - wager_multiplier
+        - expires_in_days
+        - cashback_expires_in_days
+        - cashback_amount_by_currency
+      properties:
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+        cashback_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        wager_multiplier:
+          type: integer
+        expires_in_days:
+          type: number
+        cashback_expires_in_days:
+          type: number
+
+promotion.campaign_preset.wager_on_deposit_get_freebet_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - wager_multiplier
+        - expires_in_days
+        - freebet_quantity
+        - freebet_amount_by_currency
+        - freebet_expires_in_days
+      properties:
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        wager_multiplier:
+          type: integer
+        expires_in_days:
+          type: number
+
+        freebet_quantity:
+          type: integer
+        freebet_amount_by_currency:
+          oneOf:
+            - allOf:
+                - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+            - $ref: '#/components/schemas/promotion.campaign_preset.freebet_amount_by_currency_array'
+        freebet_expires_in_days:
+          type: number
+        freebet_sport_ids:
+          type: array
+          items:
+            type: string
+          nullable: true
+        freebet_match_ids:
+          type: array
+          items:
+            type: string
+          nullable: true
+        freebet_min_odds:
+          type: string
+          nullable: true
+        freebet_max_odds:
+          type: string
+          nullable: true
+        freebet_bet_type:
+          type: string
+          nullable: true
+          enum:
+            - EXPRESS
+            - SINGLE
+
+promotion.campaign_preset.promo_wager_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - start_after_deposit
+        - amount_by_currency
+        - wager_multiplier
+        - promo_money_expires_in_days
+        - withdrawals_disabled
+      properties:
+        start_after_deposit:
+          type: boolean
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: string
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        wager_multiplier:
+          type: integer
+
+        promo_money_expires_in_days:
+          type: number
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        withdrawals_disabled:
+          type: boolean
+
+promotion.campaign_preset.promo_wager_on_freespin_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - start_after_deposit
+        - freespin_quantity
+        - freespin_expires_in_days
+        - freespin_config
+        - win_multiplier
+        - wager_multiplier
+        - promo_money_expires_in_days
+        - withdrawals_disabled
+        - withdrawals_disabled_until_apply_freespin
+      properties:
+        start_after_deposit:
+          type: boolean
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        freespin_quantity:
+          oneOf:
+            - type: integer
+            - type: object
+              additionalProperties:
+                $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        freespin_expires_in_days:
+          type: number
+        freespin_config:
+          $ref: '#/components/schemas/promotion.campaign_preset.params_config_casino'
+
+        win_multiplier:
+          type: number
+        wager_multiplier:
+          type: integer
+
+        promo_money_expires_in_days:
+          type: number
+        promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        withdrawals_disabled:
+          type: boolean
+        withdrawals_disabled_until_apply_freespin:
+          type: boolean
+
+promotion.campaign_preset.promo_wager_on_freebet_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - freebet_amount_by_currency
+        - freebet_expires_in_days
+        - win_multiplier
+        - wager_multiplier
+        - promo_money_expires_in_days
+        - withdrawals_disabled
+      properties:
+        freebet_amount_by_currency:
+          oneOf:
+            - allOf:
+                - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+            - $ref: '#/components/schemas/promotion.campaign_preset.freebet_amount_by_currency_array'
+        freebet_expires_in_days:
+          type: number
+        freebet_sport_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_match_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_min_odds:
+          nullable: true
+          type: string
+        freebet_bet_type:
+          nullable: true
+          type: string
+          enum:
+            - EXPRESS
+            - SINGLE
+
+        win_multiplier:
+          type: number
+        wager_multiplier:
+          type: integer
+
+        promo_money_expires_in_days:
+          type: number
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        withdrawals_disabled:
+          type: boolean
+
+promotion.campaign_preset.promo_wager_on_casino_freebet_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - freebet_amount_by_currency
+        - freebet_expires_in_days
+        - freebet_config
+        - win_multiplier
+        - wager_multiplier
+        - promo_money_expires_in_days
+        - withdrawals_disabled
+      properties:
+        freebet_amount_by_currency:
+          oneOf:
+            - allOf:
+                - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+            - $ref: '#/components/schemas/promotion.campaign_preset.freebet_amount_by_currency_array'
+        freebet_expires_in_days:
+          type: number
+        freebet_config:
+          $ref: '#/components/schemas/promotion.campaign_preset.params_config_casino'
+
+        win_multiplier:
+          type: number
+        wager_multiplier:
+          type: integer
+
+        promo_money_expires_in_days:
+          type: number
+        promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        withdrawals_disabled:
+          type: boolean
+
+promotion.campaign_preset.promo_wager_on_deposit_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - deposit_multiplier
+        - wager_multiplier
+        - promo_money_expires_in_days
+        - withdrawals_disabled
+      properties:
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+        deposit_allowed_payment_systems:
+          nullable: true
+          type: array
+          items:
+            type: string
+
+        deposit_multiplier:
+          type: number
+        wager_multiplier:
+          type: integer
+
+        promo_money_expires_in_days:
+          type: number
+        promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        withdrawals_disabled:
+          type: boolean
+
+promotion.campaign_preset.freebet_on_sport_bet_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - start_after_deposit
+        - bet_amount_to_freebet_multiplier
+        - freebet_expires_in_days
+      properties:
+        start_after_deposit:
+          type: boolean
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: string
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        bet_min_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        bet_result_type:
+          nullable: true
+          type: string
+          enum: ['win', 'lose']
+        bet_min_odds:
+          nullable: true
+          type: number
+        bet_tournament_ids:
+          nullable: true
+          type: array
+          items:
+            type: integer
+        bet_market_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        bet_sport_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        bet_match_ids:
+          nullable: true
+          type: array
+          items:
+            type: integer
+        bet_type:
+          nullable: true
+          type: string
+          enum:
+            - EXPRESS
+            - SINGLE
+        bet_result_valid_for_days:
+          nullable: true
+          type: number
+
+        bet_amount_to_freebet_multiplier:
+          type: number
+        freebet_max_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        freebet_expires_in_days:
+          type: number
+        freebet_sport_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_match_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_min_odds:
+          nullable: true
+          type: string
+        freebet_max_odds:
+          nullable: true
+          type: string
+        freebet_bet_type:
+          nullable: true
+          type: string
+          enum:
+            - EXPRESS
+            - SINGLE
+
+promotion.campaign_preset.promo_wager_on_freebet_on_sport_bet_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - type: object
+      required:
+        - start_after_deposit
+        - bet_amount_to_freebet_multiplier
+        - freebet_expires_in_days
+        - freebet_win_multiplier
+        - wager_multiplier
+        - promo_money_expires_in_days
+        - withdrawals_disabled
+      properties:
+        start_after_deposit:
+          type: boolean
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: string
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        bet_min_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        bet_result_type:
+          nullable: true
+          type: string
+          enum: ['win', 'lose']
+        bet_min_odds:
+          nullable: true
+          type: number
+        bet_tournament_ids:
+          nullable: true
+          type: array
+          items:
+            type: integer
+        bet_market_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        bet_sport_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        bet_match_ids:
+          nullable: true
+          type: array
+          items:
+            type: integer
+        bet_type:
+          nullable: true
+          type: string
+          enum:
+            - EXPRESS
+            - SINGLE
+        bet_result_valid_for_days:
+          nullable: true
+          type: number
+
+        bet_amount_to_freebet_multiplier:
+          type: number
+        freebet_max_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        freebet_expires_in_days:
+          type: number
+        freebet_sport_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_match_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_min_odds:
+          nullable: true
+          type: string
+        freebet_max_odds:
+          nullable: true
+          type: string
+        freebet_bet_type:
+          nullable: true
+          type: string
+          enum:
+            - EXPRESS
+            - SINGLE
+
+        freebet_win_multiplier:
+          type: number
+        wager_multiplier:
+          type: integer
+
+        promo_money_expires_in_days:
+          type: number
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        withdrawals_disabled:
+          type: boolean
+
+promotion.campaign_preset.freebet_on_sport_lose_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_sport_bet_condition'
+    - type: object
+      required:
+        - freebet_quantity
+        - bet_amount_to_freebet_multiplier
+        - freebet_expires_in_days
+      properties:
+        bet_min_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        freebet_quantity:
+          type: integer
+        bet_amount_to_freebet_multiplier:
+          type: string
+        freebet_max_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        freebet_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        freebet_expires_in_days:
+          type: number
+        freebet_sport_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_match_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_min_odds:
+          nullable: true
+          type: string
+        freebet_max_odds:
+          nullable: true
+          type: string
+        freebet_bet_type:
+          nullable: true
+          type: string
+          enum:
+            - EXPRESS
+            - SINGLE
+
+promotion.campaign_preset.promo_wager_on_freebet_on_sport_lose_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_sport_bet_condition'
+    - type: object
+      required:
+        - bet_min_amount_by_currency
+        - max_lost_express_blocks_count
+        - max_amount_by_currency
+        - freebet_expires_in_days
+        - wager_multiplier
+        - promo_money_expires_in_days
+        - withdrawals_disabled
+      properties:
+        bet_min_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        valid_from:
+          nullable: true
+          type: integer
+        valid_to:
+          nullable: true
+          type: integer
+        valid_for_days:
+          nullable: true
+          type: number
+
+        max_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        max_lost_express_blocks_count:
+          type: integer
+
+        freebet_expires_in_days:
+          type: number
+        freebet_sport_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_match_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_min_odds:
+          nullable: true
+          type: string
+        freebet_bet_type:
+          nullable: true
+          type: string
+          enum:
+            - EXPRESS
+            - SINGLE
+
+        #! also `max_amount_by_currency` is used as sum that should be wagered
+        wager_multiplier:
+          type: integer
+
+        promo_money_expires_in_days:
+          type: number
+        promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        withdrawals_disabled:
+          type: boolean
+
+promotion.campaign_preset.wager_get_next_campaign_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - start_after_deposit
+        - target_amount_by_currency
+        - expires_in_days
+        - wager_multiplier
+
+        - next_campaign_id
+      properties:
+        start_after_deposit:
+          type: boolean
+        target_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        expires_in_days:
+          type: number
+        wager_multiplier:
+          type: integer
+
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        next_campaign_id:
+          nullable: true
+          type: array
+          items:
+            type: integer
+
+#! Shouldn't be used, marketing uses two consecutive campaigns linked by `next_campaign` instead:
+promotion.campaign_preset.promo_wager_on_deposit_get_freespin_with_promo_wager_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - type: object
+      required:
+        - deposit_multiplier
+        - first_wager_multiplier
+        - first_promo_money_expires_in_days
+        - second_wager_multiplier
+        - second_promo_money_expires_in_days
+        - freespin_win_multiplier
+        - freespin_quantity
+        - freespin_config
+        - freespin_expires_in_days
+        - withdrawals_disabled
+        - withdrawals_disabled_until_apply_freespin
+      properties:
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        deposit_multiplier:
+          type: number
+        first_wager_multiplier:
+          type: integer
+
+        first_promo_money_expires_in_days:
+          type: number
+        first_promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        first_promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        first_promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        freespin_quantity:
+          type: integer
+        freespin_expires_in_days:
+          type: number
+        freespin_config:
+          $ref: '#/components/schemas/promotion.campaign_preset.params_config_casino'
+
+        freespin_win_multiplier:
+          type: number
+        second_wager_multiplier:
+          type: integer
+
+        second_promo_money_expires_in_days:
+          type: number
+        second_promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        second_promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        second_promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        withdrawals_disabled:
+          type: boolean
+        withdrawals_disabled_until_apply_freespin:
+          type: boolean
+
+#! Shouldn't be used, marketing uses two consecutive campaigns linked by `next_campaign` instead:
+promotion.campaign_preset.promo_wager_on_deposit_get_freebet_with_promo_wager_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - type: object
+      required:
+        - deposit_multiplier
+        - first_wager_multiplier
+        - first_promo_money_expires_in_days
+        - second_wager_multiplier
+        - second_promo_money_expires_in_days
+        - freebet_win_multiplier
+        - freebet_expires_in_days
+        - freebet_amount_by_currency
+        - withdrawals_disabled
+        - withdrawals_disabled_until_apply_freebet
+      properties:
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        deposit_multiplier:
+          type: number
+        first_wager_multiplier:
+          type: integer
+
+        first_promo_money_expires_in_days:
+          type: number
+        first_promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        first_promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        first_promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        freebet_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        freebet_expires_in_days:
+          type: number
+        freebet_sport_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_match_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_min_odds:
+          nullable: true
+          type: string
+        freebet_bet_type:
+          nullable: true
+          type: string
+
+        freebet_win_multiplier:
+          type: number
+        second_wager_multiplier:
+          type: integer
+
+        second_promo_money_expires_in_days:
+          type: number
+        second_promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        second_promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        second_promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        withdrawals_disabled:
+          type: boolean
+        withdrawals_disabled_until_apply_freebet:
+          type: boolean
+
+#! no active participants in the last year for this preset:
+promotion.campaign_preset.freebet_on_deposit_on_sport_lose_params:
+  allOf:
+    - type: object
+      required:
+        - bet_min_amount_by_currency
+        - max_amount_by_currency
+        - max_lost_express_blocks_count
+        - freebet_expires_in_days
+        - freebet_quantity
+        - start_after_deposit
+      properties:
+        bet_min_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        max_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        max_lost_express_blocks_count:
+          type: integer
+
+        valid_from:
+          nullable: true
+          type: integer
+        valid_to:
+          nullable: true
+          type: integer
+        valid_for_days:
+          nullable: true
+          type: number
+
+        start_after_deposit:
+          type: boolean
+
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: string
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        freebet_expires_in_days:
+          type: number
+        freebet_quantity:
+          type: integer
+
+        freebet_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        freebet_sport_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_match_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_min_odds:
+          nullable: true
+          type: string
+        freebet_bet_type:
+          nullable: true
+          type: string
+
+#! no active participants in the last year for this preset:
+promotion.campaign_preset.promo_wager_on_deposit_plus_freespin_params:
+  allOf:
+    - type: object
+      required:
+        - deposit_multiplier
+        - wager_multiplier
+        - withdrawals_disabled
+        - promo_money_expires_in_days
+        - freespin_quantity
+        - freespin_expires_in_days
+        - freespin_config
+      properties:
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+        deposit_allowed_payment_systems:
+          nullable: true
+          type: array
+          items:
+            type: string
+
+        deposit_multiplier:
+          type: string
+        wager_multiplier:
+          type: integer
+        withdrawals_disabled:
+          type: boolean
+        promo_money_expires_in_days:
+          type: number
+
+        promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        freespin_quantity:
+          type: integer
+        freespin_expires_in_days:
+          type: number
+        freespin_config:
+          $ref: '#/components/schemas/promotion.campaign_preset.params_config_casino'
+
+#! no active participants in the last year for this preset:
+promotion.campaign_preset.promo_wager_on_deposit_parametrized_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - type: object
+      required:
+        - params_by_deposit_amount
+        - withdrawals_disabled
+        - promo_money_expires_in_days
+      properties:
+        min_deposit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        params_by_deposit_amount:
+          type: array
+          items:
+            type: object
+            required:
+              - deposit_amount_from
+              - deposit_multiplier
+              - wager_multiplier
+            properties:
+              deposit_amount_from:
+                allOf:
+                  - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+              deposit_multiplier:
+                type: number
+              wager_multiplier:
+                type: integer
+
+        withdrawals_disabled:
+          type: boolean
+        promo_money_expires_in_days:
+          type: number
+
+        promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+#! no active participants in the last year for this preset:
+promotion.campaign_preset.promo_wager_on_bet_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_next_campaign'
+    - type: object
+      required:
+        - target_sport_bets_allowed
+        - target_casino_bets_allowed
+        - target_amount_by_currency
+        - amount_by_currency
+        - expires_in_days
+        - wager_multiplier
+        - withdrawals_disabled
+        - promo_money_expires_in_days
+      properties:
+        target_sport_bets_allowed:
+          type: boolean
+        target_casino_bets_allowed:
+          type: boolean
+        target_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        expires_in_days:
+          type: number
+
+        wager_multiplier:
+          type: integer
+        withdrawals_disabled:
+          type: boolean
+        promo_money_expires_in_days:
+          type: number
+
+        promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+#! preset is not presented:
+promotion.campaign_preset.promo_wager_on_losses_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - type: object
+      required:
+        - wager_multiplier
+        - promo_money_expires_in_days
+        - withdrawals_disabled
+        - account_losses_sport_bets
+        - account_losses_casino_bets
+        - losses_to_promo_money_limit_amount_by_currency
+      properties:
+        wager_multiplier:
+          type: integer
+        promo_money_expires_in_days:
+          type: number
+        withdrawals_disabled:
+          type: boolean
+        account_losses_sport_bets:
+          type: boolean
+        account_losses_casino_bets:
+          type: boolean
+        losses_to_promo_money_limit_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        account_losses_until:
+          type: integer
+          nullable: true
+        account_losses_for_days:
+          type: number
+          nullable: true
+        promo_to_real_money_limit_multiplier:
+          type: integer
+          nullable: true
+        promo_to_real_money_limit_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+          nullable: true
+
+#! preset is not presented:
+promotion.campaign_preset.promo_wager_on_sport_lose_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - type: object
+      required:
+        - bet_min_amount_by_currency
+        - max_amount_by_currency
+        - max_lost_express_blocks_count
+        - wager_multiplier
+        - withdrawals_disabled
+        - promo_money_expires_in_days
+      properties:
+        bet_min_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        max_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        max_lost_express_blocks_count:
+          type: integer
+
+        valid_from:
+          nullable: true
+          type: integer
+        valid_to:
+          nullable: true
+          type: integer
+        valid_for_days:
+          nullable: true
+          type: number
+
+        wager_multiplier:
+          type: integer
+        withdrawals_disabled:
+          type: boolean
+        promo_money_expires_in_days:
+          type: number
+
+        promo_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+#! preset is not presented:
+promotion.campaign_preset.wager_on_sport_lose_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_sport_bet_condition'
+    - type: object
+      required:
+        - bet_min_amount_by_currency
+        - max_amount_by_currency
+        - max_lost_express_blocks_count
+      properties:
+        bet_min_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        max_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        max_lost_express_blocks_count:
+          type: integer
+
+        valid_from:
+          nullable: true
+          type: integer
+        valid_to:
+          nullable: true
+          type: integer
+        valid_for_days:
+          nullable: true
+          type: number
+
+#! preset is not presented:
+promotion.campaign_preset.wager_on_deposit_get_freebet_with_promo_wager_params:
+  allOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.params_mixin_wager'
+    - type: object
+      required:
+        - min_deposit_amount_by_currency
+        - deposit_wager_valid_for_days
+        - wager_on_deposit_target_amount_by_currency
+        - wager_on_deposit_multiplier
+        - withdrawals_disabled_until_apply_freebet
+        - promo_money_expires_in_days
+        - wager_on_freebet_multiplier
+        - withdrawals_disabled
+        - freebet_amount_by_currency
+        - freebet_win_multiplier
+        - freebet_expires_in_days
+        - freebet_quantity
+      properties:
+        min_deposit_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        deposit_wager_valid_for_days:
+          type: number
+
+        deposit_valid_to:
+          nullable: true
+          type: integer
+        deposit_valid_for_days:
+          nullable: true
+          type: number
+
+        wager_on_deposit_target_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        wager_on_deposit_multiplier:
+          type: integer
+        withdrawals_disabled_until_apply_freebet:
+          type: boolean
+        promo_money_expires_in_days:
+          type: number
+
+        promo_to_real_money_limit_multiplier:
+          nullable: true
+          type: integer
+        promo_to_real_money_limit_amount_by_currency:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+        wager_on_freebet_multiplier:
+          type: integer
+        withdrawals_disabled:
+          type: boolean
+
+        freebet_amount_by_currency:
+          allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        freebet_win_multiplier:
+          type: string
+        freebet_expires_in_days:
+          type: number
+        freebet_quantity:
+          type: integer
+
+        freebet_sport_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_match_ids:
+          nullable: true
+          type: array
+          items:
+            type: string
+        freebet_min_odds:
+          nullable: true
+          type: string
+        freebet_max_odds:
+          nullable: true
+          type: string
+        freebet_bet_type:
+          nullable: true
+          type: string
+          enum:
+            - EXPRESS
+            - SINGLE
+
+promotion.campaign_preset.params_config_casino:
+  type: object
+  required:
+    - game_name
+  properties:
+    game_name:
+      type: string
+    game_id:
+      nullable: true
+      type: integer
+    game_uuid:
+      nullable: true
+      type: string
+    casino_provider:
+      nullable: true
+      type: string
+    game_type:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/casino.game_type'
+
+promotion.campaign_preset.params_mixin_wager:
+  type: object
+  required:
+    - sport_bets_allowed
+    - casino_bets_allowed
+    - casino_live_bets_allowed
+    - bingo_bets_allowed
+  properties:
+    sport_bets_allowed:
+      type: boolean
+    casino_bets_allowed:
+      type: boolean
+    casino_live_bets_allowed:
+      type: boolean
+    bingo_bets_allowed:
+      type: boolean
+
+    wager_casino_game_uuid:
+      nullable: true
+      oneOf:
+        - type: string
+        - type: array
+          items:
+            type: string
+    wager_casino_game_type:
+      nullable: true
+      type: string
+    wager_casino_game_provider:
+      nullable: true
+      type: string
+    wager_sport_bets_min_odds:
+      nullable: true
+      type: string
+    wager_sport_bet_min_amount_by_currency:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+    wager_sport_ids:
+      nullable: true
+      type: array
+      items:
+        type: string
+
+promotion.campaign_preset.params_mixin_sport_bet_condition:
+  type: object
+  properties:
+    min_odds:
+      nullable: true
+      type: string
+    tournament_ids:
+      nullable: true
+      type: array
+      items:
+        type: integer
+    market_ids:
+      nullable: true
+      type: array
+      items:
+        type: string
+    sport_ids:
+      nullable: true
+      type: array
+      items:
+        type: string
+    match_ids:
+      nullable: true
+      type: array
+      items:
+        type: integer
+    bet_type:
+      nullable: true
+      type: string
+      enum:
+        - EXPRESS
+        - SINGLE
+    min_express_blocks_count:
+      nullable: true
+      type: integer
+
+promotion.campaign_preset.params_mixin_next_campaign:
+  type: object
+  required:
+    - next_campaign_as_unconditional_reward
+    - next_campaign_accept_participant_on_create
+    - next_campaign_inherit_participation_duration_limit
+  properties:
+    next_campaign_as_unconditional_reward:
+      type: boolean
+    next_campaign_accept_participant_on_create:
+      type: boolean
+    next_campaign_inherit_participation_duration_limit:
+      type: boolean
+
+    next_campaign_id:
+      nullable: true
+      type: array
+      items:
+        type: integer
+
+promotion.campaign_preset.params_mixin_freebet:
+  type: object
+  required:
+    - freebet_amount_by_currency
+    - freebet_expires_in_days
+    - freebet_quantity
+  properties:
+    freebet_amount_by_currency:
+      oneOf:
+        - allOf:
+            - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+        - $ref: '#/components/schemas/promotion.campaign_preset.freebet_amount_by_currency_array'
+    freebet_expires_in_days:
+      type: number
+    freebet_quantity:
+      type: integer
+    freebet_sport_ids:
+      nullable: true
+      type: array
+      items:
+        type: string
+    freebet_match_ids:
+      nullable: true
+      type: array
+      items:
+        type: string
+    freebet_min_odds:
+      nullable: true
+      type: string
+    freebet_max_odds:
+      nullable: true
+      type: string
+    freebet_bet_type:
+      nullable: true
+      type: string
+      enum:
+        - EXPRESS
+        - SINGLE
+
+promotion.campaign_preset.money_amount:
+  type: object
+  required:
+    - value
+    - currency
+  properties:
+    value:
+      $ref: '#/components/schemas/core.money_amount'
+    currency:
+      allOf:
+        - $ref: '#/components/schemas/core.currency'
+
+promotion.campaign_preset.widget_deposit_amount:
+  type: object
+  required:
+    - deposit_amount
+  properties:
+    deposit_amount:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.campaign_preset.money_amount'
+
+promotion.campaign_preset.freebet_amount_by_currency_array:
+  type: array
+  items:
+    type: object
+    properties:
+      reward_amount:
+        allOf:
+          - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+      target_amount:
+        allOf:
+          - $ref: '#/components/schemas/promotion.campaign_preset.amount_by_currency'
+
+promotion.campaign_preset.amount_by_currency:
+  type: object
+  properties:
+    #@yaml/text-templated-strings
+    #@ for currency in data.values.currencies:
+    (@= currency["name"] @):
+      $ref: '#/components/schemas/core.money_amount'
+    #@ end
+#@ end

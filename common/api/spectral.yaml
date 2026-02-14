@@ -1,0 +1,15 @@
+extends: [[spectral:oas, recommended]]
+rules:
+  oas3-unused-component: off
+
+overrides:
+  - files:
+      - 'spec.yml#/components/schemas/auth.personal_data.personal_data_v2/discriminator'
+      - 'spec.yml#/components/schemas/auth.personal_data_update.update_v2/discriminator'
+      - 'spec.yml#/components/schemas/auth.personal_data.peruvian_id/discriminator'
+      - 'spec.yml#/components/schemas/auth.personal_data.colombian_id/discriminator'
+      - 'spec.yml#/components/schemas/request.auth.user_additional_registration_data_personal_data'
+      - 'spec.yml#/components/schemas/auth.personal_data.mozambican_id/discriminator'
+      - 'spec.yml#/components/schemas/support_chat.support_chat_info/discriminator'
+    rules:
+      oas3-schema: off

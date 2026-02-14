@@ -1,0 +1,966 @@
+
+#@ def extra_spec_components():
+depositExtra.cardpay_applepay:
+  description: cardpay_applepay deposit extra data
+  properties:
+    encrypted_data:
+      title: Encrypted Data
+      type: string
+  required:
+  - encrypted_data
+  title: CardpayApplepayDepositExtraData
+  type: object
+depositExtra.cardpay_ec_cash:
+  description: cardpay_ec_cash deposit extra data
+  properties:
+    subsystem:
+      $ref: '#/components/schemas/CardpayEcCashSubsystems'
+  required:
+  - subsystem
+  title: DepositExtraData
+  type: object
+depositExtra.cardpay_googlepay:
+  description: cardpay_googlepay deposit extra data
+  properties:
+    encrypted_data:
+      title: Encrypted Data
+      type: string
+  required:
+  - encrypted_data
+  title: CardpayGooglepayDepositExtraData
+  type: object
+depositExtra.cardpay_openbanking:
+  description: cardpay_openbanking deposit extra data
+  properties:
+    bank_code:
+      title: Bank Code
+      type: string
+  required:
+  - bank_code
+  title: CardpayOpenbankingDepositExtraData
+  type: object
+depositExtra.cardpay_pix:
+  description: cardpay_pix deposit extra data
+  properties:
+    first_name:
+      title: First Name
+      type: string
+    last_name:
+      title: Last Name
+      type: string
+  required:
+  - first_name
+  - last_name
+  title: CardpayPixDepositExtraData
+  type: object
+depositExtra.cardpay_pse:
+  description: cardpay_pse deposit extra data
+  properties:
+    bank_code:
+      title: Bank Code
+      type: string
+    document_type:
+      enum:
+      - RCN
+      - TID
+      - CCI
+      - TEX
+      - CEX
+      - PAS
+      - DIE
+      title: Document Type
+      type: string
+  required:
+  - document_type
+  - bank_code
+  title: CardpayPseDepositExtraData
+  type: object
+depositExtra.clip:
+  description: clip deposit extra data
+  properties:
+    session_id:
+      title: Session Id
+      type: string
+  required:
+  - session_id
+  title: ClipDepositExtraData
+  type: object
+depositExtra.d24:
+  description: d24 deposit extra data
+  properties:
+    mexican_curp:
+      pattern: ^[a-zA-Z]{4}\d{6}[hmHM][a-zA-Z]{5}\w{2}$
+      title: Mexican Curp
+      type: string
+  title: D24DepositExtraData
+  type: object
+depositExtra.d24_mercadopago:
+  description: d24_mercadopago deposit extra data
+  properties:
+    mexican_curp:
+      pattern: ^[a-zA-Z]{4}\d{6}[hmHM][a-zA-Z]{5}\w{2}$
+      title: Mexican Curp
+      type: string
+  required:
+  - mexican_curp
+  title: D24MercadoPagoDepositExtraData
+  type: object
+depositExtra.interkassa_mercadopago:
+  description: interkassa_mercadopago deposit extra data
+  properties:
+    tax_id:
+      title: Tax Id
+      type: string
+  title: InterkassaMercadopagoDepositExtraData
+  type: object
+depositExtra.monetix_pix:
+  description: monetix_pix deposit extra data
+  properties:
+    first_name:
+      title: First Name
+      type: string
+    last_name:
+      title: Last Name
+      type: string
+  title: MonetixPixDepositExtraData
+  type: object
+depositExtra.nuvei_applepay:
+  description: nuvei_applepay deposit extra data
+  properties:
+    mobile_token:
+      title: Mobile Token
+      type: string
+  required:
+  - mobile_token
+  title: NuveiApplepayDepositExtra
+  type: object
+depositExtra.nuvei_banking:
+  description: nuvei_banking deposit extra data
+  properties:
+    tax_id:
+      title: Tax Id
+      type: string
+  title: NuveiBankingDepositExtraData
+  type: object
+depositExtra.nuvei_googlepay:
+  description: nuvei_googlepay deposit extra data
+  properties:
+    mobile_token:
+      title: Mobile Token
+      type: string
+    session_token:
+      title: Session Token
+      type: string
+  required:
+  - mobile_token
+  - session_token
+  title: NuveiGooglepayDepositExtra
+  type: object
+depositExtra.openpay:
+  description: openpay deposit extra data
+  properties:
+    device_session_id:
+      title: Device Session Id
+      type: string
+  required:
+  - device_session_id
+  title: OpenpayDepositExtraData
+  type: object
+depositExtra.paydoo_opp:
+  description: paydoo_opp deposit extra data
+  properties:
+    browser_timezone:
+      title: Browser Timezone
+      type: string
+    screen_height:
+      title: Screen Height
+      type: integer
+    screen_width:
+      title: Screen Width
+      type: integer
+  required:
+  - screen_height
+  - screen_width
+  - browser_timezone
+  title: PaydooOppDepositExtraData
+  type: object
+depositExtra.rozert_cardpay_applepay:
+  description: rozert_cardpay_applepay deposit extra data
+  properties:
+    encrypted_data:
+      title: Encrypted Data
+      type: string
+  required:
+  - encrypted_data
+  title: CardpayApplepayDepositExtraData
+  type: object
+depositExtra.rozert_d24_mercadopago:
+  description: rozert_d24_mercadopago deposit extra data
+  properties:
+    mexican_curp:
+      pattern: ^[a-zA-Z]{4}\d{6}[hmHM][a-zA-Z]{5}\w{2}$
+      title: Mexican Curp
+      type: string
+  required:
+  - mexican_curp
+  title: RozertD24MercadoPagoDepositExtraData
+  type: object
+depositExtra.rozert_stp_codi:
+  description: rozert_stp_codi deposit extra data
+  properties:
+    deposit_type:
+      enum:
+      - app
+      - qr_code
+      title: Deposit Type
+      type: string
+  required:
+  - deposit_type
+  title: RozertStpCodiDepositExtra
+  type: object
+depositExtra.rozert_worldpay:
+  description: rozert_worldpay deposit extra data
+  properties:
+    session_id:
+      title: Session Id
+      type: string
+  required:
+  - session_id
+  title: RozertWorldpayDepositExtraData
+  type: object
+withdrawExtra.cardpay_applepay:
+  description: cardpay_applepay withdraw extra data
+  properties:
+    encrypted_data:
+      title: Encrypted Data
+      type: string
+  required:
+  - encrypted_data
+  title: CardpayApplepayWithdrawExtraData
+  type: object
+withdrawExtra.cardpay_instant:
+  description: cardpay_instant withdraw extra data
+  properties:
+    first_name:
+      title: First Name
+      type: string
+    iban:
+      default: ''
+      title: Iban
+      type: string
+    last_name:
+      title: Last Name
+      type: string
+  required:
+  - first_name
+  - last_name
+  title: CardpayInstantWithdrawExtraData
+  type: object
+withdrawExtra.cardpay_pix:
+  description: cardpay_pix withdraw extra data
+  properties:
+    bank_branch:
+      title: Bank Branch
+      type: string
+    bank_code:
+      title: Bank Code
+      type: string
+  required:
+  - bank_branch
+  - bank_code
+  title: CardpayPixWithdrawExtraData
+  type: object
+withdrawExtra.coinspaid:
+  description: coinspaid withdraw extra data
+  properties:
+    crypto_address:
+      title: Crypto Address
+      type: string
+    crypto_tag:
+      title: Crypto Tag
+      type: string
+  required:
+  - crypto_address
+  title: CoinspaidWithdrawExtraData
+  type: object
+withdrawExtra.d24_mercadopago:
+  description: d24_mercadopago withdraw extra data
+  properties:
+    clabe:
+      title: Clabe
+      type: string
+    mexican_curp:
+      pattern: ^[a-zA-Z]{4}\d{6}[hmHM][a-zA-Z]{5}\w{2}$
+      title: Mexican Curp
+      type: string
+  required:
+  - clabe
+  title: D24MercadoPagoWithdrawExtraData
+  type: object
+withdrawExtra.interkassa_mercadopago:
+  description: interkassa_mercadopago withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+  required:
+  - account_number
+  title: InterkassaMercadopagoWithdrawExtraData
+  type: object
+withdrawExtra.monetix_banks_of_japan:
+  description: monetix_banks_of_japan withdraw extra data
+  properties:
+    bank_code:
+      title: Bank Code
+      type: string
+    bank_name:
+      title: Bank Name
+      type: string
+    branch:
+      title: Branch
+      type: string
+    branch_code:
+      title: Branch Code
+      type: string
+    customer_name:
+      title: Customer Name
+      type: string
+    native_customer_name:
+      title: Native Customer Name
+      type: string
+    number:
+      title: Number
+      type: string
+  required:
+  - number
+  - branch
+  - bank_code
+  - customer_name
+  - native_customer_name
+  - bank_name
+  - branch_code
+  title: MonetixBanksOfJapanWithdrawExtraData
+  type: object
+withdrawExtra.monetix_india_nb:
+  description: monetix_india_nb withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_code:
+      title: Bank Code
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  - bank_code
+  title: MonetixIndiaNetbankingWithdrawExtraData
+  type: object
+withdrawExtra.monetix_india_upi:
+  description: monetix_india_upi withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  title: MonetixDefaultWithdrawExtraData
+  type: object
+withdrawExtra.monetix_indonesia:
+  description: monetix_indonesia withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  title: MonetixDefaultWithdrawExtraData
+  type: object
+withdrawExtra.monetix_malaysia:
+  description: monetix_malaysia withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  title: MonetixDefaultWithdrawExtraData
+  type: object
+withdrawExtra.monetix_philippines:
+  description: monetix_philippines withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  title: MonetixDefaultWithdrawExtraData
+  type: object
+withdrawExtra.monetix_russia_sbp:
+  description: monetix_russia_sbp withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  title: MonetixDefaultWithdrawExtraData
+  type: object
+withdrawExtra.monetix_thailand:
+  description: monetix_thailand withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  title: MonetixDefaultWithdrawExtraData
+  type: object
+withdrawExtra.monetix_thailand_bank:
+  description: monetix_thailand_bank withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  title: MonetixDefaultWithdrawExtraData
+  type: object
+withdrawExtra.monetix_thailand_promptpay:
+  description: monetix_thailand_promptpay withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  title: MonetixDefaultWithdrawExtraData
+  type: object
+withdrawExtra.monetix_thailand_transfer:
+  description: monetix_thailand_transfer withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  title: MonetixDefaultWithdrawExtraData
+  type: object
+withdrawExtra.monetix_thailand_truemoney:
+  description: monetix_thailand_truemoney withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  title: MonetixDefaultWithdrawExtraData
+  type: object
+withdrawExtra.monetix_vietnam:
+  description: monetix_vietnam withdraw extra data
+  properties:
+    account_number:
+      title: Account Number
+      type: string
+    bank_id:
+      title: Bank Id
+      type: integer
+    customer_name:
+      title: Customer Name
+      type: string
+  required:
+  - account_number
+  - customer_name
+  - bank_id
+  title: MonetixDefaultWithdrawExtraData
+  type: object
+withdrawExtra.rewind:
+  description: rewind withdraw extra data
+  properties:
+    address:
+      title: Address
+      type: string
+  required:
+  - address
+  title: RewindWithdrawExtraData
+  type: object
+withdrawExtra.rozert_cardpay_applepay:
+  description: rozert_cardpay_applepay withdraw extra data
+  properties:
+    encrypted_data:
+      title: Encrypted Data
+      type: string
+  required:
+  - encrypted_data
+  title: CardpayApplepayWithdrawExtraData
+  type: object
+withdrawExtra.rozert_d24_mercadopago:
+  description: rozert_d24_mercadopago withdraw extra data
+  properties:
+    clabe:
+      title: Clabe
+      type: string
+    mexican_curp:
+      pattern: ^[a-zA-Z]{4}\d{6}[hmHM][a-zA-Z]{5}\w{2}$
+      title: Mexican Curp
+      type: string
+  required:
+  - clabe
+  title: RozertD24MercadoPagoWithdrawExtraData
+  type: object
+withdrawExtra.rozert_ilixium:
+  description: rozert_ilixium withdraw extra data
+  properties:
+    beneficiary_account_number:
+      title: Beneficiary Account Number
+      type: string
+    beneficiary_bank_code:
+      title: Beneficiary Bank Code
+      type: string
+    beneficiary_sort_code:
+      title: Beneficiary Sort Code
+      type: string
+    first_name:
+      title: First Name
+      type: string
+    last_name:
+      title: Last Name
+      type: string
+  required:
+  - beneficiary_sort_code
+  - beneficiary_bank_code
+  - beneficiary_account_number
+  - first_name
+  - last_name
+  title: IlixiumWithdrawExtraData
+  type: object
+withdrawExtra.spei:
+  description: spei withdraw extra data
+  properties:
+    bank_account_number:
+      title: Bank Account Number
+      type: string
+    bank_code:
+      title: Bank Code
+      type: string
+    full_name:
+      title: Full Name
+      type: string
+  required:
+  - bank_code
+  - bank_account_number
+  - full_name
+  title: SpeiWithdrawExtraData
+  type: object
+
+#@ end
+
+#@ def deposit_extra_spec():
+oneOf:
+- $ref: '#/components/schemas/depositExtra.cardpay_applepay'
+- $ref: '#/components/schemas/depositExtra.cardpay_ec_cash'
+- $ref: '#/components/schemas/depositExtra.cardpay_googlepay'
+- $ref: '#/components/schemas/depositExtra.cardpay_openbanking'
+- $ref: '#/components/schemas/depositExtra.cardpay_pix'
+- $ref: '#/components/schemas/depositExtra.cardpay_pse'
+- $ref: '#/components/schemas/depositExtra.clip'
+- $ref: '#/components/schemas/depositExtra.d24'
+- $ref: '#/components/schemas/depositExtra.d24_mercadopago'
+- $ref: '#/components/schemas/depositExtra.interkassa_mercadopago'
+- $ref: '#/components/schemas/depositExtra.monetix_pix'
+- $ref: '#/components/schemas/depositExtra.nuvei_applepay'
+- $ref: '#/components/schemas/depositExtra.nuvei_banking'
+- $ref: '#/components/schemas/depositExtra.nuvei_googlepay'
+- $ref: '#/components/schemas/depositExtra.openpay'
+- $ref: '#/components/schemas/depositExtra.paydoo_opp'
+- $ref: '#/components/schemas/depositExtra.rozert_cardpay_applepay'
+- $ref: '#/components/schemas/depositExtra.rozert_d24_mercadopago'
+- $ref: '#/components/schemas/depositExtra.rozert_stp_codi'
+- $ref: '#/components/schemas/depositExtra.rozert_worldpay'
+- description: Other systems
+  properties: {}
+  type: object
+
+#@ end
+
+#@ def withdraw_extra_spec():
+oneOf:
+- $ref: '#/components/schemas/withdrawExtra.cardpay_applepay'
+- $ref: '#/components/schemas/withdrawExtra.cardpay_instant'
+- $ref: '#/components/schemas/withdrawExtra.cardpay_pix'
+- $ref: '#/components/schemas/withdrawExtra.coinspaid'
+- $ref: '#/components/schemas/withdrawExtra.d24_mercadopago'
+- $ref: '#/components/schemas/withdrawExtra.interkassa_mercadopago'
+- $ref: '#/components/schemas/withdrawExtra.monetix_banks_of_japan'
+- $ref: '#/components/schemas/withdrawExtra.monetix_india_nb'
+- $ref: '#/components/schemas/withdrawExtra.monetix_india_upi'
+- $ref: '#/components/schemas/withdrawExtra.monetix_indonesia'
+- $ref: '#/components/schemas/withdrawExtra.monetix_malaysia'
+- $ref: '#/components/schemas/withdrawExtra.monetix_philippines'
+- $ref: '#/components/schemas/withdrawExtra.monetix_russia_sbp'
+- $ref: '#/components/schemas/withdrawExtra.monetix_thailand'
+- $ref: '#/components/schemas/withdrawExtra.monetix_thailand_bank'
+- $ref: '#/components/schemas/withdrawExtra.monetix_thailand_promptpay'
+- $ref: '#/components/schemas/withdrawExtra.monetix_thailand_transfer'
+- $ref: '#/components/schemas/withdrawExtra.monetix_thailand_truemoney'
+- $ref: '#/components/schemas/withdrawExtra.monetix_vietnam'
+- $ref: '#/components/schemas/withdrawExtra.rewind'
+- $ref: '#/components/schemas/withdrawExtra.rozert_cardpay_applepay'
+- $ref: '#/components/schemas/withdrawExtra.rozert_d24_mercadopago'
+- $ref: '#/components/schemas/withdrawExtra.rozert_ilixium'
+- $ref: '#/components/schemas/withdrawExtra.spei'
+- description: Other systems
+  properties: {}
+  type: object
+
+#@ end
+
+#@ def extra_spec_definitions():
+CardpayEcCashSubsystems:
+  description: An enumeration.
+  enum:
+  - FARMACIAS_911
+  - FARMACIAS_ECONOMICAS
+  - FARMACIAS_MEDICITY
+  - RIANXEIRA
+  - WESTERN_UNION
+  - ZONA_PAGO
+  title: CardpayEcCashSubsystems
+  type: string
+
+#@ end
+
+#@ def extra_http_actions():
+/payment/v2/cardpay_applepay/extraactions/applepay_merchant_validation:
+  post:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              creds_id:
+                title: Creds Id
+                type: integer
+              domain:
+                title: Domain
+                type: string
+              merchant_identifier:
+                title: Merchant Identifier
+                type: string
+              validation_url:
+                default: https://apple-pay-gateway.apple.com/paymentservices/startSession
+                title: Validation Url
+                type: string
+            required:
+            - merchant_identifier
+            - domain
+            title: ApplepayMerchantValidationExtraAction
+            type: object
+      required: true
+    responses:
+      '200':
+        content:
+          application/json: {}
+        description: ''
+    summary: Extra action applepay_merchant_validation
+/payment/v2/interkassa_mercadopago/extraactions/extra_data:
+  get:
+    operationId: payment.v2.interkassa_mercadopago.extraactions.extra_data
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                tax_id:
+                  title: Tax Id
+                  type: string
+              title: TaxIdExtraDataResponse
+              type: object
+        description: ''
+    summary: Extra action extra_data
+/payment/v2/mifinity/extraactions/mifinity_last_wallet_account:
+  get:
+    operationId: payment.v2.mifinity.extraactions.mifinity_last_wallet_account
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json: {}
+        description: ''
+    summary: Extra action mifinity_last_wallet_account
+/payment/v2/moonpay/extraactions/moonpay_get_deposit_url:
+  post:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              amount_face_currency:
+                title: Amount Face Currency
+                type: string
+              amount_face_value:
+                title: Amount Face Value
+                type: string
+              amount_foreign_currency:
+                title: Amount Foreign Currency
+                type: string
+              amount_foreign_value:
+                title: Amount Foreign Value
+                type: string
+              theme:
+                enum:
+                - light
+                - dark
+                title: Theme
+                type: string
+            required:
+            - amount_face_value
+            - amount_face_currency
+            - amount_foreign_value
+            - amount_foreign_currency
+            - theme
+            title: MoonpayGetDepositUrlExtraAction
+            type: object
+      required: true
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                url:
+                  title: Url
+                  type: string
+              required:
+              - url
+              title: MoonpayGetDepositUrlResponse
+              type: object
+        description: ''
+    summary: Extra action moonpay_get_deposit_url
+/payment/v2/moonpay/extraactions/moonpay_get_rates:
+  get:
+    operationId: payment.v2.moonpay.extraactions.moonpay_get_rates
+    parameters:
+    - description: Rates Currency
+      in: query
+      name: rates_currency
+      required: true
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                rates:
+                  additionalProperties:
+                    type: string
+                  title: Rates
+                  type: object
+              required:
+              - rates
+              title: MoonpayGetRatesResponse
+              type: object
+        description: ''
+    summary: Extra action moonpay_get_rates
+/payment/v2/nuvei_banking/extraactions/extra_data:
+  get:
+    operationId: payment.v2.nuvei_banking.extraactions.extra_data
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                tax_id:
+                  title: Tax Id
+                  type: string
+              title: TaxIdExtraDataResponse
+              type: object
+        description: ''
+    summary: Extra action extra_data
+/payment/v2/nuvei_googlepay/extraactions/get_jwt:
+  post:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties: {}
+            title: M
+            type: object
+      required: true
+    responses:
+      '200':
+        content:
+          application/json: {}
+        description: ''
+    summary: Extra action get_jwt
+/payment/v2/rozert_cardpay_applepay/extraactions/rozert_cardpay_applepay_merchant_validation:
+  post:
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              domain:
+                title: Domain
+                type: string
+              merchant_identifier:
+                title: Merchant Identifier
+                type: string
+              private_extra:
+                title: Private Extra
+                type: object
+              validation_url:
+                title: Validation Url
+                type: string
+            required:
+            - merchant_identifier
+            - domain
+            - validation_url
+            title: RozertCardpayApplepayMerchantValidationExtraAction
+            type: object
+      required: true
+    responses:
+      '200':
+        content:
+          application/json: {}
+        description: ''
+    summary: Extra action rozert_cardpay_applepay_merchant_validation
+/payment/v2/{system}/get-deposit-address/:
+  post:
+    parameters:
+    - description: Payment system name
+      in: path
+      name: system
+      required: true
+      schema:
+        enum:
+        - rewind
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            properties:
+              currency_face:
+                title: Currency Face
+                type: string
+            required:
+            - currency_face
+            title: DepositAddressRequest
+            type: object
+      required: true
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              properties:
+                address:
+                  title: Address
+                  type: string
+              required:
+              - address
+              title: DepositAddressResponse
+              type: object
+        description: ''
+    summary: Get deposit address
+
+#@ end
+    

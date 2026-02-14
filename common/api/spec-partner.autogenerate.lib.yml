@@ -1,0 +1,103 @@
+
+#@ def partner_withdraw_extra_spec_components():
+partnerWithdrawExtra.cardpay_pix:
+  description: cardpay_pix deposit extra data
+  properties:
+    account:
+      title: Account
+      type: string
+    bank_branch:
+      title: Bank Branch
+      type: string
+    bank_code:
+      title: Bank Code
+      type: string
+  required:
+  - bank_branch
+  - bank_code
+  - account
+  title: PartnerCardpay_pixWithdrawExtraData
+  type: object
+partnerWithdrawExtra.coinspaid:
+  description: coinspaid deposit extra data
+  properties:
+    crypto_address:
+      title: Crypto Address
+      type: string
+    crypto_tag:
+      title: Crypto Tag
+      type: string
+  required:
+  - crypto_address
+  title: CoinspaidWithdrawExtraData
+  type: object
+partnerWithdrawExtra.paydoo_opp:
+  description: paydoo_opp deposit extra data
+  properties:
+    card_cvv:
+      title: Card Cvv
+      type: string
+    card_expires:
+      title: Card Expires
+      type: string
+    card_holder:
+      title: Card Holder
+      type: string
+    card_num:
+      title: Card Num
+      type: string
+  required:
+  - card_num
+  - card_cvv
+  - card_holder
+  - card_expires
+  title: PaydooOppWithdrawExtraData
+  type: object
+partnerWithdrawExtra.skrill:
+  description: skrill deposit extra data
+  properties:
+    account:
+      title: Account
+      type: string
+  required:
+  - account
+  title: PartnerSkrillWithdrawExtraData
+  type: object
+partnerWithdrawExtra.spei:
+  description: spei deposit extra data
+  properties:
+    account:
+      title: Account
+      type: string
+    bank_account_number:
+      title: Bank Account Number
+      type: string
+    bank_code:
+      title: Bank Code
+      type: string
+    full_name:
+      title: Full Name
+      type: string
+  required:
+  - bank_code
+  - bank_account_number
+  - full_name
+  - account
+  title: PartnerSpeiWithdrawExtraData
+  type: object
+
+#@ end
+
+#@ def partner_withdraw_extra_spec():
+oneOf:
+- $ref: '#/components/schemas/partnerWithdrawExtra.cardpay_pix'
+- $ref: '#/components/schemas/partnerWithdrawExtra.coinspaid'
+- $ref: '#/components/schemas/partnerWithdrawExtra.paydoo_opp'
+- $ref: '#/components/schemas/partnerWithdrawExtra.skrill'
+- $ref: '#/components/schemas/partnerWithdrawExtra.spei'
+- description: Other systems
+  properties: {}
+  type: object
+
+#@ end
+    

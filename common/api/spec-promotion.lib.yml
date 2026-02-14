@@ -1,0 +1,1015 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:template", "template")
+#@ load("spec-promotion.presets.lib.yml", "promotion_campaign_presets")
+
+#@ def promotion_paths():
+/promotions/campaigns/{campaign_id}/deactivate-participant:
+  post:
+    summary: Deactivate a participant in the campaign with promo balance check
+    description: Deactivate a participant in the campaign with promo balance check
+    tags:
+      - promotion
+    operationId: promotion.campaigns.campaign_deactivate_participant_with_balance_check
+    parameters:
+      - name: campaign_id
+        description: Compaign ID
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: OK
+
+/promo-api/apply-promocode:
+  post:
+    summary: Apply promotion code
+    description: Apply promotion code
+    tags:
+      - promotion
+    operationId: promotion.apply_promocode
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - code
+              - user_id
+              - user_currency
+            properties:
+              code:
+                type: string
+              user_id:
+                type: string
+                format: uuid
+              user_currency:
+                type: string
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reward:
+                  type: object
+                  nullable: true
+                  required:
+                    - public_reward_id
+                    - reward_type
+                    - expires_at
+                    - params
+                    - campaign_internal_name
+                    - campaign_id
+                  properties:
+                    public_reward_id:
+                      type: string
+                      format: uuid
+                    reward_type:
+                      type: string
+                      enum:
+                        - FREEBET
+                        - CASINO_FREEBET
+                        - FREESPIN
+                        - CASHBACK
+                        - PROMO_MONEY
+                        - PROMO_TO_REAL_MONEY
+                    expires_at:
+                      $ref: '#/components/schemas/core.timestamp_millis'
+                    params:
+                      type: object
+                    campaign_internal_name:
+                      type: string
+                      nullable: true
+                    campaign_id:
+                      type: integer
+                      nullable: true
+
+/promo-api/promocode/{code}/can-participate/{user_id}:
+  get:
+    summary: Check if user can participate in the campaign (by promotion code)
+    description: Check if user can participate in the campaign (by promotion code)
+    tags:
+      - promotion
+    operationId: promotion.promocode.code_can_participate
+    parameters:
+      - name: code
+        description: Promotion Code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: user_id
+        description: User ID
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/response.promotion.promocode.can_participate'
+
+/promo-api/promocode/{code}/decline/{user_id}:
+  post:
+    summary: Decline promotion code
+    description: Decline promotion code
+    tags:
+      - promotion
+    operationId: promotion.promocode.decline
+    parameters:
+      - name: code
+        description: Promotion Code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: user_id
+        description: User ID
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: OK
+
+/promo-api/promocode/{code}:
+  get:
+    summary: Get promotion code details, the campaign is included if needed
+    description: Get promotion code details, the campaign is included if needed
+    tags:
+      - promotion
+    operationId: promotion.promocode.detail
+    parameters:
+      - name: code
+        description: Promotion code
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: include_campaign
+        description: Include campaign
+        in: query
+        required: false
+        schema:
+          type: boolean
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/response.promotion.promocode.detail'
+
+/promo-api/{user_id}/finished-participants:
+  get:
+    summary: Get finished participants
+    description: Get finished participants
+    tags:
+      - promotion
+    operationId: promotion.finished_participants
+    parameters:
+      - name: user_id
+        description: User ID
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: no_rewards_issued
+        description: Only without issued rewards
+        in: query
+        required: false
+        schema:
+          type: boolean
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/promotion.participants.participant'
+
+/promo-api/{user_id}/meta:
+  get:
+    summary: Get promotion user-meta
+    description: Get promotion user-meta
+    tags:
+      - promotion
+    operationId: promotion.meta
+    parameters:
+      - name: user_id
+        description: User ID
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                has_non_deposit_campaigns:
+                  type: boolean
+
+/promo-api/{user_id}/campaigns:
+  get:
+    summary: Get promotion campaigns list
+    description: Get promotion campaigns list
+    tags:
+      - promotion
+    operationId: promotion.campaigns.user_campaigns_list
+    parameters:
+      - name: user_id
+        description: User ID
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/response.promotion.campaigns.campaigns_list'
+
+/promo-api/{user_id}/promocodes/{code}:
+  get:
+    summary: Get promotion code status
+    description: Get promotion code status
+    tags:
+      - promotion
+    operationId: promotion.promocode.status
+    parameters:
+      - name: user_id
+        description: User ID
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: code
+        description: Promotion code
+        in: path
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/response.promotion.promocode.status'
+
+/promo-api/{user_id}/participated-campaign-ids:
+  get:
+    summary: Get participated campaign IDs
+    description: Get participated campaign IDs
+    tags:
+      - promotion
+    operationId: promotion.participated_campaign_ids
+    parameters:
+      - name: user_id
+        description: User ID
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+
+/promo-api/campaigns:
+  get:
+    summary: Get promotion campaigns list
+    description: Get promotion campaigns list
+    tags:
+      - promotion
+    operationId: promotion.campaigns.campaigns_list
+    parameters:
+      - name: is_rewind
+        description: Is rewind campaign
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: is_welcome
+        description: Is welcome campaign
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: id__in
+        description: Campaign IDs, comma-separated
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: market
+        description: Market
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: domain_group
+        description: Domain group
+        in: query
+        required: false
+        schema:
+          type: string
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/response.promotion.campaigns.campaigns_list'
+
+/promo-api/campaigns/user-status:
+  get:
+    summary: Get user status in campaigns
+    description: Get user status in campaigns
+    tags:
+      - promotion
+    operationId: promotion.campaigns.user_status
+    parameters:
+      - name: user_id
+        description: User ID
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: campaign_ids
+        description: Campaign IDs
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: integer
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/response.promotion.campaigns.campaign_user_status'
+
+/promo-api/campaigns/{campaign_id}:
+  get:
+    summary: Get promotion campaign detail
+    description: Get promotion campaign detail
+    tags:
+      - promotion
+    operationId: promotion.campaigns.campaign_detail
+    parameters:
+      - name: campaign_id
+        description: Compaign ID
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/promotion.campaigns.campaign_detail'
+
+/promo-api/campaigns/{campaign_id}/can-accept:
+  get:
+    summary: Check if user can accept a participant in the campaign
+    description: Check if user can accept a participant in the campaign
+    tags:
+      - promotion
+    operationId: promotion.campaigns.campaign_can_accept
+    parameters:
+      - name: campaign_id
+        description: Compaign ID
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: user_id
+        description: User ID
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/response.promotion.campaigns.campaign_can_accept'
+
+/promo-api/campaigns/{campaign_id}/can-participate-via-public-api:
+  get:
+    summary: Check if user can participate in the campaign
+    description: Check if user can participate in the campaign
+    tags:
+      - promotion
+    operationId: promotion.campaigns.campaign_can_participate_via_public_api
+    parameters:
+      - name: campaign_id
+        description: Compaign ID
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: user_id
+        description: User ID
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - can_participate
+              properties:
+                can_participate:
+                  type: boolean
+
+/promo-api/campaigns/{campaign_id}/user-status:
+  get:
+    summary: Get user status in the campaign
+    description: Get user status in the campaign
+    tags:
+      - promotion
+    operationId: promotion.campaigns.campaign_user_status
+    parameters:
+      - name: campaign_id
+        description: Compaign ID
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: user_id
+        description: User ID
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/response.promotion.campaigns.campaign_user_status'
+
+/promo-api/campaigns/{campaign_id}/accept:
+  post:
+    summary: Accept a participant in the campaign
+    description: Accept a participant in the campaign
+    tags:
+      - promotion
+    operationId: promotion.campaigns.campaign_accept
+    parameters:
+      - name: campaign_id
+        description: Compaign ID
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_id
+              - user_currency
+            properties:
+              user_id:
+                type: string
+                format: uuid
+              user_currency:
+                type: string
+    responses:
+      '200':
+        description: OK
+
+/promo-api/campaigns/{campaign_id}/participate:
+  post:
+    summary: Participate in the campaign
+    description: Participate in the campaign
+    tags:
+      - promotion
+    operationId: promotion.campaigns.campaign_participate
+    parameters:
+      - name: campaign_id
+        description: Compaign ID
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_id
+              - user_currency
+              - accepted
+            properties:
+              user_id:
+                type: string
+                format: uuid
+              user_currency:
+                type: string
+              accepted:
+                type: boolean
+    responses:
+      '200':
+        description: OK
+      '400':
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - detail
+                - code
+                - message
+              properties:
+                detail:
+                  type: object
+                code:
+                  type: string
+                message:
+                  type: string
+
+/promo-api/campaigns/{campaign_id}/deactivate-participant:
+  post:
+    summary: Deactivate a participant in the campaign
+    description: Deactivate a participant in the campaign
+    tags:
+      - promotion
+    operationId: promotion.campaigns.campaign_deactivate_participant
+    parameters:
+      - name: campaign_id
+        description: Compaign ID
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_id
+            properties:
+              user_id:
+                type: string
+                format: uuid
+    responses:
+      '200':
+        description: OK
+
+/promo-api/campaigns/{campaign_id}/make-high-priority:
+  post:
+    summary: Make high priority for the campaign
+    description: Make high priority for the campaign
+    tags:
+      - promotion
+    operationId: promotion.campaigns.campaign_make_high_priority
+    parameters:
+      - name: campaign_id
+        description: Compaign ID
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_id
+            properties:
+              user_id:
+                type: string
+                format: uuid
+    responses:
+      '200':
+        description: OK
+      '404':
+        description: Active participant is not found
+#@ end
+
+#@ def promotion_components():
+promotion.participants.participant:
+  type: object
+  required:
+    - created_at
+    - updated_at
+    - accepted
+    - active
+    - active_duration_days
+    - started
+    - completed
+    - canceled_by_user
+    - expired
+    - user_id
+  properties:
+    created_at:
+      $ref: '#/components/schemas/core.timestamp_millis'
+    updated_at:
+      $ref: '#/components/schemas/core.timestamp_millis'
+    accepted:
+      type: boolean
+    active:
+      type: boolean
+    active_duration_days:
+      type: number
+    started:
+      type: boolean
+    completed:
+      type: boolean
+    expired:
+      type: boolean
+    canceled_by_user:
+      type: boolean
+    user_id:
+      type: string
+      format: uuid
+    campaign:
+      $ref: '#/components/schemas/promotion.campaigns.campaign_detail'
+    public_reward_ids:
+      type: array
+      items:
+        type: string
+        format: uuid
+
+promotion.participants.participant_shallow:
+  type: object
+  required:
+    - created_at
+    - accepted
+    - active_duration_days
+  properties:
+    created_at:
+      $ref: '#/components/schemas/core.timestamp_millis'
+    accepted:
+      type: boolean
+    active_duration_days:
+      type: number
+
+promotion.campaigns.campaign_detail:
+  type: object
+  required:
+    - id
+    - title
+    - high_priority
+    - is_welcome
+    - is_weekly_cashaback
+    - multiple_participation_expire_on_schedule
+    - campaign_type_as_participation_limit
+    - not_accepted_participant_lifetime_days
+    - active_from
+    - active_to
+    - widget_type
+    - current_iteration_start
+    - current_iteration_allowed_period_end
+    - next_iteration_start
+    - next_iteration_allowed_period_end
+    - preset
+    - wager_data
+  properties:
+    id:
+      type: integer
+    title:
+      type: string
+    high_priority:
+      type: boolean
+    is_welcome:
+      type: boolean
+    is_weekly_cashaback:
+      type: boolean
+    multiple_participation_expire_on_schedule:
+      type: boolean
+    active_from:
+      $ref: '#/components/schemas/core.timestamp_millis'
+    active_to:
+      $ref: '#/components/schemas/core.timestamp_millis'
+    widget_type:
+      type: string
+    campaign_type_as_participation_limit:
+      type: string
+      nullable: true
+      enum:
+        - casino
+        - sport
+        - instant
+        - live
+        - bingo
+    not_accepted_participant_lifetime_days:
+      type: number
+      nullable: true
+    current_iteration_start:
+      allOf:
+        - $ref: '#/components/schemas/core.timestamp_millis'
+      nullable: true
+    current_iteration_allowed_period_end:
+      allOf:
+        - $ref: '#/components/schemas/core.timestamp_millis'
+      nullable: true
+    next_iteration_start:
+      allOf:
+        - $ref: '#/components/schemas/core.timestamp_millis'
+      nullable: true
+    next_iteration_allowed_period_end:
+      allOf:
+        - $ref: '#/components/schemas/core.timestamp_millis'
+      nullable: true
+    preset:
+      $ref: '#/components/schemas/promotion.campaigns.preset'
+    accepted:
+      type: boolean
+    stages:
+      type: array
+      items:
+        $ref: '#/components/schemas/promotion.campaigns.stage'
+    is_await_deposit:
+      type: boolean
+      nullable: true
+    next_campaign_id:
+      type: array
+      items:
+        type: integer
+      nullable: true
+    participant:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/promotion.participants.participant_shallow'
+    participation_price_by_currency:
+      nullable: true
+      allOf:
+        - $ref: '#/components/schemas/core.money_lookup'
+    wager_data:
+      type: object
+      nullable: true
+      required:
+        - completed
+        - active_to
+        - amount
+        - amount_accounted
+        - target_amount
+        - currency
+        - wallet_account
+      properties:
+        completed:
+          type: boolean
+        active_to:
+          $ref: '#/components/schemas/core.timestamp_millis'
+        amount:
+          type: number
+          format: decimal
+        amount_accounted:
+          type: number
+          format: decimal
+        target_amount:
+          type: number
+          format: decimal
+        currency:
+          type: string
+        wallet_account:
+          nullable: true
+          type: string
+          format: uuid
+promotion.campaigns.stage:
+  type: object
+  required:
+    - title
+    - slug
+    - active_to
+    - widget_type
+    - completed
+    - state
+    - target_state
+  properties:
+    title:
+      type: string
+    slug:
+      type: string
+    active_to:
+      $ref: '#/components/schemas/core.timestamp_millis'
+    widget_type:
+      type: string
+    completed:
+      type: boolean
+    public_reward_id:
+      type: string
+      format: uuid
+      nullable: true
+    state:
+      type: object
+      additionalProperties:
+        anyOf:
+          - type: boolean
+          - type: integer
+          - type: string
+    target_state:
+      type: object
+      additionalProperties:
+        anyOf:
+          - type: boolean
+          - type: integer
+          - type: string
+
+response.promotion.promocode.can_participate:
+  type: object
+  required:
+    - can_participate
+  properties:
+    can_participate:
+      type: boolean
+
+response.promotion.promocode.status:
+  type: object
+  required:
+    - activated_promocode
+    - can_participate
+  properties:
+    activated_promocode:
+      nullable: true
+      type: object
+      required:
+        - code
+        - ma_token
+      properties:
+        code:
+          type: string
+        ma_token:
+          type: string
+    can_participate:
+      type: boolean
+
+response.promotion.promocode.detail:
+  type: object
+  required:
+    - code
+    - target_audience
+    - ma_token
+    - is_blacklisted_for_user
+    - is_usage_limit_reached
+  properties:
+    code:
+      type: string
+    target_audience:
+      type: string
+      nullable: true
+    ma_token:
+      type: string
+      nullable: true
+    is_blacklisted_for_user:
+      type: boolean
+    is_usage_limit_reached:
+      type: boolean
+    campaign:
+      $ref: '#/components/schemas/promotion.campaigns.campaign_detail'
+
+response.promotion.campaigns.campaigns_list:
+  type: array
+  items:
+    $ref: '#/components/schemas/promotion.campaigns.campaign_detail'
+
+response.promotion.campaigns.campaign_can_accept:
+  type: object
+  required:
+    - can_accept
+  properties:
+    can_accept:
+      type: boolean
+
+response.promotion.campaigns.campaign_user_status:
+  type: object
+  required:
+    - active_participant
+    - can_participate
+    - can_participate_accepted
+    - can_participate_not_accepted
+    - can_accept
+  properties:
+    active_participant:
+      nullable: true
+      type: object
+      required:
+        - created_at
+        - accepted
+        - active_duration_days
+      properties:
+        created_at:
+          $ref: '#/components/schemas/core.timestamp_millis'
+        accepted:
+          type: boolean
+        active_duration_days:
+          type: number
+    can_participate:
+      type: boolean
+    can_participate_accepted:
+      type: boolean
+    can_participate_not_accepted:
+      type: boolean
+    can_accept:
+      type: boolean
+
+promotion.campaigns.preset:
+  oneOf:
+    - $ref: '#/components/schemas/promotion.campaign_preset.dummy'
+
+    - $ref: '#/components/schemas/promotion.campaign_preset.cashback'
+    - $ref: '#/components/schemas/promotion.campaign_preset.freespin'
+    - $ref: '#/components/schemas/promotion.campaign_preset.freebet'
+    - $ref: '#/components/schemas/promotion.campaign_preset.casino_freebet'
+
+    - $ref: '#/components/schemas/promotion.campaign_preset.wager_on_freespin'
+
+    - $ref: '#/components/schemas/promotion.campaign_preset.wager_get_freespin'
+    - $ref: '#/components/schemas/promotion.campaign_preset.wager_get_freebet'
+
+    - $ref: '#/components/schemas/promotion.campaign_preset.wager_on_deposit_get_cashback'
+    - $ref: '#/components/schemas/promotion.campaign_preset.wager_on_deposit_get_freespin'
+    - $ref: '#/components/schemas/promotion.campaign_preset.wager_on_deposit_get_freebet'
+
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_freespin'
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_freebet'
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_casino_freebet'
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_deposit'
+
+    - $ref: '#/components/schemas/promotion.campaign_preset.freebet_on_sport_bet'
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_freebet_on_sport_bet'
+
+    - $ref: '#/components/schemas/promotion.campaign_preset.freebet_on_sport_lose'
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_freebet_on_sport_lose'
+
+    - $ref: '#/components/schemas/promotion.campaign_preset.wager_get_next_campaign'
+
+    #! Shouldn't be used, marketing uses 2 campaigns connected by `next_campaign` instead:
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_deposit_get_freespin_with_promo_wager'
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_deposit_get_freebet_with_promo_wager'
+
+    #! no active participants in the last year for these presets:
+    - $ref: '#/components/schemas/promotion.campaign_preset.freebet_on_deposit_on_sport_lose'
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_deposit_plus_freespin'
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_deposit_parametrized'
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_bet'
+
+    #! presets are not presented:
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_losses'
+    - $ref: '#/components/schemas/promotion.campaign_preset.promo_wager_on_sport_lose'
+    - $ref: '#/components/schemas/promotion.campaign_preset.wager_on_sport_lose'
+    - $ref: '#/components/schemas/promotion.campaign_preset.wager_on_deposit_get_freebet_with_promo_wager'
+
+_: #@ template.replace(promotion_campaign_presets())
+#@ end

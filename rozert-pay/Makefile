@@ -43,30 +43,30 @@ build-frontend:
 ########################################################
 
 unittest-stop:
-	@docker compose -f docker-compose.test.yml down ||:
+	@docker compose -f docker compose.test.yml down ||:
 
 migratetest: ## Run migratetest
-	@docker compose -f docker-compose.test.yml build
-	@docker compose -f docker-compose.test.yml up -d --wait
-	@docker compose -f docker-compose.test.yml cp ../Makefile-common.mk unittest:/www/Makefile-common.mk
-	@docker compose -f docker-compose.test.yml exec unittest python3 manage.py migrate --noinput || \
+	@docker compose -f docker compose.test.yml build
+	@docker compose -f docker compose.test.yml up -d --wait
+	@docker compose -f docker compose.test.yml cp ../Makefile-common.mk unittest:/www/Makefile-common.mk
+	@docker compose -f docker compose.test.yml exec unittest python3 manage.py migrate --noinput || \
 		($(MAKE) -f $(THIS_FILE) unittest-stop; exit 1)
 
 	$(MAKE) -f $(THIS_FILE) unittest-stop
 
 unittest: ## Run unittests
 	touch .env
-	@docker compose -f docker-compose.test.yml build
-	@docker compose -f docker-compose.test.yml up -d --wait
-	@docker compose -f docker-compose.test.yml cp ../Makefile-common.mk unittest:/www/Makefile-common.mk
+	@docker compose -f docker compose.test.yml build
+	@docker compose -f docker compose.test.yml up -d --wait
+	@docker compose -f docker compose.test.yml cp ../Makefile-common.mk unittest:/www/Makefile-common.mk
 	@docker compose cp ../.git unittest:/www/.git
-	@docker compose -f docker-compose.test.yml exec unittest git config --global --add safe.directory /www
-	docker compose -f docker-compose.test.yml exec -e GITHUB_TOKEN=$(GITHUB_TOKEN) \
+	@docker compose -f docker compose.test.yml exec unittest git config --global --add safe.directory /www
+	docker compose -f docker compose.test.yml exec -e GITHUB_TOKEN=$(GITHUB_TOKEN) \
 	  -e GITHUB_REF_NAME=$(GITHUB_REF_NAME) \
 	  -e BASE_BRANCH=$(BASE_BRANCH) \
 	  -e GITHUB_REPOSITORY=nvnv/betmaster  unittest python bin/run_checks.py || \
 		($(MAKE) -f $(THIS_FILE) unittest-stop; exit 1)
-	@docker compose -f docker-compose.test.yml cp unittest:/app/rozert_pay/coverage.xml ../reports/ ||:
+	@docker compose -f docker compose.test.yml cp unittest:/app/rozert_pay/coverage.xml ../reports/ ||:
 
 	$(MAKE) -f $(THIS_FILE) unittest-stop
 
@@ -77,7 +77,7 @@ COMPARE_BRANCH ?= origin/develop
 FAIL_UNDER ?= 80
 
 up:
-	WEB_PORT=8006 docker-compose up -d
+	WEB_PORT=8006 docker compose up
 
 pytest:
 	poetry run pytest tests $(ARGS)
@@ -114,13 +114,13 @@ check_commit_message_format:
 DOCKER_IMAGE_NAME ?= rozert_pay
 
 dev-build:
-	WEB_PORT=8006 docker-compose build --build-arg ENV=dev
+	WEB_PORT=8006 docker compose build --build-arg ENV=dev
 
 dev-up:
-	WEB_PORT=8006 docker-compose up -d
+	WEB_PORT=8006 docker compose up
 
 dev-web-bash:
-	docker-compose run --rm -e DJANGO_SETTINGS_MODULE=rozert_pay.settings_unittest back bash
+	docker compose run --rm -e DJANGO_SETTINGS_MODULE=rozert_pay.settings_unittest back bash
 
 ########################################################
 

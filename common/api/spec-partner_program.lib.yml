@@ -1,0 +1,591 @@
+#@ load("spec-partner.autogenerate.lib.yml", "partner_withdraw_extra_spec", "partner_withdraw_extra_spec_components")
+#@ load("@ytt:template", "template")
+
+#@ def partner_program_paths():
+/partnerprogram/init:
+  get:
+    description: Method for getting overall info about partner status
+    tags:
+      - partner_program
+    operationId: partnerprogram.init
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/partnerprogram.partner_common_info'
+
+/partnerprogram/codes/create:
+  post:
+    description: Create new referral code
+    tags:
+      - partner_program
+    operationId: partnerprogram.codes.create
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/partnerprogram.partner_code_create'
+
+    responses:
+      "200":
+        description: Created new code
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/partnerprogram.partner_code'
+
+/partnerprogram/codes/update/{partner_code_uuid}:
+  post:
+    description: Update existing code
+    tags:
+      - partner_program
+    operationId: partnerprogram.codes.update
+    parameters:
+      - name: partner_code_uuid
+        description: Partner code UUID
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/partnerprogram.partner_code_create'
+    responses:
+      "200":
+        description: Updated code
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/partnerprogram.partner_code'
+
+/partnerprogram/codes/send:
+  post:
+    description: Send partner code to user by email/sms
+    tags:
+      - partner_program
+    operationId: partnerprogram.codes.send
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/partnerprogram.partner_code_send'
+
+    responses:
+      "200":
+        description: Code queued for sending
+
+/partnerprogram/billing/transfer:
+  post:
+    description: Transfer money between partner wallets
+    tags:
+      - partner_program
+    operationId: partnerprogram.billing.transfer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/partnerprogram.partner_billing_transfer_request'
+
+    responses:
+      "200":
+        description: Money transferred
+
+/partnerprogram/billing/withdraw_check:
+  post:
+    description: Withdraw check request
+    tags:
+      - partner_program
+    operationId: partnerprogram.billing.withdraw_check
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/partnerprogram.partner_billing_withdraw_check_request'
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/partnerprogram.partner_billing_withdraw_request'
+
+/partnerprogram/billing/withdraw:
+  post:
+    description: Withdraw money request
+    tags:
+      - partner_program
+    operationId: partnerprogram.billing.withdraw
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/partnerprogram.partner_billing_withdraw_request'
+
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payment.transaction_status_response'
+
+/partnerprogram/billing/wallet/list:
+  get:
+    description: Returns partner wallets
+    tags:
+      - partner_program
+    operationId: partnerprogram.billing.wallet.list
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/partnerprogram.partner_wallet'
+
+/partnerprogram/billing/transaction/list:
+  get:
+    description: Returns partner transactions
+    operationId: partnerprogram.billing.transactions_list
+    tags:
+      - partner_program
+    parameters:
+      - name: start
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/core.timestamp_millis'
+      - name: end
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/core.timestamp_millis'
+      - name: partner_code
+        in: query
+        schema:
+          type: string
+          format: uuid
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/partnerprogram.partner_transaction'
+
+/partnerprogram/stat/list:
+  get:
+    description: Returns daily aggregated referral statistic for period
+    operationId: partnerprogram.partner_stat_list_request
+    tags:
+      - partner_program
+    parameters:
+      - name: start
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/core.timestamp_millis'
+      - name: end
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/core.timestamp_millis'
+      - name: partner_code
+        in: query
+        schema:
+          type: string
+          format: uuid
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - earnings
+                - items
+              properties:
+                earnings:
+                  $ref: '#/components/schemas/core.money'
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/partnerprogram.partner_stat_item'
+
+/partnerprogram/billing/conversion/list:
+  get:
+    description: Returns list of all possible conversions with all infos - commissions, max allowed amount, etc.
+    operationId: partnerprogram.billing.conversion_list
+    tags:
+      - partner_program
+    parameters:
+      - name: from_wallet_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/partnerprogram.conversion_info'
+
+/partnerprogram/billing/conversion/check:
+  post:
+    description: Checks conversion before execution
+    operationId: partnerprogram.billing.conversion_check
+    tags:
+      - partner_program
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/partnerprogram.conversion_check_request'
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/partnerprogram.conversion_info'
+
+/partnerprogram/billing/conversion/execute:
+  post:
+    description: Execute conversion
+    operationId: partnerprogram.billing.conversion_execute
+    tags:
+      - partner_program
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/partnerprogram.conversion_info'
+
+    responses:
+      "200":
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/partnerprogram.conversion_info'
+#@ end
+
+#@ def partner_program_components():
+partnerprogram.conversion_check_request:
+  type: object
+  required:
+    - wallet_id_from
+    - wallet_id_to
+    - amount_from
+  properties:
+    wallet_id_from:
+      type: string
+      format: uuid
+    wallet_id_to:
+      type: string
+      format: uuid
+    amount_from:
+      type: string
+      example: '0.00'
+
+partnerprogram.conversion_info:
+  type: object
+  required:
+    - amount_from
+    - amount_to
+    - amount_to_after_commission
+    - wallet_id_from
+    - wallet_id_to
+    - currency_from
+    - currency_to
+    - commissions
+    - total_commission_percent
+    - total_commission_value
+  properties:
+    wallet_id_from:
+      type: string
+      format: uuid
+    wallet_id_to:
+      type: string
+      format: uuid
+    currency_from:
+      $ref: '#/components/schemas/core.currency'
+    currency_to:
+      $ref: '#/components/schemas/core.currency'
+    amount_from:
+      type: string
+      example: '0.00'
+    amount_to:
+      type: string
+      example: '0.00'
+    amount_to_after_commission:
+      type: string
+      example: '0.00'
+    commissions:
+      type: object
+      properties:
+        from_percent:
+          type: string
+        to_percent:
+          type: string
+    total_commission_percent:
+      type: string
+      example: '0.00'
+    total_commission_value:
+      type: string
+      example: '0.00'
+
+partnerprogram.partner_wallet:
+  type: object
+  required:
+    - amount
+    - amount_in_user_currency
+    - id
+    - amount_limits
+  properties:
+    amount:
+      $ref: '#/components/schemas/core.money'
+    amount_in_user_currency:
+      $ref: '#/components/schemas/core.money'
+    id:
+      type: string
+      format: uuid
+    amount_limits:
+      type: object
+      required:
+        - transfer_max
+        - transfer_min
+        - withdrawal_max
+        - withdrawal_min
+      properties:
+        transfer_max:
+          type: string
+          example: '0.00'
+        transfer_min:
+          type: string
+          example: '0.00'
+        withdrawal_max:
+          type: string
+          example: '0.00'
+        withdrawal_min:
+          type: string
+          example: '0.00'
+
+partnerprogram.partner_transaction:
+  type: object
+  required:
+    - timestamp
+    - type
+    - profit
+    - id
+  properties:
+    timestamp:
+      $ref: '#/components/schemas/core.timestamp_millis'
+    type:
+      type: string
+      enum:
+        - incoming
+        - transfer
+        - withdrawal
+        - conversion
+    status:
+      type: string
+      enum:
+        - pending
+        - success
+        - failed
+    profit:
+      $ref: '#/components/schemas/core.money'
+    id:
+      type: string
+      format: uuid
+
+partnerprogram.partner_billing_withdraw_check_request:
+  type: object
+  required:
+    - amount
+    - wallet_uuid
+    - payment_system
+  properties:
+    amount:
+      $ref: '#/components/schemas/core.money'
+    amount_foreign:
+      $ref: '#/components/schemas/core.money'
+    amount_effective:
+      $ref: '#/components/schemas/core.money'
+    wallet_uuid:
+      type: string
+      format: uuid
+    payment_system:
+      type: string
+    wallet_data:
+      type: object
+      properties:
+        card_num:
+          type: string
+
+partnerprogram.partner_billing_withdraw_request:
+  type: object
+  required:
+    - amount
+    - amount_foreign
+    - amount_effective
+    - wallet_uuid
+    - payment_system
+  properties:
+    amount:
+      $ref: '#/components/schemas/core.money'
+    amount_foreign:
+      $ref: '#/components/schemas/core.money'
+    amount_effective:
+      $ref: '#/components/schemas/core.money'
+    wallet_uuid:
+      type: string
+      format: uuid
+    payment_system:
+      type: string
+    wallet_data: #@ partner_withdraw_extra_spec()
+
+partnerprogram.partner_billing_transfer_request:
+  type: object
+  required:
+    - amount
+    - wallet_uuid
+  properties:
+    amount:
+      $ref: '#/components/schemas/core.money'
+    wallet_uuid:
+      type: string
+      format: uuid
+
+partnerprogram.partner_common_info:
+  type: object
+  required:
+    - commission_rate
+    - count_involved
+    - codes
+    - total_earnings
+    - already_paid
+    - available_to_withdraw
+    - reserved_amount
+    - allowed_withdraw_payment_systems
+  properties:
+    commission_rate:
+      $ref: '#/components/schemas/core.money_amount'
+    count_involved:
+      type: integer
+    codes:
+      type: array
+      items:
+        $ref: '#/components/schemas/partnerprogram.partner_code'
+    total_earnings:
+      $ref: '#/components/schemas/core.money'
+    already_paid:
+      $ref: '#/components/schemas/core.money'
+    available_to_withdraw:
+      $ref: '#/components/schemas/core.money'
+    reserved_amount:
+      $ref: '#/components/schemas/core.money'
+    allowed_withdraw_payment_systems:
+      type: array
+      items:
+        type: string
+
+
+partnerprogram.partner_code_create:
+  type: object
+  required:
+    - title
+    - is_default
+  properties:
+    title:
+      type: string
+    is_default:
+      type: boolean
+
+partnerprogram.partner_code_send:
+  type: object
+  required:
+    - code_id
+    - target_type
+    - target
+  properties:
+    code_id:
+      type: string
+      format: uuid
+
+    target_type:
+      type: string
+      enum:
+        - email
+        - phone
+
+    target:
+      type: string
+
+partnerprogram.partner_code:
+  type: object
+  required:
+    - uuid
+    - title
+    - count_involved
+    - earnings
+    - is_default
+    - link
+    - qrcode_img
+  properties:
+    title:
+      type: string
+    uuid:
+      type: string
+      format: uuid
+    count_involved:
+      type: integer
+    earnings:
+      $ref: '#/components/schemas/core.money'
+    is_default:
+      type: boolean
+    link:
+      type: string
+    qrcode_img:
+      type: string
+
+partnerprogram.partner_stat_item:
+  type: object
+  required:
+    - date
+    - amount
+  properties:
+    date:
+      $ref: '#/components/schemas/core.timestamp_millis'
+    amount:
+      $ref: '#/components/schemas/core.money'
+
+_: #@ template.replace(partner_withdraw_extra_spec_components())
+
+#@ end

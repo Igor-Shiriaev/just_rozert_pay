@@ -1,0 +1,1389 @@
+#@data/values
+---
+
+languageCodes:
+  - ar
+  - az
+  - bg
+  - da
+  - de
+  - el
+  - en
+  - en-gb
+  - es
+  - es-mx
+  - et
+  - fa
+  - fi
+  - fr
+  - he
+  - hi
+  - hu
+  - id
+  - it
+  - ja
+  - kk
+  - ko
+  - ms
+  - nb
+  - nl
+  - pl
+  - pt
+  - pt-br
+  - pt-mz
+  - ro
+  - ru
+  - sv
+  - tg
+  - th
+  - tl
+  - tr
+  - uk
+  - uz
+  - vi
+  - zh
+
+currencies:
+  - name: USD
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: EUR
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: RUB
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: MYR
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: CNY
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: KES
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: UAH
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: KZT
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: MZN
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: BRL
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: TRY
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: AUD
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: NZD
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: UZS
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: JPY
+    crypto: false
+    minor_unit_multiplier: 1
+    is_natively_supported: true
+  - name: MXN
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: CAD
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: KRW
+    crypto: false
+    minor_unit_multiplier: 1
+    is_natively_supported: true
+  - name: INR
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: GBP
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: NOK
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: PLN
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: CHF
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: SEK
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: NGN
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: UGX
+    crypto: false
+    minor_unit_multiplier: 1
+    is_natively_supported: true
+  - name: GHS
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: ZAR
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: CLP
+    crypto: false
+    minor_unit_multiplier: 1
+    is_natively_supported: true
+  - name: ARS
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: COP
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: PEN
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: IRT
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: DKK
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: THB
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: VND
+    crypto: false
+    minor_unit_multiplier: 1
+    is_natively_supported: true
+  - name: IDR
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: PHP
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: CRC
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: XBT_PN6
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: BCH_PN4
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: ETH_PN4
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: LTC_PN3
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: NEO_PN2
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: XRP_PN1
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: DOGE_PP1
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: BNB_PN2
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: TRX_PP1
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: ADA
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: TON_PN2
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: TON
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: SOL_PN3
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: SOL
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: USDT
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: USDTE
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: USDTT
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: USDTB
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: USDTTON
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: USDC
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: USDCS
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: BUSD
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: mBTC
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: uBTC
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: BTC
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: LTC
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: mLTC
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: DOGE
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: ETH
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: mETH
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: XRP
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: BCH
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: NEO
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: BNB
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: TRX
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: BNB-BSC
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: BSC_PN2
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: DAI
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: BRZ
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: PAXG
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: PAXG_PN4
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+  - name: RSD
+    crypto: false
+    minor_unit_multiplier: 100
+    is_natively_supported: true
+  - name: FWD
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: false
+  - name: FWD_PN1
+    crypto: true
+    minor_unit_multiplier: null
+    is_natively_supported: true
+
+sportradarSportIds:
+  sr:sport:1: SOCCER
+  sr:sport:2: BASKETBALL
+  sr:sport:4: HOCKEY
+  sr:sport:5: TENNIS
+  sr:sport:23: VOLLEYBALL
+  sr:sport:117: MMA
+  sr:sport:109: COUNTER_STRIKE
+  sr:sport:110: LEAGUE_OF_LEGENDS
+  sr:sport:111: DOTA_2
+  sr:sport:153: NBA_2K
+  sr:sport:20: TABLE_TENNIS
+  sr:sport:3: BASEBALL
+  sr:sport:6: HANDBALL
+  sr:sport:16: AMERICAN_FOOTBALL
+  sr:sport:19: SNOOKER
+  sr:sport:21: CRICKET
+  sr:sport:22: DARTS
+  sr:sport:12: RUGBY
+  sr:sport:10: BOXING
+  bm:sport:1000001: E_SOCCER
+  bm:sport:1000002: E_BASKETBALL
+  bm:sport:1000004: E_HOCKEY
+  bm:sport:1000005: E_TENNIS
+  bm:sport:1000023: E_VOLLEYBALL
+
+pinnacleSportsData:
+  - name: "Age of Empires"
+    id: 2012001
+    cyber: true
+  - name: "Arena of Valor"
+    id: 2012002
+    cyber: true
+  - name: "Artifact"
+    id: 2012003
+    cyber: true
+  - name: "Call of Duty"
+    id: 2012004
+    cyber: true
+  - name: "Clash Royale"
+    id: 2012005
+    cyber: true
+  - name: "CS:GO"
+    id: 2012006
+    cyber: true
+  - name: "Dota 2"
+    id: 2012007
+    cyber: true
+  - name: "Dragon Ball FighterZ"
+    id: 2012008
+    cyber: true
+  - name: "FIFA"
+    id: 2012009
+    cyber: true
+  - name: "Fortnite"
+    id: 2012010
+    cyber: true
+  - name: "Halo"
+    id: 2012011
+    cyber: true
+  - name: "Hearthstone"
+    id: 2012012
+    cyber: true
+  - name: "Heroes of the Storm"
+    id: 2012013
+    cyber: true
+  - name: "King of Glory"
+    id: 2012014
+    cyber: true
+  - name: "League of Legends"
+    id: 2012015
+    cyber: true
+  - name: "Madden"
+    id: 2012016
+    cyber: true
+  - name: "Magic"
+    id: 2012017
+    cyber: true
+  - name: "NBA2K"
+    id: 2012018
+    cyber: true
+  - name: "Overwatch"
+    id: 2012019
+    cyber: true
+  - name: "Paladins"
+    id: 2012020
+    cyber: true
+  - name: "Pro Evolution Soccer"
+    id: 2012021
+    cyber: true
+  - name: "PUBG"
+    id: 2012022
+    cyber: true
+  - name: "Quake"
+    id: 2012023
+    cyber: true
+  - name: "Rainbow Six"
+    id: 2012024
+    cyber: true
+  - name: "Rocket League"
+    id: 2012025
+    cyber: true
+  - name: "Smite"
+    id: 2012026
+    cyber: true
+  - name: "StarCraft 2"
+    id: 2012027
+    cyber: true
+  - name: "StarCraft: rood War"
+    id: 2012028
+    cyber: true
+  - name: "Street Fighter"
+    id: 2012029
+    cyber: true
+  - name: "Super Smash Bros"
+    id: 2012030
+    cyber: true
+  - name: "Team Fortress 2"
+    id: 2012031
+    cyber: true
+  - name: "Tekken"
+    id: 2012032
+    cyber: true
+  - name: "Vainglory"
+    id: 2012033
+    cyber: true
+  - name: "Warcraft 3"
+    id: 2012034
+    cyber: true
+  - name: "Warhammer 2"
+    id: 2012035
+    cyber: true
+  - name: "World of Tanks"
+    id: 2012036
+    cyber: true
+  - name: "World of Warcraft"
+    id: 2012037
+    cyber: true
+  - name: "Dota Auto Chess"
+    id: 2012038
+    cyber: true
+  - name: "Apex Legends"
+    id: 2012039
+    cyber: true
+  - name: "Auto Chess"
+    id: 2012040
+    cyber: true
+  - name: "Dota Underlords"
+    id: 2012041
+    cyber: true
+  - name: "CrossFire"
+    id: 2012042
+    cyber: true
+  - name: "Ragnarok"
+    id: 2012043
+    cyber: true
+  - name: "F1 Esports"
+    id: 2012044
+    cyber: true
+  - name: "Valorant"
+    id: 2012045
+    cyber: true
+  - name: "Free Fire"
+    id: 2012046
+    cyber: true
+  - name: "Badminton"
+    id: 2000001
+    cyber: false
+  - name: "Bandy"
+    id: 2000002
+    cyber: false
+  - name: "Baseball"
+    id: 2000003
+    cyber: false
+  - name: "Basketball"
+    id: 2000004
+    cyber: false
+  - name: "Beach Volleyball"
+    id: 2000005
+    cyber: false
+  - name: "Boxing"
+    id: 2000006
+    cyber: false
+  - name: "Chess"
+    id: 2000007
+    cyber: false
+  - name: "Cricket"
+    id: 2000008
+    cyber: false
+  - name: "Curling"
+    id: 2000009
+    cyber: false
+  - name: "Darts"
+    id:     2000010
+    cyber: false
+  - name: "Darts (Legs)"
+    id:     2000011
+    cyber: false
+  - name: "Field Hockey"
+    id:     2000013
+    cyber: false
+  - name: "Floorball"
+    id:     2000014
+    cyber: false
+  - name: "American Football"
+    id:     2000015
+    cyber: false
+  - name: "Futsal"
+    id:     2000016
+    cyber: false
+  - name: "Golf"
+    id:     2000017
+    cyber: false
+  - name: "Handball"
+    id:     2000018
+    cyber: false
+  - name: "Hockey"
+    id:     2000019
+    cyber: false
+  - name: "Horse Racing"
+    id:     2000020
+    cyber: false
+  - name: "Mixed Martial Arts"
+    id:     2000022
+    cyber: false
+  - name: "Politics"
+    id:     2000024
+    cyber: false
+  - name: "Rugby League"
+    id:     2000026
+    cyber: false
+  - name: "Rugby Union"
+    id:     2000027
+    cyber: false
+  - name: "Snooker"
+    id:     2000028
+    cyber: false
+  - name: "Football"
+    id:     2000029
+    cyber: false
+  - name: "Softball"
+    id:     2000030
+    cyber: false
+  - name: "Squash"
+    id:     2000031
+    cyber: false
+  - name: "Table Tennis"
+    id:     2000032
+    cyber: false
+  - name: "Tennis"
+    id:     2000033
+    cyber: false
+  - name: "Volleyball"
+    id:     2000034
+    cyber: false
+  - name: "Volleyball (Points)"
+    id:     2000035
+    cyber: false
+  - name: "Water Polo"
+    id:     2000036
+    cyber: false
+  - name: "Aussie Rules"
+    id:     2000039
+    cyber: false
+  - name: "Alpine Skiing"
+    id:     2000040
+    cyber: false
+  - name: "Biathlon"
+    id:     2000041
+    cyber: false
+  - name: "Ski Jumping"
+    id:     2000042
+    cyber: false
+  - name: "Cross Country"
+    id:     2000043
+    cyber: false
+  - name: "Formula 1"
+    id:     2000044
+    cyber: false
+  - name: "Cycling"
+    id:     2000045
+    cyber: false
+  - name: "Bobsleigh"
+    id:     2000046
+    cyber: false
+  - name: "Figure Skating"
+    id:     2000047
+    cyber: false
+  - name: "Freestyle Skiing"
+    id:     2000048
+    cyber: false
+  - name: "Luge"
+    id:     2000049
+    cyber: false
+  - name: "Nordic Combined"
+    id:     2000050
+    cyber: false
+  - name: "Short Track"
+    id:     2000051
+    cyber: false
+  - name: "Skeleton"
+    id:     2000052
+    cyber: false
+  - name: "Snow Boarding"
+    id:     2000053
+    cyber: false
+  - name: "Speed Skating"
+    id: 2000054
+    cyber: false
+  - name: "Olympics"
+    id: 2000055
+    cyber: false
+  - name: "Athletics"
+    id: 2000056
+    cyber: false
+  - name: "Crossfit"
+    id: 2000057
+    cyber: false
+  - name: "Entertainment"
+    id: 2000058
+    cyber: false
+  - name: "Drone Racing"
+    id: 2000060
+    cyber: false
+  - name: "Poker"
+    id: 2000062
+    cyber: false
+  - name: "Motorsport"
+    id: 2000063
+    cyber: false
+
+oddinSportIds:
+  od:sport:3000001: "League of Legends"
+  od:sport:3000002: Dota 2
+  od:sport:3000003: "Counter-Strike: Global Offensive"
+  od:sport:3000004: Fortnite
+  od:sport:3000005: "Playerunknown’s Battlegrounds"
+  od:sport:3000006: FIFA
+  od:sport:3000007: NBA2K
+  od:sport:3000008: Overwatch
+  od:sport:3000009: Hearthstone
+  od:sport:3000010: "Kings of Glory"
+  od:sport:3000011: "Starcraft 2"
+  od:sport:3000012: "Rocket League"
+  od:sport:3000013: Valorant
+  od:sport:3000014: "Starcraft 1"
+  od:sport:3000015: "Call of Duty"
+  od:sport:3000016: "Rainbow Six"
+  od:sport:3000017: NHL
+  od:sport:3000018: "Warcraft 3"
+  od:sport:3000035: eCricket
+  od:sport:3000019: eFootball
+  od:sport:3000021: CS2 Duels
+  od:sport:3000027: HALO
+  od:sport:3000028: "Wild Rift"
+  od:sport:3000029: "Arena of Valor"
+  od:sport:3000030: "Age of Empires"
+  od:sport:3000031: "Mobile Legends"
+  od:sport:3000034: eBasketball
+  od:sport:3000037: "Playerunknown’s Battlegrounds Mobile"
+
+pythiaSportIds:
+  "4000001": "Horse Racing"
+  "4000002": Greyhound
+
+coreBrands:
+  betmaster: 1
+  casinoin: 2
+  bongo_gg: 4
+  centro: 6
+  genslot: 7
+  winners: 8
+  circle: 9
+  axwin: 10
+  mix4bet: 11
+  betfree: 12
+  betluck: 13
+  247bet: 14
+
+coreMarkets:
+  albania: 72
+  argentina: 31
+  armenia: 69
+  australia: 9
+  austria: 16
+  azerbaijan: 29
+  belarus: 67
+  belgium: 54
+  brazil: 1
+  bulgaria: 47
+  canada: 18
+  chile: 30
+  china: 57
+  colombia: 32
+  costarica: 63
+  croatia: 56
+  crypto: 14
+  cyprus: 66
+  czechia: 46
+  denmark: 40
+  ecuador: 62
+  estonia: 39
+  finland: 22
+  france: 50
+  georgia: 70
+  germany: 8
+  greece: 25
+  hungary: 51
+  iceland: 65
+  india: 27
+  indonesia: 37
+  ireland: 55
+  israel: 59
+  italy: 10
+  japan: 61
+  kazakhstan: 2
+  kenya: 3
+  latvia: 44
+  lithuania: 45
+  malaysia: 36
+  mexico: 20
+  moldova: 68
+  mozambique: 4
+  netherlands: 19
+  newzealand: 11
+  nigeria: 12
+  norway: 41
+  other: 21
+  peru: 33
+  philippines: 38
+  poland: 42
+  portugal: 49
+  romania: 48
+  russia: 5
+  serbia: 60
+  slovakia: 52
+  slovenia: 53
+  southkorea: 23
+  spain: 43
+  sweden: 26
+  switzerland: 17
+  tajikistan: 74
+  thailand: 34
+  turkey: 71
+  uae: 73
+  ukraine: 6
+  unitedkingdom: 64
+  uruguay: 58
+  uzbekistan: 13
+  vietnam: 35
+
+coreDomainGroups:
+  default: 1
+  betmaster_com: 2
+  betmaster_mx: 5
+  casinoin: 8
+  csn_ul: 9
+  bongo_gg: 11
+  bgg_ul: 12
+  bmt_ul: 13
+  centro: 15
+  genslot: 16
+  betmaster_ee: 17
+  betmaster_se: 18
+  betmaster_dk: 19
+  centro2: 25
+  betmaster_ie: 26
+  winners: 27
+  winners2: 28
+  circle: 29
+  betmaster_uk: 30
+  casinoin_ie: 31
+  bongo_mt: 32
+  axwin_ie: 33
+  betmaster_iom: 34
+  axwin_com: 35
+  awn_ul: 36
+  betmaster_tj: 37
+  mix4bet_cw: 38
+  mix4bet_ie: 39
+  betfree_cw: 40
+  bfr_ul: 41
+  betfree_ie: 42
+  mfb_ul: 43
+  betluck_tj: 44
+  betmaster_mt: 45
+  casinoin_ee: 46
+  casinoin_mx: 47
+  betmaster_pe: 48
+  betmaster_co: 49
+  247bet_mx: 50
+  betmaster_mz: 51
+  betmaster_ec: 52
+
+coreLicenses:
+  mt: 1
+  ee: 2
+  mx: 3
+  pe: 4
+  iom: 5
+  cw: 6
+  dk: 7
+  se: 8
+  uk: 9
+  tj: 10
+  ul: 11
+  kma: 12
+  tobique: 13
+  co: 14
+  ontario: 15
+  mz: 16
+  ec: 17
+
+coreProduct:
+  - sports
+  - casino
+  - virtuals
+
+responsible_gambling:
+  periods:
+    - daily
+    - weekly
+    - monthly
+    - arbitrary
+
+  timeouts:
+    products:
+      - general
+      - virtuals
+      - casino
+      - sports
+
+favorites:
+  types:
+    - casino_game
+    - sport_market
+    - sport
+    - match
+
+promotion:
+  group_types:
+    - sports
+    - casino
+    - no_bonus
+
+sex:
+  - M
+  - F
+
+userLevel:
+  - regular
+  - previp
+  - vip
+
+agreementType:
+  - terms_of_service
+  - responsible_gaming_policy
+  - self_exclusion
+  - dispute_resolution
+  - aml
+  - fairness_rng
+  - privacy_policy
+  - account_payouts
+  - cookie_policy
+
+responsibleGamblingUpdateLimitRequestType:
+  - deposit_limit_cancel
+  - deposit_limit_update
+  - activity_limit_cancel
+  - activity_limit_update
+  - wager_limit_cancel
+  - wager_limit_update
+
+countries:
+  - AD
+  - AE
+  - AF
+  - AG
+  - AI
+  - AL
+  - AM
+  - AO
+  - AQ
+  - AR
+  - AS
+  - AT
+  - AU
+  - AW
+  - AX
+  - AZ
+  - BA
+  - BB
+  - BD
+  - BE
+  - BF
+  - BG
+  - BH
+  - BI
+  - BJ
+  - BL
+  - BM
+  - BN
+  - BO
+  - BQ
+  - BR
+  - BS
+  - BT
+  - BV
+  - BW
+  - BY
+  - BZ
+  - CA
+  - CC
+  - CD
+  - CF
+  - CG
+  - CH
+  - CI
+  - CK
+  - CL
+  - CM
+  - CN
+  - CO
+  - CR
+  - CU
+  - CV
+  - CW
+  - CX
+  - CY
+  - CZ
+  - DE
+  - DJ
+  - DK
+  - DM
+  - DO
+  - DZ
+  - EC
+  - EE
+  - EG
+  - EH
+  - ER
+  - ES
+  - ET
+  - FI
+  - FJ
+  - FK
+  - FM
+  - FO
+  - FR
+  - GA
+  - GB
+  - GD
+  - GE
+  - GF
+  - GG
+  - GH
+  - GI
+  - GL
+  - GM
+  - GN
+  - GP
+  - GQ
+  - GR
+  - GS
+  - GT
+  - GU
+  - GW
+  - GY
+  - HK
+  - HM
+  - HN
+  - HR
+  - HT
+  - HU
+  - ID
+  - IE
+  - IL
+  - IM
+  - IN
+  - IO
+  - IQ
+  - IR
+  - IS
+  - IT
+  - JE
+  - JM
+  - JO
+  - JP
+  - KE
+  - KG
+  - KH
+  - KI
+  - KM
+  - KN
+  - KP
+  - KR
+  - KW
+  - KY
+  - KZ
+  - LA
+  - LB
+  - LC
+  - LI
+  - LK
+  - LR
+  - LS
+  - LT
+  - LU
+  - LV
+  - LY
+  - MA
+  - MC
+  - MD
+  - ME
+  - MF
+  - MG
+  - MH
+  - MK
+  - ML
+  - MM
+  - MN
+  - MO
+  - MP
+  - MQ
+  - MR
+  - MS
+  - MT
+  - MU
+  - MV
+  - MW
+  - MX
+  - MY
+  - MZ
+  - NA
+  - NC
+  - NE
+  - NF
+  - NG
+  - NI
+  - NL
+  - "NO"
+  - NP
+  - NR
+  - NU
+  - NZ
+  - OM
+  - PA
+  - PE
+  - PF
+  - PG
+  - PH
+  - PK
+  - PL
+  - PM
+  - PN
+  - PR
+  - PS
+  - PT
+  - PW
+  - PY
+  - QA
+  - RE
+  - RO
+  - RS
+  - RU
+  - RW
+  - SA
+  - SB
+  - SC
+  - SD
+  - SE
+  - SG
+  - SH
+  - SI
+  - SJ
+  - SK
+  - SL
+  - SM
+  - SN
+  - SO
+  - SR
+  - SS
+  - ST
+  - SV
+  - SX
+  - SY
+  - SZ
+  - TC
+  - TD
+  - TF
+  - TG
+  - TH
+  - TJ
+  - TK
+  - TL
+  - TM
+  - TN
+  - TO
+  - TR
+  - TT
+  - TV
+  - TW
+  - TZ
+  - UA
+  - UG
+  - UM
+  - US
+  - UY
+  - UZ
+  - VA
+  - VC
+  - VE
+  - VG
+  - VI
+  - VN
+  - VU
+  - WF
+  - WS
+  - YE
+  - YT
+  - ZA
+  - ZM
+  - ZW
+  - XO
+
+actionType:
+  - deposit
+  - withdraw
+  - sport
+  - virtual_sport
+  - casino
+
+challenges_headers:
+  - in: header
+    name: VND-bmt-challenges-auth-token
+    schema:
+      type: string
+    required: false
+  - in: header
+    name: VND-bmt-challenges-answers
+    schema:
+      type: string
+    required: false
+
+casino_game_type:
+  - bingo
+  - instant
+  - live
+  - other
+  - slot
+  - table
+
+casino_provider_type:
+  - B2BS  #! B2B_SLOTS
+  - BNG   #! BOOONGO
+  - C2B   #! CASINO2B
+  - EP    #! EVOPLAY
+  - EV    #! EVOLUTION
+  - GP    #! GO_PLUS
+  - H     #! HUB88
+  - MG    #! MICROGAMING
+  - MP    #! MANNAPLAY
+  - NET   #! NETENT
+  - OBET  #! OUTCOMEBET
+  - PG    #! PLAYNGO
+  - PGS   #! PGSOFT
+  - PP    #! PRAGMATICPLAY
+  - PPA   #! PRAGMATICPLAY_ASIA
+  - PPB   #! PRAGMATICPLAY_BINGO
+  - PT    #! PLAYTECH
+  - RX    #! RELAX
+  - S     #! SLOTEGRATOR
+  - S2    #! SLOTEGRATOR2
+  - SG    #! SOFTGAMING
+  - SGM   #! SA_GAMING
+  - SPG   #! SPADEGAMING
+  - SPML  #! SPINOMENAL
+  - ST    #! ST8
+  - TRR   #! TORRERO
+  - TWP   #! TWOWP
+  - X     #! XPRESSGAMING
+  - "Y"   #! YGGDRASIL
+  - Z     #! ZITRO
+
+imageSize:
+  - small
+  - normal
+  - big
+
+imageTheme:
+  - light
+  - dark
+
+environments:
+  development: 9
+  production: 1
+  production_malta: 2
+  production_iom: 3
+  production_centro: 4
+
+verificationStatus:
+  - NOT_STARTED
+  - PENDING
+  - VERIFIED
+  - FAILED
+
+verificationErrorCode:
+  - TIMEOUT
+  - CANCELED
+  - ALREADY_IN_USE
+  - OTHER
+
+productGroup:
+  - ESPORT
+  - RACING
+  - SPORT
+  - BINGO
+  - INSTANT
+  - LIVE
+  - TABLE
+  - SLOT
+  - VIRTUAL
+  - MIX
+  - UNDEFINED
+
+offer_marketing_param:
+  - utm_affid
+  - utm_source
+  - utm_medium
+  - utm_campaign
+  - utm_term
+  - utm_content
+  - utm_clickid
+  - gclid
+  - click_id
+  - campaigntoken
+  - afpub_id
+  - payload
+
+marketing_param:
+  - utm_source
+  - utm_medium
+  - utm_affid
+  - utm_campaign
+  - utm_content
+  - utm_clickid
+  - utm_term
+  - gclid
+  - fbclid
+  - msclid
+  - adclid
+  - twclid
+  - tsclid
+  - aclid
+  - gbraid
+  - wbraid
+  - click_id
+  - campaigntoken
+  - afpub_id
+  - os_version
+  - device_manufacturer
+  - device_model
+  - install_ipv6
+  - from
+  - payload
+  - s2s.pub_id
+  - s2s.req_id
+  - appsflyer_uid
+  - source_type
+
+actionsRejectionCode:
+  RM_LIMIT_V1_DEPOSIT_RESTRICTION: 1
+  RM_LIMIT_V1_SPORT_BET_RESTRICTION: 2
+  RM_V1_VERIFICATION_RESTRICTION: 3
+  RM_V1_API: 4
+  RM_POLICY_BALANCE_TO_DEPOSITS_RATIO: 5
+  RM_POLICY_BET: 6
+  RM_POLICY_CASINO_GGR: 7
+  RM_POLICY_CHARGEBACKS: 8
+  RM_POLICY_DUPLICATES_CLUSTER: 9
+  RM_POLICY_DUPLICATE_WALLETS: 10
+  RM_POLICY_RESTRICTED_DEPOSITS: 11
+  RM_POLICY_SPORTS_GGR: 12
+  RM_POLICY_TOTAL_COMPANY_PROFIT: 13
+  RM_POLICY_REWIND: 14
+  RM_LIMIT_BET_STAKE_LIMIT: 15
+  RM_LIMIT_FREEBET_RISK: 16
+  RM_LIMIT_MAX_BET_RISK: 17
+  RG_TIMEOUT_RESTRICTION: 18
+  RG_WAGER_LIMIT_RESTRICTION: 19
+  RG_ACTIVITY_LIMIT_RESTRICTION: 20
+  RG_DEPOSIT_LIMIT_RESTRICTION: 21
+  RG_SYSTEM_DEPOSIT_LIMIT_RESTRICTION: 22
+  RG_SYSTEM_NET_DEPOSIT_LIMIT_RESTRICTION: 23
+  RG_RISK_SCORE: 24
+  ESTONIAN_HAMPI_RESTRICTION: 25
+  ESTONIAN_ID_IS_NOT_VERIFIED: 26
+  ESTONIAN_USER_AGE_RESTRICTION: 27
+  PERSONAL_DATA_IS_NOT_COMPLETE: 28
+  SUMSUB_RESTRICTION: 29
+  GAMSTOP_RESTRICTION: 30
+  MANUAL_RESTRICTIONS: 31
+  VERIFICATION_RESTRICTIONS: 32
+  MARKET_RESTRICTIONS: 33
+  COMPLIANCE_MESSAGE_RESTRICTION: 34
+  REWARD_RESTRICTION: 35
+  BET_LIMIT_EXCEEDED: 36
+  USER_NOT_ACTIVE: 37
+  USER_IS_UNDER_MINIMUM_ALLOWED_AGE: 38
+  SUSPECTED_CHARGEBACK: 39

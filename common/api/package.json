@@ -1,0 +1,41 @@
+{
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "pnpm run generate-all && pnpm run lint && tsc && vite build",
+    "serve": "vite preview",
+    "generate-all": "pnpm run generate-yml && pnpm run add-get-requests-schemas && pnpm run generate-python && pnpm run generate-json",
+    "generate-yml": "make openapi-ytt",
+    "add-get-requests-schemas": "python add_get_requests_schemas.py spec-intermediate.yml > spec.yml",
+    "generate-json": "swagger-cli bundle -o ./src/spec.json spec.yml",
+    "generate-python": "make openapi-generate-python",
+    "start-proxy": "nginx -p ../ -c ${PWD}/nginx/nginx.conf",
+    "build-yml": "pnpm run generate-yml && mv spec-intermediate.yml spec.yml",
+    "lint-yml": "spectral lint --verbose spec.yml",
+    "ci:check": "pnpm run build-yml && pnpm run lint-yml"
+  },
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=24.11.1 <25",
+    "pnpm": ">=10.28.0 <11"
+  },
+  "dependencies": {
+    "prettier": "3.5.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "swagger-cli": "^4",
+    "swagger-ui": "^3"
+  },
+  "devDependencies": {
+    "@stoplight/spectral-cli": "6.15.0",
+    "@stoplight/spectral-formats": "1.8.2",
+    "@stoplight/spectral-functions": "1.10.1",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@types/swagger-ui": "^3.52.0",
+    "@vitejs/plugin-react-refresh": "^1",
+    "rollup": "^2",
+    "typescript": "5.9.2",
+    "vite": "^2"
+  }
+}
