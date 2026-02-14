@@ -5,8 +5,8 @@ set -euo pipefail
 export PATH="/root/.local/bin:/root/.pyenv/shims:/root/.pyenv/bin:/root/.local/share/mise/shims:$PATH"
 eval "$(mise activate bash 2>/dev/null)" || true
 eval "$(pyenv init - bash 2>/dev/null)" || true
-# Fallback: point poetry to pyenv python if shim fails (exit 127)
-PYENV_PYTHON=$(find /root/.pyenv/versions -name python -type f 2>/dev/null | head -1)
+# Point poetry to pyenv python directly (shim returns 127 in Codex setup context)
+PYENV_PYTHON=$(find /root/.pyenv/versions -path '*/bin/python' 2>/dev/null | head -1)
 [[ -n "$PYENV_PYTHON" ]] && export POETRY_PYTHON="$PYENV_PYTHON"
 
 export DEBIAN_FRONTEND=noninteractive
@@ -22,7 +22,8 @@ sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='rozert_pay'"
 cd rozert-pay
 REPO_ROOT="$(pwd)/.."
 
-poetry install --with dev --no-interaction
+# Login shell loads /etc/profile with pyenv init; needed for poetry to find python
+bash -l -c "poetry install --with dev --no-interaction"
 
 {
   echo "export PYTHONPATH=\"$REPO_ROOT/shared-apps:$REPO_ROOT/rozert-pay:\$PYTHONPATH\""
@@ -35,4 +36,4 @@ export PYTHONPATH="$REPO_ROOT/shared-apps:$REPO_ROOT/rozert-pay"
 export DJANGO_SETTINGS_MODULE=rozert_pay.settings_unittest
 export POSTGRES_HOST=localhost
 export REDIS_HOST=localhost
-poetry run python manage.py migrate --noinput
+bash -l -c "poetry run python manage.py migrate --noinput"
