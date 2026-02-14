@@ -71,6 +71,40 @@ unittest: ## Run unittests
 	$(MAKE) -f $(THIS_FILE) unittest-stop
 
 ########################################################
+# AI agent targets (match scripts/codex_setup.sh env)
+########################################################
+
+REPO_ROOT := $(abspath ..)
+AGENT_ENV := PYTHONPATH="$(REPO_ROOT)/shared-apps:$(REPO_ROOT)/rozert-pay:$${PYTHONPATH}" \
+	DJANGO_SETTINGS_MODULE=rozert_pay.settings_unittest \
+	POSTGRES_HOST=localhost \
+	POSTGRES_PORT=5432 \
+	REDIS_HOST=localhost
+
+agent-setup: ## Run codex setup (first-time agent env)
+	cd .. && bash scripts/codex_setup.sh
+
+agent-maintenance: ## Ensure PG/Redis, reinstall deps
+	cd .. && bash scripts/codex_maintenance.sh
+
+agent-migrate: ## Run migrations (agent env)
+	$(AGENT_ENV) poetry run python manage.py migrate --noinput
+
+agent-pytest: ## Run pytest (agent env)
+	$(AGENT_ENV) poetry run pytest tests -v $(ARGS)
+
+agent-mypy: ## Run mypy (agent env)
+	$(AGENT_ENV) poetry run mypy . ../shared-apps/rozert_pay_shared/
+
+agent-lint: ## Run pre-commit (agent env)
+	$(AGENT_ENV) poetry run pre-commit run --all-files
+
+agent-pylint: ## Run pylint (agent env)
+	$(AGENT_ENV) poetry run pylint --ignore=migrations,tests,stubs rozert_pay/ code_checks/
+
+agent-check: agent-mypy agent-lint agent-pylint agent-pytest ## Run all agent checks (lint + test)
+
+########################################################
 
 CHECK_COMMIT_MESSAGE_FORMAT_FROM_REF ?= origin/develop
 COMPARE_BRANCH ?= origin/develop

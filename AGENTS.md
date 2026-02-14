@@ -1,14 +1,25 @@
 # Codex Agent
 
-## Lint & type check
+## Setup (run once)
 ```bash
-cd rozert-pay && poetry run mypy . ../shared-apps/rozert_pay_shared/
-cd rozert-pay && poetry run pre-commit run --all-files
-cd rozert-pay && poetry run pylint --ignore=migrations,tests,stubs rozert_pay/ code_checks/
+cd rozert-pay && make agent-setup
+```
+Or: `bash scripts/codex_setup.sh` from repo root.
+
+## Maintenance (PG/Redis + deps)
+```bash
+cd rozert-pay && make agent-maintenance
 ```
 
-## Tests
-Setup script installs PostgreSQL and Redis. Run:
+## Lint & type check
 ```bash
-cd rozert-pay && poetry run pytest tests -v
+cd rozert-pay && make agent-mypy
+cd rozert-pay && make agent-lint
+cd rozert-pay && make agent-pylint
+```
+Or: `make agent-check` for all.
+
+## Tests
+```bash
+cd rozert-pay && make agent-pytest
 ```
