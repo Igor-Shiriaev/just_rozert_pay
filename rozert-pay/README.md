@@ -1,7 +1,109 @@
 
 # Development
 
-## Start server
+## Codex Agent (cloud) quick start
+
+### Setup script (chatgpt.com/codex → Settings → Environments)
+
+Paste into **Setup script**:
+
+```bash
+bash scripts/codex_setup.sh
+```
+
+Optional **Maintenance script** (runs when cached container resumes):
+
+```bash
+bash scripts/codex_maintenance.sh
+```
+
+**Environment variables** in Codex settings:
+- `PYTHONPATH` — set automatically by setup script via ~/.bashrc
+- Pin Python 3.11+ (project uses `^3.11`)
+
+### Docker flow (CI / local)
+
+```bash
+make setup
+make up
+make test
+make down
+```
+
+Notes for CI/cloud:
+
+- `make setup` checks `docker`, `docker compose`, `make`, and creates `.env` from `.env.example` if needed.
+- `make up` runs `docker compose up -d --wait` and waits for healthy dependencies.
+- To avoid name collisions between concurrent runners, set a unique compose project name:
+
+```bash
+COMPOSE_PROJECT_NAME=rozert-pay-${RUN_ID} make up
+```
+
+## Запуск без Docker (локально)
+
+### 1. Установка зависимостей (Ubuntu/Debian)
+
+```bash
+sudo apt-get update
+sudo apt-get install -y postgresql postgresql-contrib redis-server rabbitmq-server
+sudo service postgresql start
+sudo service redis-server start
+sudo service rabbitmq-server start
+```
+
+### 2. База данных
+
+```bash
+sudo -u postgres psql -c "CREATE USER rozert_pay WITH PASSWORD 'rozert_pay' CREATEDB;"
+sudo -u postgres psql -c "CREATE DATABASE rozert_pay OWNER rozert_pay;"
+```
+
+### 3. Конфигурация
+
+```bash
+cd rozert-pay
+cp .env.example .env
+```
+
+Для локального Postgres (порт 5432) в `.env` укажи: `DB_PORT=5432`, `POSTGRES_HOST=localhost`, `REDIS_HOST=localhost`.
+
+### 4. Python-зависимости и миграции
+
+```bash
+export PYTHONPATH="../shared-apps:$(pwd):../common"
+poetry install --with dev
+poetry run python manage.py migrate --noinput
+```
+
+### 5. Запуск (3 терминала)
+
+**Терминал 1 — Django:**
+```bash
+cd rozert-pay
+export PYTHONPATH="../shared-apps:$(pwd):../common"
+poetry run python manage.py startserver 0.0.0.0:8000
+```
+
+**Терминал 2 — Celery worker:**
+```bash
+cd rozert-pay
+export PYTHONPATH="../shared-apps:$(pwd):../common"
+poetry run celery -A rozert_pay.celery_app worker -l info -Q high,normal,low --pool threads -c 20
+```
+
+**Терминал 3 — Celery beat:**
+```bash
+cd rozert-pay
+export PYTHONPATH="../shared-apps:$(pwd):../common"
+poetry run celery -A rozert_pay.celery_app beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+```
+
+Приложение: http://localhost:8000
+
+---
+
+## Start server (Docker)
 
 ```
 make dev-build
