@@ -40,12 +40,14 @@ $POETRY install --with dev --no-interaction
   echo "export PYTHONPATH=\"$REPO_ROOT/shared-apps:$REPO_ROOT/rozert-pay:\$PYTHONPATH\""
   echo "export DJANGO_SETTINGS_MODULE=rozert_pay.settings_unittest"
   echo "export POSTGRES_HOST=localhost"
+  echo "export POSTGRES_PORT=5432"
   echo "export REDIS_HOST=localhost"
 } >> ~/.bashrc
 
 export PYTHONPATH="$REPO_ROOT/shared-apps:$REPO_ROOT/rozert-pay"
 export DJANGO_SETTINGS_MODULE=rozert_pay.settings_unittest
 export POSTGRES_HOST=localhost
+export POSTGRES_PORT=5432
 export REDIS_HOST=localhost
 
 $POETRY run python manage.py migrate --noinput
