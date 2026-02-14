@@ -10,9 +10,8 @@ apt-get install -y --no-install-recommends \
   postgresql postgresql-contrib \
   redis-server
 
-# Disable pyenv influence in cloud runners where shims can be present but broken.
-unset PYENV_VERSION PYENV_ROOT PYENV_SHELL PYENV_VIRTUALENV_INIT
-export PATH="$(echo "$PATH" | tr ':' '\n' | grep -Ev '/\.pyenv/(shims|bin)(/|$)' | paste -sd ':' -)"
+# Remove pyenv shims from PATH (they can exist but be non-functional in cloud runners)
+export PATH="$(echo "$PATH" | tr ':' '\n' | grep -v '^/root/.pyenv/shims$' | paste -sd ':' -)"
 # Prefer system binaries
 export PATH="/usr/bin:/usr/sbin:$PATH"
 hash -r
@@ -29,17 +28,11 @@ sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='rozert_pay'"
 cd rozert-pay
 REPO_ROOT="$(pwd)/.."
 
-# Select poetry binary available in the container.
-if [[ -x /usr/bin/poetry ]]; then
-  POETRY=/usr/bin/poetry
-else
-  POETRY="$(command -v poetry)"
-fi
+# Use system poetry explicitly to avoid any poetry executable tied to pyenv shims
+POETRY=/usr/bin/poetry
 
-# Force poetry to use system python and ignore any active/pyenv interpreter.
-export POETRY_PYTHON=/usr/bin/python3
-export POETRY_VIRTUALENVS_USE_POETRY_PYTHON=true
-export POETRY_VIRTUALENVS_PREFER_ACTIVE_PYTHON=false
+# Force poetry to use system python for the venv it creates
+$POETRY env use /usr/bin/python3 || true
 
 $POETRY install --with dev --no-interaction
 
