@@ -173,7 +173,25 @@ from rozert_pay.risk_lists.services.manager import add_customer_to_blacklist_by_
 from ..risk_lists.services import checker
 ```
 
-### 7. Проектные паттерны
+### 7. Типизация (Python 3.11+)
+
+Использовать нативный синтаксис типов: `X | Y` вместо `Optional[X]`/`Union[X, Y]`, встроенные коллекции `list[...]`, `dict[...]` вместо `List`, `Dict` из `typing`. Импорт из `typing` — только для того, чего нет в синтаксисе (`Any`, `TypeVar`, `ParamSpec`, `TypedDict`, и т.д.).
+
+```python
+# GOOD
+def find_user(id: int) -> User | None: ...
+def validate_remote_transaction_status(trx: PaymentTransaction) -> Error | None: ...
+def process(items: list[str] | None, mapping: dict[str, int] | None = None) -> list[int] | None: ...
+payload: dict[str, Any]
+
+# BAD
+from typing import Optional, List, Dict
+def find_user(id: int) -> Optional[User]: ...
+def process(items: List[str], mapping: Dict[str, int]) -> List[int]: ...
+payload: Optional[dict[str, Any]] = None  # лучше: dict[str, Any] | None = None
+```
+
+### 8. Проектные паттерны
 
 - Внешние HTTP-интеграции: использовать `get_external_api_session(trx_id=..., timeout=...)` — обеспечивает event log и метрики.
 - Бизнес-критичные service-функции: декоратор `@track_duration("<scope>.<function>")`.

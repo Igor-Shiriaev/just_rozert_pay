@@ -1,5 +1,7 @@
 coverage.xml
 .env
+**/__pycache__/
+**/*.pyc
 .coverage
 .pytest_cache
 .mypy_cache
