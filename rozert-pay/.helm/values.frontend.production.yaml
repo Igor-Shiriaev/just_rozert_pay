@@ -1,9 +1,0 @@
-imagePullSecrets:
-  - name: bmio
-
-ingress:
-  enabled: false
-
-jobs:
-  sync:
-    enabled: false
