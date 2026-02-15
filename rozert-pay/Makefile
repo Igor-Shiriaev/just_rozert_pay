@@ -71,38 +71,41 @@ unittest: ## Run unittests
 	$(MAKE) -f $(THIS_FILE) unittest-stop
 
 ########################################################
-# AI agent targets (match scripts/codex_setup.sh env)
+# AI WEB agent targets
 ########################################################
 
 REPO_ROOT := $(abspath ..)
-AGENT_ENV := PYTHONPATH="$(REPO_ROOT)/shared-apps:$(REPO_ROOT)/rozert-pay:$${PYTHONPATH}" \
+WEB_AGENT_ENV := PYTHONPATH="$(REPO_ROOT)/shared-apps:$(REPO_ROOT)/rozert-pay:$${PYTHONPATH}" \
 	DJANGO_SETTINGS_MODULE=rozert_pay.settings_unittest \
 	POSTGRES_HOST=localhost \
 	POSTGRES_PORT=5432 \
 	REDIS_HOST=localhost
 
-agent-setup: ## Run codex setup (first-time agent env)
+web-agent-setup: ## Run codex WEB setup (first-time agent env)
 	cd .. && bash scripts/codex_setup.sh
 
-agent-maintenance: ## Ensure PG/Redis, reinstall deps
+web-agent-maintenance: ## Run codex WEB maintenance (ensure PG/Redis, reinstall deps)
 	cd .. && bash scripts/codex_maintenance.sh
 
-agent-migrate: ## Run migrations (agent env)
-	$(AGENT_ENV) poetry run python manage.py migrate --noinput
+web-agent-postgres-readonly: ## Create codex_readonly PG user (local: default, docker: USE_DOCKER=1)
+	cd .. && bash scripts/create_codex_postgres_user.sh
 
-agent-pytest: ## Run pytest (agent env)
-	$(AGENT_ENV) poetry run pytest tests -v $(ARGS)
+web-agent-migrate: ## Run migrations (agent env)
+	$(WEB_AGENT_ENV) poetry run python manage.py migrate --noinput
 
-agent-mypy: ## Run mypy (agent env)
-	$(AGENT_ENV) poetry run mypy . ../shared-apps/rozert_pay_shared/
+web-agent-pytest: ## Run pytest (agent env)
+	$(WEB_AGENT_ENV) poetry run pytest tests -v $(ARGS)
 
-agent-lint: ## Run pre-commit (agent env)
-	$(AGENT_ENV) poetry run pre-commit run --all-files
+web-agent-mypy: ## Run mypy (agent env)
+	$(WEB_AGENT_ENV) poetry run mypy . ../shared-apps/rozert_pay_shared/
 
-agent-pylint: ## Run pylint (agent env)
-	$(AGENT_ENV) poetry run pylint --ignore=migrations,tests,stubs rozert_pay/ code_checks/
+web-agent-lint: ## Run pre-commit (agent env)
+	$(WEB_AGENT_ENV) poetry run pre-commit run --all-files
 
-agent-check: agent-mypy agent-lint agent-pylint agent-pytest ## Run all agent checks (lint + test)
+web-agent-pylint: ## Run pylint (agent env)
+	$(WEB_AGENT_ENV) poetry run pylint --ignore=migrations,tests,stubs rozert_pay/ code_checks/
+
+web-agent-check: web-agent-mypy web-agent-lint web-agent-pylint web-agent-pytest ## Run all agent checks (lint + test)
 
 ########################################################
 
