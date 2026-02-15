@@ -52,7 +52,9 @@ description: Использовать для задач, где меняются
 
 Статусы определены в `common/const.py` → `TransactionStatus`.
 
-**Единственная точка синхронизации:** `PaymentSystemController.sync_remote_status_with_transaction(...)` в `payment/systems/base_controller.py`.
+**Стандартная точка синхронизации:** `PaymentSystemController.sync_remote_status_with_transaction(...)` в `payment/systems/base_controller.py`.
+
+**Явные исключения:** `refund`, `chargeback`, `chargeback reversal` в контролируемых service-сценариях transaction-processing, где прямое изменение `PaymentTransaction.status` допустимо только вместе с обязательными balance side-effects и доменным аудитом.
 
 ## Порядок работы
 
@@ -96,7 +98,7 @@ db_services.create_transaction(...)
 
 ### 3. Проверить переходы статусов
 
-Переходы выполняются **только** через `sync_remote_status_with_transaction`. Перед синхронизацией обязательна валидация:
+Стандартные переходы выполняются через `sync_remote_status_with_transaction`. Перед синхронизацией обязательна валидация:
 
 ```python
 # GOOD — через контроллер
@@ -112,6 +114,7 @@ trx.save()  # нарушает инварианты, пропускает balanc
 ```
 
 `bypass_validation` допустим **только** в контролируемых service/admin-сценариях.
+Для `refund`/`chargeback`/`chargeback reversal` допускается прямой статусный апдейт в service-коде transaction-processing при соблюдении балансовых и audit-инвариантов.
 
 ### 4. Проверить балансовые side-effects
 
@@ -225,7 +228,7 @@ event_logs.create_transaction_log(
 
 ## Жёсткие ограничения
 
-- Не обновлять `PaymentTransaction.status` напрямую — только через `sync_remote_status_with_transaction`.
+- Не обновлять `PaymentTransaction.status` напрямую, кроме контролируемых service-сценариев `refund`/`chargeback`/`chargeback reversal` в transaction-processing.
 - Не выполнять внешние HTTP-вызовы внутри открытой DB-транзакции.
 - В Celery-задачи передавать идентификаторы (`trx_id`, `callback_id`), не ORM-объекты.
 - Не пропускать балансовые side-effects при изменении статусных переходов.

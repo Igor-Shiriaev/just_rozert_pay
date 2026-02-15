@@ -133,7 +133,8 @@ trx.save()
 ## Жесткие ограничения
 
 - Без массовых обновлений исторических ledger-записей.
-- Без прямой смены `PaymentTransaction.status` в произвольном бизнес-коде (только через `PaymentSystemController.sync_remote_status_with_transaction`).
+- Без прямой смены `PaymentTransaction.status` в произвольном бизнес-коде.
+  Допустимое исключение: контролируемые service-сценарии `refund`/`chargeback`/`chargeback reversal` в transaction-processing с обязательными balance side-effects и доменным аудитом.
 - Без нарушений транзакционной консистентности в финансовом флоу.
 - Без `FloatField`/`DecimalField` для денег — только `MoneyField`.
 - Без `on_delete=CASCADE` на FK к финансовым/исторческим сущностям без явного обоснования.

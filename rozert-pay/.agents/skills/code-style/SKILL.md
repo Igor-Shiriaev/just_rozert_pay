@@ -1,5 +1,5 @@
 ---
-name: cqode-style
+name: code-style
 globs:
   - "rozert_pay/**/*.py"
   - "tests/**/*.py"
@@ -179,6 +179,7 @@ from ..risk_lists.services import checker
 - Бизнес-критичные service-функции: декоратор `@track_duration("<scope>.<function>")`.
 - Пользовательские строки: на английском (ASCII-friendly).
 - `@property` — только для дешёвых вычислений или доступа к загруженным данным. Запросы к БД — явными методами (`get_*`).
+- Для `PaymentTransaction.status`: стандартно использовать `sync_remote_status_with_transaction(...)`; исключения (`refund`/`chargeback`/`chargeback reversal`) допустимы только в контролируемых service-сценариях transaction-processing с обязательными balance side-effects и доменным аудитом.
 
 ## Жесткие ограничения
 

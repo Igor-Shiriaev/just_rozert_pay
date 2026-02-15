@@ -65,13 +65,33 @@ make pylint
 ## 5. Архитектурные инварианты (коротко)
 
 - Бизнес-логика живет в `services`-слое; модели/views/serializers/admin остаются тонкими.
-- Для платежных статусов единая точка синхронизации: `PaymentSystemController.sync_remote_status_with_transaction(...)`.
+- Для платежных статусов стандартная точка синхронизации: `PaymentSystemController.sync_remote_status_with_transaction(...)`.
 - Не обновлять `PaymentTransaction.status` напрямую вне регламентированного transaction-processing флоу.
+  Исключения: service-сценарии `refund`, `chargeback`, `chargeback reversal` внутри transaction-processing, где прямое изменение статуса допустимо только вместе с обязательными balance side-effects и доменным аудитом.
 - Для операций, меняющих финансовые сущности, использовать `transaction.atomic()` и `select_for_update()`.
 - Внешние HTTP-вызовы не выполнять внутри открытой DB-транзакции.
 - Celery-задачам передавать только идентификаторы и запускать их через `transaction.on_commit(...)`/`execute_on_commit(...)`.
 - Логирование делать структурированно (`extra={...}`), без утечки чувствительных данных, с `request_id` для сквозной трассировки.
 - Использовать fail-fast: не скрывать исключения и не продолжать критичный флоу в некорректном состоянии.
+
+## 5.1 Ключевые доменные сущности (глоссарий)
+
+| Сущность | App | Суть |
+|---|---|---|
+| `MerchantGroup` → `Merchant` | payment | Группа мерчантов и конкретный мерчант (API-ключ, настройки) |
+| `PaymentSystem` | payment | Платежная система — тип, TTL, IP-whitelist, credentials формат |
+| `Wallet` | payment | Подключение мерчанта к ПС (credentials, callback_url, sandbox-флаг) |
+| `CurrencyWallet` | payment | Баланс кошелька в конкретной валюте: operational / frozen / pending |
+| `Customer` | payment | Клиент мерчанта; PII зашифровано (`EncryptedFieldV2`) |
+| `PaymentTransaction` | payment | Центральная сущность — deposit/withdrawal; стандартно статус меняется через `sync_remote_status_with_transaction`, исключения: `refund`/`chargeback`/`chargeback reversal` в контролируемых service-хендлерах |
+| `BalanceTransaction` | balances | Запись движения средств по `CurrencyWallet` (аудит-лог балансов) |
+| `RollingReserveHold` | balances | Холдирование средств на rolling reserve с автоматическим релизом |
+| `RiskListEntry` | risk_lists | Запись в black/white/gray-листе (по карте, IP, email и т.д.) |
+| `IncomingCallback` / `OutcomingCallback` | payment | Входящие callback от ПС и исходящие webhook мерчанту |
+
+Ключевая цепочка владения: `MerchantGroup → Merchant → Wallet → CurrencyWallet → PaymentTransaction`.
+
+Детальное описание полей и связей: `.agents/skills/domain-entities/SKILL.md`.
 
 ## 6. Базовые стилевые правила
 
@@ -121,11 +141,10 @@ make pylint
 
 ## 11. Детали вынесены в docs и skills
 
-- Детальная архитектура платежного флоу: `.agents/skills/payment-transaction-workflow/SKILL.md`
-- Детальные правила разработки и стиля: `.agents/skills/code-style/SKILL.md`
 - Операционный чеклист агента: `docs/agents/agent-runbook.md`
 - Skill по платежному флоу: `.agents/skills/payment-transaction-workflow/SKILL.md`
 - Skill по стилю кода и ограничениям: `.agents/skills/code-style/SKILL.md`
 - Skill по правилам Django-моделей: `.agents/skills/django-model-rules/SKILL.md`
 - Skill по проектированию-перед-разработкой для интеграций платежных систем: `.agents/skills/payment-integration-design-first/SKILL.md`
 - Skill по тестированию: `.agents/skills/django-testing/SKILL.md`
+- Skill по доменным сущностям (модели, поля, связи): `.agents/skills/domain-entities/SKILL.md`

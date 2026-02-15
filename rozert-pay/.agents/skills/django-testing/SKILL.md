@@ -220,6 +220,7 @@ def test_validation_errors(self, api_client, merchant, payload, expected_error):
 - **Failure path** — ошибки обрабатываются корректно (невалидные данные, таймауты, ошибки провайдера).
 - **Для платежных интеграций**: обязательны happy path тесты для `deposit` и `withdraw`.
 - **Для изменений статусов**: проверять переходы и балансовые side-effects.
+- **Для исключений по статусам** (`refund`/`chargeback`/`chargeback reversal`): отдельно проверять разрешенный прямой status-update в service-коде, корректные balance side-effects и наличие доменного аудита.
 - **Edge cases**: конкурентный доступ, пустые данные, граничные значения лимитов.
 
 ### 6. Вспомогательные утилиты

@@ -181,6 +181,7 @@ _operation_status_by_foreign_status = {
 
 - Никаких правок кода до утверждённого дизайн-документа.
 - Не хранить секреты в коде/документации/тестах.
-- Статусы синхронизировать только через `sync_remote_status_with_transaction(...)`.
+- Стандартные переходы статусов синхронизировать через `sync_remote_status_with_transaction(...)`.
+  Исключения: `refund`/`chargeback`/`chargeback reversal` в контролируемых service-сценариях transaction-processing с обязательными balance side-effects и доменным аудитом.
 - Для HTTP-запросов к провайдеру использовать `self.session` (ExternalApiSession), не `requests` напрямую.
 - Не выполнять HTTP-вызовы к провайдеру внутри открытой DB-транзакции.
