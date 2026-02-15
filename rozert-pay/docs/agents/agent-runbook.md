@@ -6,9 +6,9 @@
 ## Быстрые ссылки
 
 - Основные правила и ограничения: `AGENTS.md`
-- Детали платежного флоу: `docs/agents/payment-transaction-architecture.md`
-- Детали стиля разработки: `docs/agents/engineering-style-guide.md`
-- Процесс интеграции платежек: `docs/agents/payment-integration-playbook.md`
+- Детали платежного флоу: `.agents/skills/payment-transaction-workflow/SKILL.md`
+- Детали стиля разработки: `.agents/skills/code-style/SKILL.md`
+- Процесс интеграции платежек: `.agents/skills/payment-integration-design-first/SKILL.md`
 
 ## Чеклист задачи
 

@@ -94,19 +94,7 @@ make pylint
    - выполненные команды проверки;
    - что не запустилось (если есть).
 
-## 8. Тестирование и импорты (база)
-
-- Для HTTP-моков в тестах использовать `requests_mock`.
-- Моки использовать по минимуму; по возможности мокать только внешние HTTP-запросы.
-- Повторяемые моки выносить в фикстуры или context manager.
-- Импорты: относительные только внутри текущего модуля (`.`), для соседних/верхних модулей использовать абсолютные.
-
-## 9. Approval-first режим
-
-- Не править код без явного разрешения разработчика.
-- Сначала предложить план работ и получить подтверждение, затем вносить изменения.
-
-## 10. Правило для задач по интеграции платежки
+## 8. Правило для задач по интеграции платежки
 
 - Первый шаг всегда: создать/обновить дизайн-документ в `docs/integrations/**` и получить подтверждение.
 - До утверждения дизайн-документа код не менять.
@@ -115,13 +103,13 @@ make pylint
 - При задачах по платежной интеграции также обновлять связанный контекстный документ.
 - Если задача требует изменения в проекте `../back`, применять те же правила design-first и тестирования.
 
-## 11. Работа с БД/Redis
+## 9. Работа с БД/Redis
 
 - PostgreSQL: использовать read-only пользователя `codex_readonly` (см. `../scripts/create_codex_postgres_user.sh`).
 - Без явного запроса не выполнять destructive SQL (`DROP`, `TRUNCATE`, массовые `UPDATE/DELETE`).
 - Redis: по умолчанию только чтение.
 
-## 12. Политика коммитов и критерии готовности
+## 10. Политика коммитов и критерии готовности
 
 - Если делается commit, в сообщении указывать, что commit сделан AI-агентом.
   Пример: `[AI] Fix payout status transition for timeout callback`
@@ -131,12 +119,13 @@ make pylint
   - нет незапрошенных изменений в сторонних подсистемах;
   - при изменении моделей обновлена Django admin-конфигурация.
 
-## 13. Детали вынесены в docs и skills
+## 11. Детали вынесены в docs и skills
 
-- Детальная архитектура платежного флоу: `docs/agents/payment-transaction-architecture.md`
-- Детальные правила разработки и стиля: `docs/agents/engineering-style-guide.md`
+- Детальная архитектура платежного флоу: `.agents/skills/payment-transaction-workflow/SKILL.md`
+- Детальные правила разработки и стиля: `.agents/skills/code-style/SKILL.md`
 - Операционный чеклист агента: `docs/agents/agent-runbook.md`
-- Design-first playbook для интеграций платёжных систем: `docs/agents/payment-integration-playbook.md`
-- Skill по платежному флоу: `skills/payment-transaction-workflow/SKILL.md`
-- Skill по стилю кода и ограничениям: `skills/django-payment-code-style/SKILL.md`
-- Skill по проектированию-перед-разработкой для интеграций: `skills/payment-integration-design-first/SKILL.md`
+- Skill по платежному флоу: `.agents/skills/payment-transaction-workflow/SKILL.md`
+- Skill по стилю кода и ограничениям: `.agents/skills/code-style/SKILL.md`
+- Skill по правилам Django-моделей: `.agents/skills/django-model-rules/SKILL.md`
+- Skill по проектированию-перед-разработкой для интеграций платежных систем: `.agents/skills/payment-integration-design-first/SKILL.md`
+- Skill по тестированию: `.agents/skills/django-testing/SKILL.md`
