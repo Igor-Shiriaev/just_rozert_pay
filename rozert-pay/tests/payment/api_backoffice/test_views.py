@@ -15,11 +15,13 @@ from tests.factories import (
     LimitAlertFactory,
     MerchantFactory,
     MerchantGroupFactory,
+    MerchantLimitFactory,
     OutcomingCallbackFactory,
     PaymentTransactionFactory,
     UserFactory,
     WalletFactory,
 )
+from tests.risk_lists.factories import WhiteListEntryFactory
 
 
 def login_as(
@@ -312,3 +314,51 @@ class TestCabinetAlertViewSet:
         response = CabinetAlertViewSet.acknowledge(view, drf_request, pk=None)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+class TestMerchantProfileViewSet:
+    def test_retrieve_profile(self, api_client):
+        user = UserFactory.create()
+        merchant = MerchantFactory.create()
+        merchant.login_users.add(user)
+
+        wallet = WalletFactory.create(merchant=merchant)
+        currency_wallet = wallet.currencywallet_set.create(
+            currency="USD",
+            operational_balance="120.00",
+            frozen_balance="20.00",
+            pending_balance="10.00",
+        )
+        PaymentTransactionFactory.create(wallet=currency_wallet)
+        MerchantLimitFactory.create(merchant=merchant, wallet=None)
+        WhiteListEntryFactory.create(merchant=merchant)
+
+        login_as(api_client, user.email, merchant_id=merchant.id)
+
+        response = api_client.get(f"/api/backoffice/v1/merchant-profile/{merchant.id}/")
+
+        assert response.status_code == 200, response.data
+        payload = response.json()
+        assert payload["merchant"]["id"] == str(merchant.id)
+        assert payload["merchant"]["status"]["operational"]["code"] == "ACTIVE"
+        assert payload["balances"]["data_status"] == "READY"
+        assert payload["balances"]["currencies"][0]["currency"] == "USD"
+        assert payload["balances"]["currencies"][0]["available"] == "90.00"
+        assert payload["wallets"][0]["wallet_id"] == str(wallet.uuid)
+        assert payload["limits"]
+        assert payload["client_lists"]
+
+    def test_cannot_retrieve_other_merchant_profile(self, api_client):
+        user = UserFactory.create()
+        merchant_allowed = MerchantFactory.create()
+        merchant_allowed.login_users.add(user)
+        merchant_blocked = MerchantFactory.create()
+
+        login_as(api_client, user.email, merchant_id=merchant_allowed.id)
+
+        response = api_client.get(
+            f"/api/backoffice/v1/merchant-profile/{merchant_blocked.id}/"
+        )
+
+        assert response.status_code == 404

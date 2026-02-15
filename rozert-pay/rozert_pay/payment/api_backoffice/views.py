@@ -18,13 +18,17 @@ from rozert_pay.payment.api_backoffice.serializers import (
     CabinetCallbackSerializer,
     CabinetDepositAccountSerializer,
     LimitAlertSerializer,
+    MerchantProfileSerializer,
 )
 from rozert_pay.payment.api_v1.serializers import (
     TransactionResponseSerializer,
     WalletSerializer,
 )
+from rozert_pay.profiles.merchant.dto import MerchantProfileDto
+from rozert_pay.profiles.merchant.service import build_merchant_profile
 from rozert_pay.payment.models import (
     DepositAccount,
+    Merchant,
     OutcomingCallback,
     PaymentTransaction,
     Wallet,
@@ -94,6 +98,32 @@ class CabinetCallbackViewSet(
             queryset=OutcomingCallback.objects.all(),
             request=self.request,
         )
+
+
+class MerchantProfileViewSet(viewsets.GenericViewSet):
+    authentication_classes = (CSRFExemptSessionAuthentication,)
+    permission_classes = [IsAuthenticated]
+    serializer_class = MerchantProfileSerializer
+
+    def get_queryset(self) -> QuerySet[Merchant]:
+        return acl_queryset_limiter_for_request(
+            queryset_type=AclQueryset.MERCHANT,
+            queryset=Merchant.objects.all(),
+            request=self.request,
+        )
+
+    def retrieve(self, request: Request, pk: str | None = None) -> Response:
+        if pk is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        merchant = self.get_queryset().filter(pk=pk).first()
+        if merchant is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        payload = build_merchant_profile(merchant=merchant)
+        validated_payload = MerchantProfileDto.model_validate(payload)
+        serializer = self.get_serializer(validated_payload.model_dump(mode="json"))
+        return Response(serializer.data)
 
 
 class CabinetAlertViewSet(viewsets.GenericViewSet):

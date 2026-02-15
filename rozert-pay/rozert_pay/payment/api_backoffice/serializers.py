@@ -83,3 +83,8 @@ class LimitAlertSerializer(serializers.ModelSerializer):
             "transaction_url",
             "text",
         )
+
+
+class MerchantProfileSerializer(serializers.Serializer):
+    def to_representation(self, instance):
+        return instance

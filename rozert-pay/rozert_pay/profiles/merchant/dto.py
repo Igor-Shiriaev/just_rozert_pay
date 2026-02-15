@@ -5,8 +5,6 @@ from typing import List, Literal, Optional
 
 from pydantic import BaseModel
 
-from rozert_pay.common import const
-
 
 class MerchantLinks(BaseModel):
     operations_history: str
@@ -17,14 +15,14 @@ class MerchantLinks(BaseModel):
 
 
 class MerchantOperationalStatus(BaseModel):
-    code: const.MerchantOperationalStatus
+    code: Literal["ACTIVE", "INACTIVE", "SUSPENDED", "TERMINATED"]
     reason_code: Optional[str] = None
     comment: Optional[str] = None
     set_at: Optional[datetime] = None
 
 
 class MerchantRiskStatus(BaseModel):
-    code: const.MerchantRiskStatus
+    code: Literal["WHITE", "GREY", "BLACK"]
     reason_code: Optional[str] = None
     comment: Optional[str] = None
     set_at: Optional[datetime] = None
@@ -131,7 +129,7 @@ class ClientListLinks(BaseModel):
 class ClientListEntry(BaseModel):
     entry_id: str
     client_id: str
-    list_type: Literal["BLACK", "GREY", "WHITE"]
+    list_type: Literal["BLACK", "GREY", "WHITE", "MERCHANT_BLACK"]
     reason_code: str
     source: Literal["MANUAL", "AUTO_RULE", "EXTERNAL"]
     added_at: datetime
