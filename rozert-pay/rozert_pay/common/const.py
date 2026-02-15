@@ -98,6 +98,19 @@ class CallbackStatus(TextChoices):
     PENDING = "pending", "Pending"
 
 
+class MerchantOperationalStatus(TextChoices):
+    ACTIVE = "ACTIVE", "Active"
+    INACTIVE = "INACTIVE", "Inactive"
+    SUSPENDED = "SUSPENDED", "Suspended"
+    TERMINATED = "TERMINATED", "Terminated"
+
+
+class MerchantRiskStatus(TextChoices):
+    WHITE = "WHITE", "White"
+    GREY = "GREY", "Grey"
+    BLACK = "BLACK", "Black"
+
+
 CARDPAY_APPLEPAY_BANKCARD_FLAG = "cardpay_applepay_bankcard_payment_method"
 CARDPAY_APPLEPAY_BANKCARD_SWITCH = "cardpay_applepay_bankcard_payment_switch"
 

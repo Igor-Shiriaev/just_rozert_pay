@@ -15,6 +15,7 @@ class AclQueryset(TextChoices):
     TRANSACTION = "transaction"
     DEPOSIT_ACCOUNT = "deposit_account"
     CALLBACK = "callback"
+    MERCHANT = "merchant"
 
 
 def acl_queryset_limiter_for_request(
@@ -78,6 +79,16 @@ def acl_queryset_limiter(
             return queryset.filter(
                 transaction__wallet__wallet__merchant__merchant_group__user=user,
                 transaction__wallet__wallet__merchant__merchant_group_id=session_role.merchant_group_id,
+            )
+        case (AclQueryset.MERCHANT, SessionRole.MERCHANT):
+            return queryset.filter(
+                login_users=user,
+                id=session_role.merchant_id,
+            )
+        case (AclQueryset.MERCHANT, SessionRole.MERCHANT_GROUP):
+            return queryset.filter(
+                merchant_group__user=user,
+                merchant_group_id=session_role.merchant_group_id,
             )
 
     raise RuntimeError(f"Unknown queryset-role type: {queryset_type, session_role}")

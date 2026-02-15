@@ -2,6 +2,7 @@ from django.urls import reverse
 from rest_framework import serializers
 from rozert_pay.limits.models import LimitAlert
 from rozert_pay.payment.models import DepositAccount, OutcomingCallback
+from rozert_pay.profiles.merchant.dto import MerchantProfileDto
 
 
 class CabinetDepositAccountSerializer(serializers.ModelSerializer):
@@ -83,3 +84,8 @@ class LimitAlertSerializer(serializers.ModelSerializer):
             "transaction_url",
             "text",
         )
+
+
+class MerchantProfileSerializer(serializers.Serializer):
+    def to_representation(self, instance: MerchantProfileDto) -> dict:
+        return instance.model_dump(mode="json")

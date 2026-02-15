@@ -11,9 +11,11 @@ from rozert_pay.payment.api_backoffice.views import CabinetAlertViewSet
 from rozert_pay.payment.models import Merchant
 from tests.factories import (
     CustomerLimitFactory,
+    CurrencyWalletFactory,
     DepositAccountFactory,
     LimitAlertFactory,
     MerchantFactory,
+    MerchantLimitFactory,
     MerchantGroupFactory,
     OutcomingCallbackFactory,
     PaymentTransactionFactory,
@@ -312,3 +314,57 @@ class TestCabinetAlertViewSet:
         response = CabinetAlertViewSet.acknowledge(view, drf_request, pk=None)
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+class TestCabinetMerchantProfileViewSet:
+    def test_retrieve_profile_for_merchant_role(self, api_client):
+        merchant = MerchantFactory.create(name="merchant-profile")
+        user = UserFactory.create()
+        merchant.login_users.add(user)
+
+        wallet = WalletFactory.create(merchant=merchant)
+        CurrencyWalletFactory.create(
+            wallet=wallet,
+            currency="USD",
+            operational_balance="1000.00",
+            pending_balance="150.00",
+            frozen_balance="50.00",
+        )
+        PaymentTransactionFactory.create(wallet__wallet=wallet)
+        MerchantLimitFactory.create(merchant=merchant, wallet=None)
+
+        login_as(api_client, user.email, merchant_id=merchant.id)
+
+        response = api_client.get(f"/api/backoffice/v1/merchant-profile/{merchant.id}/")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["merchant"]["id"] == str(merchant.id)
+        assert data["merchant"]["status"]["operational"]["code"] == "ACTIVE"
+        assert data["merchant"]["status"]["risk"]["code"] == "WHITE"
+
+        balances = data["balances"]["currencies"]
+        assert len(balances) == 1
+        assert balances[0]["currency"] == "USD"
+        assert balances[0]["available"] == "800.00"
+        assert balances[0]["pending"] == "150.00"
+        assert balances[0]["frozen"] == "50.00"
+        assert balances[0]["total"] == "1000.00"
+
+        assert data["wallets"][0]["wallet_id"] == str(wallet.id)
+        assert data["limits"]
+
+    def test_retrieve_profile_restricted_for_other_merchant(self, api_client):
+        merchant = MerchantFactory.create()
+        another_merchant = MerchantFactory.create()
+        user = UserFactory.create()
+        merchant.login_users.add(user)
+
+        login_as(api_client, user.email, merchant_id=merchant.id)
+
+        response = api_client.get(
+            f"/api/backoffice/v1/merchant-profile/{another_merchant.id}/"
+        )
+
+        assert response.status_code == 404
