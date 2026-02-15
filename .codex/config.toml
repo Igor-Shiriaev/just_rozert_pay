@@ -1,0 +1,31 @@
+model = "gpt-5.3-codex"
+model_reasoning_effort = "medium"
+personality = "pragmatic"
+# 220k is a default limit
+model_auto_compact_token_limit = 170000
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+
+[mcp_servers.filesystem]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "/home/dobro/Desktop/work/just_rozert_pay"]
+
+[mcp_servers.git]
+command = "uvx"
+args = ["mcp-server-git", "--repository", "/home/dobro/Desktop/work/just_rozert_pay"]
+enabled_tools = ["git_status", "git_log", "git_show", "git_diff", "git_diff_staged", "git_diff_unstaged", "git_add", "git_commit", "git_pull", "git_checkout", "git_branch", "git_reset", "git_clean", "git_stash", "git_cherry_pick", "git_revert"]
+
+[mcp_servers.postgres]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-postgres", "postgresql://codex_readonly:codex_readonly@localhost:5435/rozert_pay"]
+
+[mcp_servers.redis]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-redis", "redis://localhost:6379"]
+enabled_tools = ["get", "list"]
+
