@@ -10,6 +10,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rozert_pay.account.acl import AclQueryset, acl_queryset_limiter_for_request
 from rozert_pay.account.models import User
+from rozert_pay.account.serializers import get_session_role_data
 from rozert_pay.account.views import CSRFExemptSessionAuthentication
 from rozert_pay.common.const import CeleryQueue
 from rozert_pay.limits.models import LimitAlert
@@ -25,9 +26,14 @@ from rozert_pay.payment.api_v1.serializers import (
 )
 from rozert_pay.payment.models import (
     DepositAccount,
+    Merchant,
     OutcomingCallback,
     PaymentTransaction,
     Wallet,
+)
+from rozert_pay.profiles.merchant.service import (
+    build_merchant_profile,
+    get_accessible_merchants_queryset,
 )
 
 
@@ -184,3 +190,32 @@ class CabinetAlertViewSet(viewsets.GenericViewSet):
                 )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CabinetMerchantProfileViewSet(viewsets.GenericViewSet):
+    authentication_classes = (CSRFExemptSessionAuthentication,)
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self) -> QuerySet[Merchant]:
+        user = cast(User, self.request.user)
+        if not user.is_authenticated:
+            return Merchant.objects.none()
+
+        return get_accessible_merchants_queryset(
+            user=user,
+            session_role=get_session_role_data(self.request),
+        )
+
+    def retrieve(self, request: Request, pk: str | None = None) -> Response:
+        if pk is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        merchant = self.get_queryset().filter(id=pk).first()
+        if merchant is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        profile = build_merchant_profile(
+            merchant=merchant,
+            user=cast(User, request.user),
+        )
+        return Response(profile.model_dump(mode="json"))

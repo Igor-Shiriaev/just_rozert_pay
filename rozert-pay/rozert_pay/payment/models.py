@@ -3,11 +3,15 @@ import json
 import re
 import typing as ty
 import uuid
+from contextlib import nullcontext
 from datetime import timedelta
 from decimal import Decimal
 from ipaddress import IPv4Address
 from typing import Literal, Optional, Union
 
+from auditlog.context import set_actor
+from auditlog.models import AuditlogHistoryField
+from auditlog.registry import auditlog
 from bm import payment as shared_payment_const
 from bm.datatypes import Money
 from bm.django_utils.encrypted_field import EncryptedFieldType, SecretValue
@@ -26,6 +30,7 @@ from rozert_pay.common.encryption import (
     KeySetId,
 )
 from rozert_pay.common.models import BaseDjangoModel
+from rozert_pay.account.models import User
 from rozert_pay.payment import entities, types
 from rozert_pay.payment.factories import get_payment_system_controller
 
@@ -51,6 +56,7 @@ class MerchantGroup(BaseDjangoModel):
 
 class Merchant(BaseDjangoModel):
     id: types.MerchantID  # type: ignore[assignment]
+    _auditlog_additional_data: dict[str, ty.Any] | None = None
 
     uuid = models.UUIDField(unique=True, default=uuid.uuid4)
     name = models.CharField(max_length=200, unique=True)
@@ -69,8 +75,79 @@ class Merchant(BaseDjangoModel):
         help_text="Users, who can login to this merchant's dashboard",
     )  # type: ignore[var-annotated]
 
+    operational_status = models.CharField(
+        max_length=20,
+        choices=const.MerchantOperationalStatus.choices,
+        default=const.MerchantOperationalStatus.ACTIVE,
+    )
+    risk_status = models.CharField(
+        max_length=20,
+        choices=const.MerchantRiskStatus.choices,
+        default=const.MerchantRiskStatus.WHITE,
+    )
+    history = AuditlogHistoryField()
+
     def __str__(self) -> str:
         return f"{self.name} #{self.id}"
+
+    def get_additional_data(self) -> dict[str, ty.Any] | None:
+        return self._auditlog_additional_data
+
+    def save(
+        self,
+        *args: ty.Any,
+        reason_code: str | None = None,
+        comment: str | None = None,
+        status_changed_by: User | None = None,
+        **kwargs: ty.Any,
+    ) -> None:
+        previous_operational_status: str | None = None
+        if self.pk:
+            previous = (
+                Merchant.objects.filter(pk=self.pk)
+                .values("operational_status")
+                .first()
+            )
+            if previous is not None:
+                previous_operational_status = ty.cast(
+                    str | None, previous["operational_status"]
+                )
+
+        operational_status_changed = (
+            previous_operational_status is not None
+            and previous_operational_status != self.operational_status
+        )
+
+        if operational_status_changed and not reason_code:
+            raise ValueError("reason_code is required when operational status changes")
+
+        self._auditlog_additional_data = None
+        if operational_status_changed:
+            self._auditlog_additional_data = {
+                "status_change": {
+                    "type": "operational",
+                    "reason_code": reason_code,
+                    "comment": comment,
+                }
+            }
+
+        actor_context = (
+            set_actor(status_changed_by)
+            if status_changed_by is not None
+            else nullcontext()
+        )
+        try:
+            with actor_context:
+                return super().save(*args, **kwargs)
+        finally:
+            self._auditlog_additional_data = None
+
+
+class MerchantProfile(Merchant):
+    class Meta:
+        proxy = True
+        verbose_name = "Merchant profile"
+        verbose_name_plural = "Merchant profiles"
 
 
 class ACLGroup(models.Model):
@@ -875,6 +952,9 @@ class PaymentCardBank(models.Model):
     class Meta:
         verbose_name = "BIN"
         ordering = ("bin",)
+
+
+auditlog.register(Merchant, serialize_data=True)
 
 
 from .systems.spei_stp import spei_stp_models  # type: ignore[no-redef]  # noqa

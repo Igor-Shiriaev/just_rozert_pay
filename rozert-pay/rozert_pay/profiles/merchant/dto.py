@@ -11,9 +11,9 @@ from rozert_pay.common import const
 class MerchantLinks(BaseModel):
     operations_history: str
     audit_trail: str
-    create_limit: Optional[str] = None
-    create_wallet_transfer: Optional[str] = None
-    reports: Optional[str] = None
+    # create_limit: Optional[str] = None
+    # create_wallet_transfer: Optional[str] = None
+    # reports: Optional[str] = None
 
 
 class MerchantOperationalStatus(BaseModel):
@@ -34,9 +34,6 @@ class MerchantStatus(BaseModel):
     operational: MerchantOperationalStatus
     risk: MerchantRiskStatus
     risk_segment: Optional[Literal["LOW", "MEDIUM", "HIGH"]] = None
-    business_category: Optional[str] = None
-    kyc_status: Optional[Literal["PENDING", "APPROVED", "EXPIRED"]] = None
-    mcc: Optional[str] = None
 
 
 class MerchantInfo(BaseModel):
@@ -45,7 +42,7 @@ class MerchantInfo(BaseModel):
     created_at: datetime
     status: MerchantStatus
     links: MerchantLinks
-    legal_name: Optional[str] = None
+    # legal_name: Optional[str] = None
     last_status_change_at: Optional[datetime] = None
     last_transaction_at: Optional[datetime] = None
 
@@ -131,7 +128,7 @@ class ClientListLinks(BaseModel):
 class ClientListEntry(BaseModel):
     entry_id: str
     client_id: str
-    list_type: Literal["BLACK", "GREY", "WHITE"]
+    list_type: Literal["BLACK", "GREY", "WHITE", "MERCHANT_BLACK"]
     reason_code: str
     source: Literal["MANUAL", "AUTO_RULE", "EXTERNAL"]
     added_at: datetime
@@ -200,9 +197,9 @@ class Transfers(BaseModel):
 
 class MerchantProfileDto(BaseModel):
     merchant: MerchantInfo
-    balances: MerchantBalances
-    wallets: List[WalletInfo]
-    limits: List[LimitInfo]
-    client_lists: List[ClientListEntry]
-    balance_reports: BalanceReports
-    transfers: Transfers
+    # balances: MerchantBalances
+    # wallets: List[WalletInfo]
+    # limits: List[LimitInfo]
+    # client_lists: List[ClientListEntry]
+    # balance_reports: BalanceReports
+    # transfers: Transfers

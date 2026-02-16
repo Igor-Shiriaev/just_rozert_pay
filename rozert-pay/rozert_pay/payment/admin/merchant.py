@@ -1,17 +1,22 @@
 import random
 
+from auditlog.mixins import LogEntryAdminMixin
 from bm.django_utils.widgets import JSONEditorWidget
 from django import forms
 from django.contrib import admin
+from django.contrib import messages
 from django.contrib.admin import ModelAdmin as BaseModelAdmin
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import JSONField
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
-from django_object_actions import DjangoObjectActions
+from django_object_actions import DjangoObjectActions, action  # type: ignore[attr-defined]
 from rozert_pay.account.models import User
+from rozert_pay.common import const
 from rozert_pay.common.encryption import EncryptedField
 from rozert_pay.common.helpers.admin_utils import LinkItem, make_links
 from rozert_pay.common.templatetags.custom_filters import admin_display_context
@@ -112,19 +117,35 @@ class MerchantGroupAdmin(BaseRozertAdmin):
 
 
 @admin.register(models.Merchant)
-class MerchantAdmin(BaseRozertAdmin, RiskControlActionsMixin):
-    change_actions: list[str] = list(RiskControlActionsMixin.change_actions)
+class MerchantAdmin(LogEntryAdminMixin, BaseRozertAdmin, RiskControlActionsMixin):
+    change_actions: list[str] = [
+        *RiskControlActionsMixin.change_actions,
+        "change_operational_status",
+    ]
 
     form = MerchantForm
-    list_display = ("id", "name", "merchant_group", "created_at", "updated_at")
+    list_display = ("id", "name", "merchant_group", "created_at", "updated_at", "links")
     search_fields = ("name", "merchant_group__name", "id", "merchant_group__id")
     list_select_related = ("merchant_group",)
     date_hierarchy = "created_at"
     autocomplete_fields = ("merchant_group",)
-    readonly_fields: tuple[str, ...] = ("risk_control",)
+    readonly_fields: tuple[str, ...] = ("risk_control", "operational_status")
 
     def links(self, obj: models.Merchant) -> str:
+        content_type = ContentType.objects.get_for_model(obj.__class__)
+        audit_params = {"content_type__id__exact": str(content_type.id)}
+        if isinstance(obj.pk, int):
+            audit_params["object_id__exact"] = str(obj.pk)
+        else:
+            audit_params["object_pk__exact"] = str(obj.pk)
+
         data: list[LinkItem] = [
+            {
+                "link": reverse("admin:auditlog_logentry_changelist")
+                + "?"
+                + urlencode(audit_params),
+                "name": _("Audit"),
+            },
             {
                 "link": reverse("admin:limits_merchantlimit_changelist")
                 + f"?merchant__id__exact={obj.pk}",
@@ -149,3 +170,108 @@ class MerchantAdmin(BaseRozertAdmin, RiskControlActionsMixin):
         if obj is None and "risk_control" in readonly_fields:
             readonly_fields.remove("risk_control")
         return tuple(readonly_fields)
+
+    @action(label=_("Change operational status"), description=_("Change merchant operational status"))  # type: ignore[misc]
+    def change_operational_status(
+        self, request: HttpRequest, obj: models.Merchant,
+    ) -> HttpResponse | None:
+        return self._set_operational_status(request=request, obj=obj)
+
+    def _set_operational_status(
+        self,
+        *,
+        request: HttpRequest,
+        obj: models.Merchant,
+    ) -> HttpResponse | None:
+        merchant_change_url = reverse("admin:payment_merchant_change", args=[obj.pk])
+
+        if "_cancel" in request.POST:
+            return HttpResponseRedirect(merchant_change_url)
+
+        if "_confirm" not in request.POST:
+            return self._render_status_change_confirmation(
+                request=request,
+                obj=obj,
+                error=None,
+                selected_status=obj.operational_status,
+                reason_code_value="",
+                comment_value="",
+            )
+
+        selected_status = request.POST["status"].strip()
+        reason_code = request.POST["reason_code"].strip()
+        comment = request.POST["comment"].strip()
+        valid_statuses = {
+            choice.value
+            for choice in const.MerchantOperationalStatus
+        }
+
+        if selected_status not in valid_statuses:
+            return self._render_status_change_confirmation(
+                request=request,
+                obj=obj,
+                error=_("Please select a valid status."),
+                selected_status=selected_status,
+                reason_code_value=reason_code,
+                comment_value=comment,
+            )
+
+        if not reason_code:
+            return self._render_status_change_confirmation(
+                request=request,
+                obj=obj,
+                error=_("Reason code is required."),
+                selected_status=selected_status,
+                reason_code_value=reason_code,
+                comment_value=comment,
+            )
+
+        obj.operational_status = selected_status
+        try:
+            obj.save(
+                reason_code=reason_code,
+                comment=comment,
+                status_changed_by=request.user,
+            )
+        except ValueError as exc:
+            return self._render_status_change_confirmation(
+                request=request,
+                obj=obj,
+                error=str(exc),
+                selected_status=selected_status,
+                reason_code_value=reason_code,
+                comment_value=comment,
+            )
+        status_label = const.MerchantOperationalStatus(selected_status).label
+        messages.success(
+            request,
+            _(f"Operational status changed to {status_label}."),
+        )
+        return HttpResponseRedirect(merchant_change_url)
+
+    def _render_status_change_confirmation(
+        self,
+        *,
+        request: HttpRequest,
+        obj: models.Merchant,
+        error: str | None,
+        selected_status: str,
+        reason_code_value: str,
+        comment_value: str,
+    ) -> TemplateResponse:
+        context = {
+            **self.admin_site.each_context(request),
+            "opts": self.model._meta,
+            "object": obj,
+            "title": _("Change merchant status"),
+            "status_choices": const.MerchantOperationalStatus.choices,
+            "error": error,
+            "selected_status": selected_status,
+            "reason_code_value": reason_code_value,
+            "comment_value": comment_value,
+        }
+        return TemplateResponse(
+            request,
+            "admin/payment/merchant_change_status.html",
+            context,
+        )

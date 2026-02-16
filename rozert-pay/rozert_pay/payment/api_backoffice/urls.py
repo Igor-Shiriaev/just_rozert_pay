@@ -19,5 +19,10 @@ router.register(
     basename="callback",
 )
 router.register("alerts", views.CabinetAlertViewSet, "alerts")
+router.register(
+    r"merchant-profile",
+    views.CabinetMerchantProfileViewSet,
+    basename="merchant-profile",
+)
 
 urlpatterns = router.urls

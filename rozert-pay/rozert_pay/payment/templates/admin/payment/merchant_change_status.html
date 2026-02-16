@@ -1,0 +1,126 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .merchant-status-card {
+      background: var(--darkened-bg, #f8f8f8);
+      border: 1px solid var(--hairline-color, #ddd);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 12px 0 16px;
+    }
+
+    .merchant-status-meta {
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+    }
+
+    .status-badge.is-active {
+      color: #0a7a28;
+      background: #e8f8ec;
+      border-color: #b7e7c2;
+    }
+
+    .status-badge.is-inactive {
+      color: #895d00;
+      background: #fff6df;
+      border-color: #ead59b;
+    }
+
+    .status-badge.is-suspended,
+    .status-badge.is-terminated {
+      color: #a31616;
+      background: #fdeaea;
+      border-color: #f0b9b9;
+    }
+
+    .merchant-status-form .form-row {
+      margin-bottom: 14px;
+    }
+
+    .merchant-status-form label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .merchant-status-form select,
+    .merchant-status-form input[type="text"],
+    .merchant-status-form textarea {
+      min-width: 420px;
+      max-width: 100%;
+    }
+
+    .errornote-inline {
+      margin: 0 0 12px;
+      color: #ba2121;
+      font-weight: 600;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="merchant-status-card">
+    <p class="merchant-status-meta">
+      Merchant: <strong>{{ object.name }} #{{ object.id }}</strong><br>
+      Current status:
+      <span class="status-badge is-{{ object.operational_status }}">
+        {{ object.get_operational_status_display }}
+      </span>
+    </p>
+  </div>
+
+  {% if error %}
+    <p class="errornote-inline">{{ error }}</p>
+  {% endif %}
+
+  <form method="post" class="merchant-status-form module aligned">
+    {% csrf_token %}
+
+    <div class="form-row">
+      <label for="id_status">Status (required)</label>
+      <select name="status" id="id_status" required>
+        {% for value, label in status_choices %}
+          <option
+            value="{{ value }}"
+            {% if value == selected_status %}selected{% endif %}
+          >
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="id_reason_code">Reason code (required)</label>
+      <input
+        type="text"
+        name="reason_code"
+        id="id_reason_code"
+        value="{{ reason_code_value }}"
+      >
+    </div>
+
+    <div class="form-row">
+      <label for="id_comment">Comment (optional)</label>
+      <textarea name="comment" id="id_comment" rows="4">{{ comment_value }}</textarea>
+    </div>
+
+    <div class="submit-row">
+      <input type="submit" name="_confirm" value="Apply status change" class="default">
+      <input type="submit" name="_cancel" value="Cancel" formnovalidate>
+    </div>
+  </form>
+{% endblock %}

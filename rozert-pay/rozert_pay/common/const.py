@@ -107,6 +107,23 @@ class ACLLevel(TextChoices):
     WRITE = "write", "Write"
 
 
+class MerchantOperationalStatus(TextChoices):
+    ACTIVE = "active", "Active"
+    # Operations temporarily suspended
+    INACTIVE = "inactive", "Inactive"
+    # Operations suspended by platform decision
+    SUSPENDED = "suspended", "Suspended"
+    # Partnership terminated
+    TERMINATED = "terminated", "Terminated"
+
+
+class MerchantRiskStatus(TextChoices):
+    # NOTE: кажется, мы должны начать использовать этот статус вместо поля risk_control в модели Merchant
+    WHITE = "white", "White"
+    GREY = "grey", "Grey"
+    BLACK = "black", "Black"
+
+
 class PaymentSystemType(TextChoices):
     STP_SPEI = "spei_stp", "SPEI STP"
     STP_CODI = "stp_codi", "STP CODI"

@@ -25,6 +25,12 @@ repos:
         args: [ "--profile", "black" ]
         files: ^rozert-pay/
 
+  - repo: https://github.com/asottile/add-trailing-comma
+    rev: v4.0.0
+    hooks:
+      - id: add-trailing-comma
+        files: ^rozert-pay/
+
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
     hooks:

@@ -1,15 +1,15 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, Literal, Optional
 
 from auditlog.models import LogEntry as AuditLogEntry
+from rozert_pay.account.models import User
 
 if TYPE_CHECKING:
     from rozert_pay.payment.models import Merchant
 
 STATUS_CHANGE_KEY = "status_change"
+StatusType = Literal["operational", "risk"]
 
 
 @dataclass(slots=True)
@@ -27,11 +27,11 @@ def log_status_change(
     *,
     merchant: "Merchant",
     status_type: StatusType,
-    from_status: Optional[str],
-    to_status: Optional[str],
-    reason_code: Optional[str] = None,
-    comment: Optional[str] = None,
-    actor: Optional[object] = None,
+    reason_code: str | None,
+    comment: str | None,
+    from_status: str,
+    to_status: str,
+    actor: User | None = None,
 ) -> None:
     AuditLogEntry.objects.log_create(
         instance=merchant,
@@ -50,9 +50,9 @@ def log_status_change(
 
 
 def get_latest_status_change(
-    merchant: "Merchant", status_type: StatusType
+    merchant: "Merchant", status_type: StatusType,
 ) -> MerchantStatusChangeRecord | None:
-    entry = (
+    entry: AuditLogEntry | None = (
         merchant.history.filter(
             **{f"additional_data__{STATUS_CHANGE_KEY}__type": status_type}
         )
@@ -75,11 +75,3 @@ def get_latest_status_change(
         comment=meta.get("comment"),
         actor_id=entry.actor_id,
     )
-
-
-__all__ = [
-    "MerchantStatusChangeRecord",
-    "StatusType",
-    "get_latest_status_change",
-    "log_status_change",
-]
