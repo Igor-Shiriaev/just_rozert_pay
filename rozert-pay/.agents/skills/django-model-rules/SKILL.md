@@ -63,6 +63,7 @@ class MyEntity(models.Model):                  # не BaseDjangoModel
 - Денежные значения — через `fields.MoneyField`, **не** `DecimalField`/`FloatField`.
 - Аудит — `AuditlogHistoryField` в модели + `auditlog.register(...)` в конце файла.
 - PII — существующие паттерны шифрования/хеширования.
+- Необязательные параметры полей (`related_name`, `verbose_name`, `help_text`/описания и т.п.) указывать только при реальной необходимости.
 
 ### 3. Проверить правила целостности
 

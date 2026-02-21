@@ -175,7 +175,13 @@ from ..risk_lists.services import checker
 
 ### 7. Типизация (Python 3.11+)
 
-Использовать нативный синтаксис типов: `X | Y` вместо `Optional[X]`/`Union[X, Y]`, встроенные коллекции `list[...]`, `dict[...]` вместо `List`, `Dict` из `typing`. Импорт из `typing` — только для того, чего нет в синтаксисе (`Any`, `TypeVar`, `ParamSpec`, `TypedDict`, и т.д.).
+- Типизация должна быть везде, где это возможно.
+- Стараться указывать типизацию максимально точно, насколько это уместно, но без фанатизма.
+- Использовать нативный синтаксис типов: `X | Y` вместо `Optional[X]`/`Union[X, Y]`.
+- Использовать встроенные коллекции `list[...]`, `dict[...]` вместо `List`, `Dict` из `typing`.
+- Импорт из `typing` использовать только для того, чего нет в нативном синтаксисе (`Any`, `TypeVar`, `ParamSpec`, `TypedDict`, и т.д.).
+- `Callable` в прикладном коде стараться не передавать в виде аргумента.
+- При извлечении значений из словаря явно типизировать целевую переменную.
 
 ```python
 # GOOD
@@ -183,12 +189,14 @@ def find_user(id: int) -> User | None: ...
 def validate_remote_transaction_status(trx: PaymentTransaction) -> Error | None: ...
 def process(items: list[str] | None, mapping: dict[str, int] | None = None) -> list[int] | None: ...
 payload: dict[str, Any]
+status: str = payload["status"]
 
 # BAD
 from typing import Optional, List, Dict
 def find_user(id: int) -> Optional[User]: ...
 def process(items: List[str], mapping: Dict[str, int]) -> List[int]: ...
 payload: Optional[dict[str, Any]] = None  # лучше: dict[str, Any] | None = None
+status = payload["status"]
 ```
 
 ### 8. Проектные паттерны
@@ -197,11 +205,18 @@ payload: Optional[dict[str, Any]] = None  # лучше: dict[str, Any] | None = 
 - Бизнес-критичные service-функции: декоратор `@track_duration("<scope>.<function>")`.
 - Пользовательские строки: на английском (ASCII-friendly).
 - `@property` — только для дешёвых вычислений или доступа к загруженным данным. Запросы к БД — явными методами (`get_*`).
+- Стараться писать код без вложенных функций.
+  Исключения: декораторы и похожий уже существующий код.
 - Для `PaymentTransaction.status`: стандартно использовать `sync_remote_status_with_transaction(...)`; исключения (`refund`/`chargeback`/`chargeback reversal`) допустимы только в контролируемых service-сценариях transaction-processing с обязательными balance side-effects и доменным аудитом.
+
+### 9. Границы модулей
+
+- Правила структуры app и раскладки кода по `const/services/helpers` описаны в `.agents/skills/project-structure-rules/SKILL.md`.
 
 ## Жесткие ограничения
 
 - Без немого проглатывания исключений (`except ...: pass` в прикладном коде).
 - Без `getattr`/`setattr`/`hasattr`/`delattr` в прикладном коде без инфраструктурного обоснования.
+- Без `dataclass`/`dataclasses` в проектном коде.
 - Без сырых чувствительных данных в логах (PAN, CVV, токены, ключи).
 - Без бизнес-логики в views/serializers/admin — только в `services`.

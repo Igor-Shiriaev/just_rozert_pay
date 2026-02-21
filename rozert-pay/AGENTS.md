@@ -97,6 +97,7 @@ make pylint
 
 - Явный доступ к атрибутам (`obj.field`), без `getattr`/`setattr`/`hasattr`/`delattr` в прикладном коде.
 - Имена в коде на английском, без транслитерации и неочевидных сокращений.
+- Если состояние не требуется, предпочитать функцию, а не класс.
 - Новые доменные модели: `BaseDjangoModel` по умолчанию, публичный идентификатор отдельным `uuid`-полем.
 - Для денежных значений использовать `MoneyField`.
 - Для PII использовать существующие паттерны шифрования/хеширования.
@@ -106,6 +107,8 @@ make pylint
 1. Прочитать релевантный код в `rozert-pay/` и зависимости в `../shared-apps/`.
 2. Перед написанием/изменением Python-кода — прочитать `.agents/skills/code-style/SKILL.md`.
    При работе с моделями — дополнительно `.agents/skills/django-model-rules/SKILL.md`.
+   При добавлении/изменении классов — дополнительно `.agents/skills/python-class-rules/SKILL.md`.
+   При создании app/модулей или изменении структуры проекта — `.agents/skills/project-structure-rules/SKILL.md`.
    При написании тестов — `.agents/skills/django-testing/SKILL.md`.
 3. Внести минимально достаточные изменения.
 4. Запустить минимум:
@@ -114,6 +117,7 @@ make pylint
 5. Если затронута критичная платежная логика/статусы: `make mypy`, `make lint`, `make pylint`, `make pytest`.
 6. В отчете указывать:
    - измененные файлы;
+   - загруженные SKILLs;
    - выполненные команды проверки;
    - что не запустилось (если есть).
 
@@ -132,17 +136,20 @@ make pylint
 - Без явного запроса не выполнять destructive SQL (`DROP`, `TRUNCATE`, массовые `UPDATE/DELETE`).
 - Redis: по умолчанию только чтение.
 
-## 10. Политика коммитов и критерии готовности
+## 10. Политика коммитов
 
 - Если делается commit, в сообщении указывать, что commit сделан AI-агентом.
   Пример: `[AI] Fix payout status transition for timeout callback`
+
+## 11. Definition of Done (DOD)
+
 - Готово, когда:
   - нет новых ошибок интерпретации/сборки;
   - релевантные проверки пройдены;
   - нет незапрошенных изменений в сторонних подсистемах;
-  - при изменении моделей обновлена Django admin-конфигурация.
+  - при изменении моделей обновлена Django admin-конфигурация;
 
-## 11. Детали вынесены в docs и skills
+## 12. Детали вынесены в docs и skills
 
 - Операционный чеклист агента: `docs/agents/agent-runbook.md`
 - Skill по платежному флоу: `.agents/skills/payment-transaction-workflow/SKILL.md`
@@ -151,3 +158,5 @@ make pylint
 - Skill по проектированию-перед-разработкой для интеграций платежных систем: `.agents/skills/payment-integration-design-first/SKILL.md`
 - Skill по тестированию: `.agents/skills/django-testing/SKILL.md`
 - Skill по доменным сущностям (модели, поля, связи): `.agents/skills/domain-entities/SKILL.md`
+- Skill по правилам написания классов: `.agents/skills/python-class-rules/SKILL.md`
+- Skill по структуре проекта и модулей: `.agents/skills/project-structure-rules/SKILL.md`
