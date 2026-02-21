@@ -72,8 +72,71 @@ empt = True                      # неочевидное сокращение
 - Сокращать только общепринятое: `id`, `url`, `num`, `trx`. Не `empt`, `hid`, `txn`.
 - Без транслитерации; имена на английском.
 - Без односимвольных переменных (`a`, `x`) в рабочем коде.
+- Строковые литералы — в двойных кавычках (`"hello"`). Одинарные — только внутри f-string или для избежания экранирования.
 
-### 3. Явный доступ к атрибутам
+### 3. Размер кода
+
+- Функция: ориентир — до **70 строк**. Если больше — разбивать на подфункции с осмысленными именами.
+- Модуль (файл): ориентир — до **700 строк**. При превышении — выносить логику в подмодули.
+- Аргументы функции: стараться не использовать более **5 позиционных**.
+- Вложенность: не более **4 уровней** отступов в теле функции. Глубокую вложенность устранять через guard clauses, ранние return и вынос логики в отдельные функции.
+
+```python
+# BAD — глубокая вложенность
+def process_transactions(transactions: list[PaymentTransaction]) -> list[str]:
+    results = []
+    for trx in transactions:
+        if trx.status == TransactionStatus.PENDING:
+            if trx.wallet:
+                if trx.wallet.is_active:
+                    results.append(handle_pending(trx))
+    return results
+
+# GOOD — guard clauses + вынос логики
+def process_transactions(transactions: list[PaymentTransaction]) -> list[str]:
+    return [
+        handle_pending(trx)
+        for trx in transactions
+        if is_actionable_transaction(trx)
+    ]
+
+def is_actionable_transaction(trx: PaymentTransaction) -> bool:
+    if trx.status != TransactionStatus.PENDING:
+        return False
+    if not trx.wallet or not trx.wallet.is_active:
+        return False
+    return True
+```
+
+### 4. Документирование (docstrings)
+
+- Сервисные функции (`services/`) — **всегда** писать короткий docstring, объясняющий *что* делает функция.
+- Остальные функции и методы — docstring добавлять по усмотрению, если имя и сигнатура недостаточно объясняют поведение, side-effects или нетривиальный контракт.
+- Формат: одна строка в двойных кавычках, без пустых строк внутри. Для сложных случаев допустим многострочный Google-style.
+- Не дублировать сигнатуру — не перечислять аргументы, если их назначение очевидно из типов и имён.
+
+```python
+# GOOD — сервисная функция
+def create_deposit(data: dict[str, Any]) -> PaymentTransaction:
+    """Create a new deposit transaction and schedule status check."""
+    ...
+
+# GOOD — хелпер, имя и сигнатура достаточны
+def build_notify_url(wallet: Wallet) -> str:
+    ...
+
+# GOOD — нетривиальный контракт, docstring уместен
+def sync_limits_after_chargeback(trx: PaymentTransaction) -> None:
+    """Reverse limit counters and freeze customer if threshold exceeded."""
+    ...
+
+# BAD — пересказ сигнатуры
+def find_user(user_id: int) -> User | None:
+    """Find user by user_id and return User or None."""
+    ...
+```
+
+### 5. Явный доступ к атрибутам
 
 ```python
 # GOOD — явный доступ
@@ -101,7 +164,7 @@ handler = getattr(self, f"handle_{trx.type}")
 handler(trx)
 ```
 
-### 4. Логирование
+### 6. Логирование
 
 ```python
 # GOOD — модульный логгер + структурированные extra
@@ -121,19 +184,20 @@ logger.info(
 print(f"Error: {e}")
 logger.info("Got callback")  # нет идентификаторов
 logger.info(f"Card: {card_number}")  # PAN в логах
-logger.error(f"Error: {e}")
-logger.error("Error: %s", e)
+logger.error(f"Error: {e}")  # f-string вычисляется всегда, даже если уровень отключён
+logger.error("Error: %s", e)  # контекст теряется — идентификаторы должны быть в extra
 ```
 
 Правила:
 
 - `logger = logging.getLogger(__name__)` на уровне модуля.
 - Ключевые идентификаторы в `extra`: `transaction_id`, `callback_id`, `request_id`, `system`, `status_code`, `wallet_id`.
+- Не использовать f-string и `%s`-интерполяцию в вызовах логгера. f-string вычисляется безусловно (лишняя работа при отключённом уровне), а `%s` размазывает контекст по строке вместо структурированного `extra`. Весь контекст — в `extra={}`.
 - `logger.exception(...)` в `except`-блоках, `logger.warning(...)` для деградации, `logger.error(...)` для ошибочного итога.
 - **Никогда**: секреты, CVV, полный PAN, токены, приватные ключи, сырые персональные данные.
 - Внешние API: логировать метод, URL, статус, длительность. Полные тела — только санитизированно.
 
-### 5. Fail-fast и обработка исключений
+### 7. Fail-fast и обработка исключений
 
 ```python
 # GOOD — guard clause, ранний выход
@@ -162,7 +226,7 @@ except Exception:
 - Инфраструктурные вызовы — с явными таймаутами и ограниченными ретраями.
 - При отсутствии безопасного recovery — пробрасывать дальше.
 
-### 6. Импорты
+### 8. Импорты
 
 ```python
 # GOOD — абсолютный импорт
@@ -173,7 +237,7 @@ from rozert_pay.risk_lists.services.manager import add_customer_to_blacklist_by_
 from ..risk_lists.services import checker
 ```
 
-### 7. Типизация (Python 3.11+)
+### 9. Типизация (Python 3.11+)
 
 - Типизация должна быть везде, где это возможно.
 - Стараться указывать типизацию максимально точно, насколько это уместно, но без фанатизма.
@@ -199,7 +263,7 @@ payload: Optional[dict[str, Any]] = None  # лучше: dict[str, Any] | None = 
 status = payload["status"]
 ```
 
-### 8. Проектные паттерны
+### 10. Проектные паттерны
 
 - Внешние HTTP-интеграции: использовать `get_external_api_session(trx_id=..., timeout=...)` — обеспечивает event log и метрики.
 - Бизнес-критичные service-функции: декоратор `@track_duration("<scope>.<function>")`.
@@ -209,14 +273,21 @@ status = payload["status"]
   Исключения: декораторы и похожий уже существующий код.
 - Для `PaymentTransaction.status`: стандартно использовать `sync_remote_status_with_transaction(...)`; исключения (`refund`/`chargeback`/`chargeback reversal`) допустимы только в контролируемых service-сценариях transaction-processing с обязательными balance side-effects и доменным аудитом.
 
-### 9. Границы модулей
+```python
+# Внешний HTTP-запрос через ExternalApiSession
+session = get_external_api_session(trx_id=trx.id, timeout=10)
+response = session.post(url, json=payload)
 
-- Правила структуры app и раскладки кода по `const/services/helpers` описаны в `.agents/skills/project-structure-rules/SKILL.md`.
+# Измерение длительности service-функции
+@track_duration("limits.get_active_limits")
+def get_active_limits() -> list[CustomerLimit | MerchantLimit]:
+    ...
+```
 
 ## Жесткие ограничения
 
 - Без немого проглатывания исключений (`except ...: pass` в прикладном коде).
 - Без `getattr`/`setattr`/`hasattr`/`delattr` в прикладном коде без инфраструктурного обоснования.
-- Без `dataclass`/`dataclasses` в проектном коде.
+- Без `dataclass`/`dataclasses` в проектном коде. Вместо них используй pydantic.BaseModel.
 - Без сырых чувствительных данных в логах (PAN, CVV, токены, ключи).
 - Без бизнес-логики в views/serializers/admin — только в `services`.
