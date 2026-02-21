@@ -34,6 +34,10 @@ description: Использовать для задач, где создаютс
 - `templates/` только если есть server-side template/admin templates
 - `management/commands/` только если нужны management commands
 
+Выделенные файлы `exceptions.py`, `validators.py`, `managers.py` в проекте не используются. Кастомные исключения определяются в `services/errors.py`, валидаторы — в `models.py` или `helpers/`, менеджеры — inline в файлах моделей рядом с моделью.
+
+Django signals (`django.db.models.signals`, `@receiver`) запрещены. Вся логика реакции на изменения сущностей размещается явно в `services/`.
+
 ## 2. Регистрация app и инициализация
 
 - Новый app должен быть добавлен в `INSTALLED_APPS` (`rozert_pay/settings.py`).
@@ -44,7 +48,19 @@ description: Использовать для задач, где создаютс
 - `rozert_pay/balances/apps.py`
 - `rozert_pay/settings.py`
 
-## 3. `const`, `services`, `helpers`: что где хранить
+## 3. Роль common/
+
+`common/` — инфраструктурный app, общий для всех прикладных app. Содержит:
+
+- **Базовые модели и поля**: `BaseDjangoModel`, `MoneyField`, `CurrencyField`, `EncryptedFieldV2`.
+- **Константы и enum'ы**: `TransactionType`, `TransactionStatus`, `PaymentSystemType`, `CeleryQueue` и прочие shared-перечисления (`const.py`, `types.py`).
+- **Безопасность**: `HMACAuthentication`, шифрование/хеширование PII (`encryption.py`, `authorization.py`).
+- **Инфраструктура**: middleware, Prometheus-метрики, Slack-клиент, context processors.
+- **Helpers**: доменно-нейтральные утилиты (`helpers/`) — кеширование, логирование, Celery-обёртки, строковые/DB-утилиты, валидация.
+
+В `common/` нельзя размещать бизнес-логику конкретного app или ORM-запросы к прикладным моделям.
+
+## 4. `const`, `services`, `helpers`: что где хранить
 
 `const.py`:
 
@@ -70,7 +86,7 @@ description: Использовать для задач, где создаютс
 - `services`: `rozert_pay/payment/services/`, `rozert_pay/limits/services/`
 - `helpers`: `rozert_pay/common/helpers/`
 
-## 4. Когда делать `models.py` vs `models/`
+## 5. Когда делать `models.py` vs `models/`
 
 - Если моделей мало и они связаны одной областью, использовать `models.py`.
 - Если моделей много или есть явные поддомены, использовать пакет `models/` с разбиением по файлам.
@@ -81,7 +97,7 @@ description: Использовать для задач, где создаютс
 - `models.py`: `rozert_pay/payment/models.py`, `rozert_pay/balances/models.py`
 - `models/`: `rozert_pay/limits/models/`, `rozert_pay/payment_audit/models/`
 
-## 5. Когда делать `admin.py` vs `admin/`
+## 6. Когда делать `admin.py` vs `admin/`
 
 - Если админка простая — `admin.py`.
 - Если админка большая/по нескольким сущностям — пакет `admin/` с разбиением по ресурсам и сборкой через `admin/__init__.py`.
@@ -92,7 +108,7 @@ description: Использовать для задач, где создаютс
 - `admin.py`: `rozert_pay/balances/admin.py`
 - `admin/`: `rozert_pay/payment/admin/`, `rozert_pay/limits/admin/`
 
-## 6. API-структура
+## 7. API-структура
 
 - Публичный API выносить в `api_v1/`, backoffice API — в `api_backoffice/`.
 - Внутри API-модуля держать как минимум `urls.py`; views/serializers группировать по домену.
@@ -105,7 +121,7 @@ description: Использовать для задач, где создаютс
 - `rozert_pay/account/urls.py`
 - `rozert_pay/urls.py`
 
-## 7. Celery-задачи
+## 8. Celery-задачи
 
 - App-level задачи размещать в `tasks.py` app или тематическом `tasks/` пакете.
 - Для очередей использовать `CeleryQueue` из `common.const`, не строковые литералы.
@@ -117,7 +133,7 @@ description: Использовать для задач, где создаютс
 - `rozert_pay/common/tasks.py`
 - `rozert_pay/payment/systems/*/tasks.py`
 
-## 8. Паттерн для payment systems
+## 9. Паттерн для payment systems
 
 Новые интеграции размещаются в `rozert_pay/payment/systems/<provider>/`.
 Минимально ожидаемые модули: `controller.py` и `client.py` (или эквивалент существующего стиля в app).
@@ -129,10 +145,14 @@ description: Использовать для задач, где создаютс
 - использовать фабрики доступа через `payment/factories.py`;
 - не обходить базовый контракт `PaymentSystemController`.
 
-## 9. Чеклист структурных изменений
+## 10. Чеклист структурных изменений
 
 - Для нового app: добавлен в `INSTALLED_APPS`, есть `migrations/`, корректная регистрация URL/admin/tasks.
 - Новые модули лежат в правильном слое (`const` vs `services` vs `helpers`).
 - При укрупнении области выполнено разбиение `models.py/admin.py` в пакетную структуру.
-- Нет циклических импортов из-за неправильного размещения кода.
+- Нет циклических импортов.
+- API-маршруты нового app подключены в `rozert_pay/urls.py`.
+- Celery-задачи используют `CeleryQueue` из `common.const`; в задачи передаются только идентификаторы.
+- Новая payment system: контроллер зарегистрирован в `controller_registry.py`, доступ через `factories.py`, контракт `PaymentSystemController` соблюдён.
+- Django signals не используются; реакция на изменения — через явные вызовы в `services/`.
 - Новые структурные правила и связи отражены в релевантных skills/документации.
