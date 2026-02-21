@@ -16,7 +16,7 @@ description: Использовать для написания, изменен�
 
 ```
 tests/
-├── conftest.py                  # Общие фикстуры: user, merchant, api_client, requests_mocker
+├── conftest.py                  # Общие фикстуры + requests_mocker (context manager, не fixture)
 ├── factories.py                 # Все фабрики (factory_boy)
 ├── helpers/                     # Утилиты: prometheus, matchers
 ├── payment/
@@ -31,7 +31,7 @@ tests/
 └── account/                     # Тесты аккаунтов
 ```
 
-## Порядок работы
+## Правила по темам
 
 ### 1. Фабрики (factory_boy)
 
@@ -148,7 +148,7 @@ process_transaction.apply(kwargs={"transaction_id": trx.id})
 
 - `disable_celery_task` — задачи не уходят в очередь.
 - `mock_on_commit` — `on_commit` синхронно.
-- `django_capture_on_commit_callbacks` (import: `from django.test.utils import CaptureOnCommitCallbacks`) — **требует** `@pytest.mark.django_db(transaction=True)`, иначе `on_commit` не срабатывает.
+- `django_capture_on_commit_callbacks` — pytest-fixture из pytest-django (≥4.4). Альтернатива: `from django.test.utils import CaptureOnCommitCallbacks` как context manager. **Требует** `@pytest.mark.django_db(transaction=True)`, иначе `on_commit` не срабатывает.
 - `task.apply(kwargs={...})` — синхронный запуск задачи.
 - Не создавать свои моки Celery/on_commit — переиспользовать фикстуры.
 
