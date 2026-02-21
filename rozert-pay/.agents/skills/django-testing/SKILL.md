@@ -2,18 +2,15 @@
 name: django-testing
 globs:
   - "tests/**/*.py"
-  - "tests/**/conftest.py"
 description: Использовать для написания, изменения или ревью тестов в rozert-pay. Содержит правила моков, фабрик, фикстур, маркеров и запуска проверок.
 ---
 
-# Тестирование В rozert-pay
-
-Используй этот навык при написании, изменении или ревью тестов. Это исчерпывающий справочник по тестированию в проекте.
+# Тестирование в rozert-pay
 
 ## Когда НЕ использовать
 
 - Изменения только в production-коде без затрагивания тестов.
-- Запуск проверок без изменения самих тестов (правила запуска кратко в каждом скилле).
+- Запуск проверок без изменения самих тестов.
 
 ## Структура тестов
 
@@ -24,8 +21,7 @@ tests/
 ├── helpers/                     # Утилиты: prometheus, matchers
 ├── payment/
 │   ├── conftest.py              # Фикстуры кошельков, ExternalTestClient
-│   ├── api_v1/                  # Тесты API v1
-│   │   └── matchers.py          # DictContains и другие матчеры
+│   ├── api_v1/                  # Тесты API v1 + matchers.py (DictContains)
 │   ├── api_backoffice/          # Тесты backoffice API
 │   ├── services/                # Тесты сервисного слоя
 │   └── systems/                 # Тесты интеграций с платежными системами
@@ -39,227 +35,234 @@ tests/
 
 ### 1. Фабрики (factory_boy)
 
-Все фабрики в `tests/factories.py`. Использовать `DjangoModelFactory`, **не** `Model.objects.create(...)` напрямую.
+Все фабрики в `tests/factories.py`. Использовать `DjangoModelFactory`, **не** `Model.objects.create(...)`.
 
 ```python
-# GOOD — фабрика с SubFactory и Sequence для уникальности
 class MerchantFactory(DjangoModelFactory[Merchant]):
-    name = factory.Sequence(lambda n: f"Merchant {n}")
-    merchant_group = factory.SubFactory(MerchantGroupFactory)
+    name = factory.Sequence(lambda n: f"Merchant {n}")       # unique-поля
+    merchant_group = factory.SubFactory(MerchantGroupFactory) # FK
     secret_key = factory.Faker("uuid4")
-
     class Meta:
         model = Merchant
 
-
-class PaymentTransactionFactory(DjangoModelFactory["db_services.LockedTransaction"]):
-    wallet = factory.SubFactory(CurrencyWalletFactory)
-    amount = 100
-    type = TransactionType.DEPOSIT
-    currency = "USD"
-    callback_url = "http://callback"
-    redirect_url = "http://redirect"
-
+class CurrencyWalletFactory(DjangoModelFactory[CurrencyWallet]):
+    operational_balance = 1000
+    pending_balance = 0
+    balance = factory.LazyAttribute(lambda o: o.operational_balance - o.pending_balance)
     class Meta:
-        model = PaymentTransaction
-
-# BAD — ручное создание, дублирование, хрупкость
-trx = PaymentTransaction.objects.create(
-    wallet=wallet, amount=100, type="deposit", currency="USD",
-    callback_url="http://callback", redirect_url="http://redirect",
-)
+        model = CurrencyWallet
 ```
 
 Правила:
 
-- Новые фабрики добавлять в `tests/factories.py`.
-- `factory.Sequence(...)` для полей с `unique=True` — предотвращает flaky-тесты.
-- `factory.SubFactory(...)` для FK-зависимостей.
-- Кастомный `_create` — только когда нужна пост-обработка (например, `set_password`).
+- Новые фабрики — в `tests/factories.py`.
+- `factory.Sequence(...)` для `unique=True`-полей.
+- `factory.SubFactory(...)` для FK.
+- `factory.LazyAttribute(...)` / `@factory.lazy_attribute` для вычисляемых полей.
+- Кастомный `_create` — только для пост-обработки (например, `set_password`).
 
 ### 2. Фикстуры
 
-Общие фикстуры — в `tests/conftest.py`, доменные — в `tests/<domain>/conftest.py`.
+Общие — в `tests/conftest.py`, доменные — в `tests/<domain>/conftest.py`. Перед созданием новой — проверить каталог:
 
-```python
-# tests/conftest.py — базовые
-@pytest.fixture
-def api_client() -> APIClient:
-    return APIClient()
-
-@pytest.fixture
-def merchant(db):
-    return MerchantFactory.create()
-
-@pytest.fixture
-def merchant_client(api_client, merchant) -> APIClient:
-    force_authenticate(api_client, merchant)
-    return api_client
-
-# tests/payment/conftest.py — доменные
-@pytest.fixture
-def wallet_paycash(merchant: models.Merchant) -> models.Wallet:
-    return WalletFactory.create(
-        merchant=merchant,
-        system__type=PaymentSystemType.PAYCASH,
-        system__name="PayCash",
-        default_callback_url="https://callbacks",
-        credentials=dict(
-            host="http://fake.com",
-            emisor="fake",
-            key="fake",
-        ),
-    )
-```
+| Фикстура | Что делает |
+|---|---|
+| `user` | `User` через `UserFactory` с паролем `"123"` |
+| `api_client` | Пустой `APIClient` без авторизации |
+| `merchant` / `merchant_client` | `Merchant` + авторизованный `APIClient` |
+| `customer` | `Customer` через `CustomerFactory` |
+| `merchant_sandbox` / `merchant_sandbox_client` | Sandbox-мерчант + клиент |
+| `wallet` / `wallet_spei` / `wallet_paypal` / `wallet_conekta_oxxo` | Кошельки с credentials |
+| `disable_cache` | Отключает кэш |
+| `track_error_logs` **(autouse)** | Ловит `logger.error` → фейлит тест |
+| `disable_error_logs` | Отключает `track_error_logs` для тестов failure path |
+| `mock_on_commit` | `on_commit` синхронно (подробности → секция 3b) |
+| `disable_celery_task` | Мокает `celery.Task.apply_async` (подробности → секция 3b) |
+| `mock_send_callback` / `mock_check_status_task` | Мокают Celery-задачи |
+| `mock_slack_send_message` | Мокает Slack |
 
 Правила:
 
-- Общие фикстуры (`user`, `merchant`, `api_client`) — в `tests/conftest.py`.
-- Доменные фикстуры (кошельки, моки провайдеров) — в `tests/<domain>/conftest.py`.
 - Не дублировать фикстуры между conftest-файлами.
-- Фикстуры для wallet-ов создавать с реалистичными `credentials`.
-
-### 3. Моки внешних HTTP-запросов
-
-**Единственный** инструмент для HTTP-моков — `requests_mock`. Без `unittest.mock.patch` на `requests.post/get`.
+- Wallet-фикстуры — с реалистичными `credentials`.
+- Только `scope="function"` для фикстур с БД. `scope="session"` / `scope="module"` сломает изоляцию.
+- **`track_error_logs`**: если тест **намеренно** вызывает `logger.error` (failure path), добавить `disable_error_logs`:
 
 ```python
-# GOOD — requests_mock через context manager из conftest
+def test_provider_timeout(self, disable_error_logs, wallet_spei):
+    with requests_mocker() as m:
+        m.post("http://spei/v1/pay", exc=requests.exceptions.Timeout)
+        response = api_client.post(url, data=payload)
+    assert response.status_code == 408
+```
+
+### 3. Моки
+
+#### 3a. HTTP — только `requests_mock`
+
+Запрещено: `unittest.mock.patch` на `requests.post/get/…`.
+
+```python
 from tests.conftest import requests_mocker
 
+# E2E: requests_mocker() автоматически мокает callback-ы
 def test_deposit_success(self, api_client, merchant, wallet_paycash):
     force_authenticate(api_client, merchant)
-
     with requests_mocker() as m:
-        m.post(
-            "http://fake.com/v1/reference",
-            json={"Reference": "1522289200026"},
-        )
+        m.post("http://fake.com/v1/reference", json={"Reference": "123"})
         response = api_client.post(url, data=payload)
         assert response.status_code == 200
 
-
-# GOOD — requests_mock напрямую для unit-теста
+# Unit: requests_mock.Mocker() напрямую
 def test_write_error_request(self):
     with requests_mock.Mocker() as m:
         m.post("http://test", status_code=500, json={"error": "error"})
-
-        trx = PaymentTransactionFactory.create()
-        sess = external_api_services.get_external_api_session(
-            trx_id=trx.id, timeout=10,
-        )
-        sess.post("http://test")
-
-        assert PaymentTransactionEventLog.objects.count() == 1
-
-
-# GOOD — requests_mock как fixture
-@pytest.fixture
-def mock_bitso_api_response() -> Generator[requests_mock.Mocker, None, None]:
-    with requests_mock.Mocker() as m:
-        m.get("https://bitso.com/api/v3/banks/MX", json={...})
-        yield m
-
-
-# BAD — unittest.mock на requests
-@mock.patch("requests.post")
-def test_deposit(self, mock_post):
-    mock_post.return_value.json.return_value = {"status": "ok"}
+        ...
 ```
 
-Правила:
+- E2E: `requests_mocker()` из conftest (мокает callback-ы автоматически).
+- Unit: `requests_mock.Mocker()` напрямую.
+- Повторяемые моки → выносить в фикстуры. Мокать минимально — только вызываемые endpoints.
 
-- Для end-to-end тестов API: `requests_mocker()` из `tests/conftest.py` (автоматически мокает callback-ы).
-- Для unit-тестов: `requests_mock.Mocker()` напрямую.
-- Повторяемые моки провайдеров — выносить в фикстуры (`tests/payment/conftest.py`).
-- Мокать **только** внешние HTTP-запросы; внутреннюю логику не мокать.
-- Моки минимальные — только те endpoints, которые вызываются в тесте.
+#### 3b. Celery и `on_commit`
 
-### 4. Маркеры и структура тестов
+`unittest.mock.patch` допустим для side-effect-ов. Использовать готовые фикстуры из conftest.
 
 ```python
-# Маркер на уровне модуля — все тесты в файле используют DB
-pytestmark = pytest.mark.django_db
+# mock_on_commit: on_commit синхронно
+def test_callback_sent(self, mock_on_commit, mock_send_callback):
+    process_transaction(trx.id)
+    mock_send_callback.assert_called_once()
 
+# django_capture_on_commit_callbacks: точный контроль
+# ВАЖНО: требует transaction=True
+@pytest.mark.django_db(transaction=True)
+def test_task_scheduled_on_commit(self, wallet_spei):
+    with django_capture_on_commit_callbacks(execute=False) as callbacks:
+        api_client.post(url, data=payload)
+    assert len(callbacks) == 1
 
-# Маркер на уровне класса
+# Синхронный запуск Celery-задачи в тесте
+process_transaction.apply(kwargs={"transaction_id": trx.id})
+```
+
+- `disable_celery_task` — задачи не уходят в очередь.
+- `mock_on_commit` — `on_commit` синхронно.
+- `django_capture_on_commit_callbacks` (import: `from django.test.utils import CaptureOnCommitCallbacks`) — **требует** `@pytest.mark.django_db(transaction=True)`, иначе `on_commit` не срабатывает.
+- `task.apply(kwargs={...})` — синхронный запуск задачи.
+- Не создавать свои моки Celery/on_commit — переиспользовать фикстуры.
+
+### 4. Маркеры и структура
+
+```python
+pytestmark = pytest.mark.django_db  # на уровне модуля — предпочтительно
+
 @pytest.mark.django_db
 @pytest.mark.usefixtures("disable_cache")
 class TestCustomerLimits:
-    @pytest.fixture
-    def customer_limit(self, customer):
-        return CustomerLimitFactory.create(customer=customer)
-
-    def test_limit_exceeded(self, customer, customer_limit):
-        ...
-
-
-# Параметризация
-@pytest.mark.parametrize(
-    "payload, expected_error",
-    [
-        ({}, {"amount": [ErrorDetail(string="This field is required.", code="required")]}),
-        ({"amount": -1}, {"amount": [ErrorDetail(string="...", code="...")]}),
-    ],
-)
-def test_validation_errors(self, api_client, merchant, payload, expected_error):
-    ...
+    def test_limit_exceeded(self, customer, customer_limit): ...
 ```
 
-Правила:
-
-- `@pytest.mark.django_db` — обязателен для тестов с БД. Предпочитать `pytestmark` на уровне модуля.
-- `@pytest.mark.usefixtures("disable_cache")` — для тестов, где кеш мешает.
-- `@pytest.mark.parametrize` — для проверки нескольких вариантов входных данных.
-- Тесты группировать в классы по функциональности.
-- Имена тестов: `test_<что_тестируем>_<сценарий>` (например, `test_deposit_success`, `test_limit_exceeded`).
+- `django_db` — обязателен для тестов с БД.
+- `django_db(transaction=True)` — для тестов с `on_commit` / `django_capture_on_commit_callbacks`.
+- `usefixtures("disable_cache")` — где кеш мешает.
+- `parametrize` — для нескольких вариантов входных данных.
+- Тесты группировать в классы. Имена: `test_<что>_<сценарий>`.
 
 ### 5. Что тестировать
 
-- **Happy path** — основной сценарий работает.
-- **Failure path** — ошибки обрабатываются корректно (невалидные данные, таймауты, ошибки провайдера).
-- **Для платежных интеграций**: обязательны happy path тесты для `deposit` и `withdraw`.
-- **Для изменений статусов**: проверять переходы и балансовые side-effects.
-- **Для исключений по статусам** (`refund`/`chargeback`/`chargeback reversal`): отдельно проверять разрешенный прямой status-update в service-коде, корректные balance side-effects и наличие доменного аудита.
-- **Edge cases**: конкурентный доступ, пустые данные, граничные значения лимитов.
+- **Happy path** — основной сценарий.
+- **Failure path** — невалидные данные, таймауты, ошибки провайдера.
+- **Платежные интеграции**: обязательны happy path для `deposit` и `withdraw`.
+- **Статусы**: переходы + балансовые side-effects.
+- **Исключения** (`refund`/`chargeback`/`chargeback reversal`): прямой status-update, balance side-effects, доменный аудит.
+- **Edge cases**: конкурентный доступ, пустые данные, граничные значения.
 
-### 6. Вспомогательные утилиты
+**`refresh_from_db()` после мутаций** — Python-объект не обновляется при изменении в БД:
 
-- `tests/payment/api_v1/matchers.py` — `DictContains` для частичного сравнения dict-ов.
-- `tests/helpers/prometheus.py` — `has_metric_line(...)` для проверки метрик.
-- `tests/payment/conftest.py` — `ExternalTestClient` для интеграционных тестов через клиент.
-- `tests/conftest.py` — `track_error_logs` (autouse) — автоматически ловит неожиданные `logger.error` и фейлит тест.
-
-### 7. Запуск проверок
-
-```bash
-# Таргетные тесты (всегда — минимум)
-DJANGO_SETTINGS_MODULE=rozert_pay.settings_unittest pytest tests/payment/services/test_transaction_processing.py
-
-# Или через make
-make pytest -- tests/payment/services/test_transaction_processing.py
-
-# Типизация (всегда при изменении Python-кода)
-make mypy
-
-# Линтинг (при широких стилевых изменениях)
-make lint
-make pylint
-
-# Полный набор (при критичных платежных изменениях)
-make mypy && make lint && make pylint && make pytest
+```python
+trx = PaymentTransactionFactory.create(status=TransactionStatus.PENDING)
+process_transaction(trx.id)
+trx.refresh_from_db()  # обязательно перед assert
+assert trx.status == TransactionStatus.SUCCESS
 ```
 
-Уровни проверок:
+## Инструменты
+
+### `pytest.raises`
+
+```python
+with pytest.raises(ValidationError, match=".*already exists.*"):
+    create_customer_limit(customer=customer, ...)
+
+with pytest.raises(ValueError) as exc_info:
+    calculate_clabe_check_digit("123")
+assert "18 digits" in str(exc_info.value)
+```
+
+- Всегда `pytest.raises`, не `try/except`.
+- `match=` для проверки текста. Для `ValidationError` — проверять поля и коды.
+
+### `freezegun`
+
+```python
+from freezegun import freeze_time
+
+@freeze_time("2023-01-01")  # декоратор — один момент
+def test_validate_expiration(self): ...
+
+# context manager — несколько моментов в одном тесте
+now = timezone.now()
+with freeze_time(now - timedelta(minutes=16)):
+    trx = PaymentTransactionFactory.create(status=TransactionStatus.PENDING)
+with freeze_time(now):
+    tasks.task_fail_by_timeout(trx.id)
+    trx.refresh_from_db()
+    assert trx.status == TransactionStatus.FAILED
+```
+
+- Использовать `timezone.now()`, не `datetime.now()`.
+
+### `override_settings`
+
+```python
+from django.test import override_settings
+
+@override_settings(BACK_SECRET_KEY="test-secret")
+def test_wrong_secret_key(self, api_client, db):
+    response = api_client.post(url, HTTP_X_SECRET="wrong")
+    assert response.status_code == 403
+```
+
+- Не менять `settings` напрямую — утечка в другие тесты.
+- Для кэша предпочитать фикстуру `disable_cache`.
+
+### Утилиты
+
+- `tests/payment/api_v1/matchers.py` — `DictContains` для частичного сравнения dict-ов.
+- `tests/helpers/prometheus.py` — `has_metric_line(...)` для метрик.
+- `tests/payment/conftest.py` — `ExternalTestClient` для интеграционных тестов.
+
+## Запуск проверок
+
+```bash
+make pytest -- tests/path/to/test_file.py   # таргетные тесты
+make mypy                                    # типизация
+make lint && make pylint                     # линтинг
+make mypy && make lint && make pylint && make pytest  # полный набор
+```
 
 - **Минимум**: таргетные тесты + `make mypy`.
 - **Стилевые**: + `make lint` + `make pylint`.
-- **Критичные платежные**: полный набор `make mypy`, `make lint`, `make pylint`, `make pytest`.
+- **Критичные платежные**: полный набор.
 
 ## Жёсткие ограничения
 
-- HTTP-моки — **только** `requests_mock`. Без `unittest.mock.patch` на `requests.*`.
-- Мокать **только** внешние HTTP-запросы; не мокать внутреннюю логику.
-- Не хранить секреты в тестах (реальные API-ключи, токены).
-- Не дублировать фабрики и фикстуры — переиспользовать существующие.
-- Не создавать объекты через `Model.objects.create(...)` если есть фабрика.
+- HTTP-моки — **только** `requests_mock`. Запрещено `unittest.mock.patch` на `requests.*`.
+- `unittest.mock.patch` допустим для side-effect-ов, но предпочитать фикстуры из conftest.
+- Не хранить секреты в тестах.
+- Не дублировать фабрики и фикстуры — переиспользовать.
+- Не `Model.objects.create(...)` если есть фабрика.
+- Исключения — через `pytest.raises`, не `try/except`.
+- Настройки — через `override_settings`, не `settings.X = ...`.
+- Фикстуры с БД — только `scope="function"`.
