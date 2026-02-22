@@ -3,12 +3,21 @@ name: payment-integration-design-first
 globs:
   - "rozert_pay/payment/systems/**/*.py"
   - "docs/integrations/**/*.md"
+  - "rozert_pay/common/const.py"
+  - "rozert_pay/payment/controller_registry.py"
+  - "rozert_pay/payment/api_v1/urls.py"
 description: Использовать для новых и изменяемых платежных интеграций. Перед правками кода обязателен подтверждённый дизайн-документ. Покрывает полный цикл — от дизайна до регистрации контроллера.
 ---
 
 # Проектирование Перед Разработкой Для Платежных Интеграций
 
 Используй этот навык для задач по платежным интеграциям: новый провайдер, изменения флоу, изменения callback/статусов, добавление нового метода (deposit/withdraw).
+
+## Связанные навыки
+
+- Детали по `sync_remote_status_with_transaction`, балансовым side-effects, переходам статусов и callback-флоу: `.agents/skills/payment-transaction-workflow/SKILL.md`.
+- Тестирование: `.agents/skills/django-testing/SKILL.md`.
+- Доменные сущности (модели, поля, связи): `.agents/skills/domain-entities/SKILL.md`.
 
 ## Когда НЕ использовать
 
@@ -39,6 +48,16 @@ description: Использовать для новых и изменяемых 
 - Список полей credentials (хранятся в wallet)
 - Секреты только в credentials, не в коде
 
+## Валюты и форматирование
+- Поддерживаемые валюты
+- Формат сумм (целые числа / Decimal / минорные единицы)
+- Минимальная / максимальная сумма (если есть)
+
+## Внешние зависимости
+- Сторонние SDK/библиотеки (если есть, например `paymentsds-mpesa`)
+- Версия и способ установки
+- Что мокировать в тестах (SDK vs HTTP)
+
 ## Deposit Flow
 - Параметры запроса
 - Пошаговый flow (создание → запрос к провайдеру → callback → статус)
@@ -55,13 +74,19 @@ description: Использовать для новых и изменяемых 
 
 ## Callback обработка
 - Формат callback (JSON-поля)
-- Валидация подписи
+- Валидация подписи (HMAC / RSA / другой алгоритм)
+- Если подпись не поддерживается — какие альтернативные меры (IP whitelist, `callback_secret_key`)
 - Как искать транзакцию по callback-данным
 
 ## Структура интеграции
 - Список файлов и их назначение
 - Роуты (URL endpoints)
 - Путь к тестам
+
+## Привязка внешнего аккаунта (если применимо)
+- Используется ли `CustomerExternalPaymentSystemAccount`
+- Какой идентификатор хранится (телефон, email, wallet ID)
+- Когда создаётся привязка (при deposit / при withdraw / вручную)
 
 ## Контекст для будущих итераций
 - Ключевые допущения и ограничения
@@ -92,6 +117,13 @@ rozert_pay/payment/systems/<system_name>/
 
 Для простых интеграций допустим single-file формат (как `paycash.py`).
 
+**Критерии выбора формата:**
+
+| Формат | Когда использовать |
+|---|---|
+| Single-file | Только deposit (или только withdraw), нет внешнего SDK, нет сложной callback-подписи, ≤ ~300 строк |
+| Директория | Оба метода (deposit + withdraw), внешний SDK, сложная логика подписи, или файл превышает ~300 строк |
+
 #### Базовые классы
 
 **Client** — наследовать `BasePaymentClient[T_Credentials]` из `payment/services/base_classes.py`:
@@ -112,6 +144,66 @@ class MySystemClient(BasePaymentClient[MySystemCredentials]):
 ```
 
 Клиент использует `self.session` (`ExternalApiSession`) для HTTP-запросов — это обеспечивает event log и метрики.
+
+**Sandbox Client** — наследовать от основного клиента + `BaseSandboxClientMixin[T_Credentials]` из `payment/services/base_classes.py`.
+
+Sandbox-клиент используется, когда `wallet.is_sandbox=True`. Он не делает реальных HTTP-запросов, а возвращает фиксированные ответы. `BaseSandboxClientMixin` автоматически планирует approve транзакции через `sandbox_finalization_delay_seconds`.
+
+```python
+class MySystemSandboxClient(
+    base_classes.BaseSandboxClientMixin[MySystemCredentials], MySystemClient
+):
+    def deposit(self) -> entities.PaymentClientDepositResponse:
+        return entities.PaymentClientDepositResponse(
+            status=TransactionStatus.PENDING,
+            raw_response={"id": "fake"},
+            id_in_payment_system=sandbox_services.get_random_id(
+                PaymentSystemType.MY_SYSTEM
+            ),
+        )
+
+    def withdraw(self) -> entities.PaymentClientWithdrawResponse:
+        return entities.PaymentClientWithdrawResponse(
+            status=TransactionStatus.PENDING,
+            id_in_payment_system=sandbox_services.get_random_id(
+                PaymentSystemType.MY_SYSTEM
+            ),
+            raw_response={"id": "fake"},
+        )
+```
+
+**Entities (DTO)** — определяются в `entities.py` интеграции или используются общие из `payment/entities.py`.
+
+Ключевые DTO для ответов клиента:
+
+```python
+# payment/entities.py — уже определены, не нужно создавать заново
+
+class PaymentClientDepositResponse(BaseModel):
+    status: Literal[TransactionStatus.PENDING, TransactionStatus.FAILED]
+    raw_response: dict[str, Any]
+    id_in_payment_system: str | None = None
+    decline_code: str | None = None
+    decline_reason: str | None = None
+    customer_redirect_form_data: TransactionExtraFormData | None = None
+
+class PaymentClientWithdrawResponse(BaseModel):
+    # FAILED только если 100% уверены, что деньги НЕ отправлены
+    status: Literal[TransactionStatus.PENDING, TransactionStatus.FAILED]
+    id_in_payment_system: str | None
+    raw_response: dict[str, Any] | list[Any]
+    decline_code: str | None = None
+    decline_reason: str | None = None
+```
+
+Credentials-модель определяется в `entities.py` интеграции:
+
+```python
+class MySystemCredentials(BaseModel):
+    api_key: pydantic.SecretStr
+    merchant_id: str
+    base_url: str
+```
 
 **Controller** — наследовать `PaymentSystemController[T_Client, T_SandboxClient]` из `payment/systems/base_controller.py`:
 
@@ -141,6 +233,39 @@ my_system_controller = MySystemController(
 )
 ```
 
+**Views** — наследовать `GenericPaymentSystemApiV1Mixin` из `payment/api_v1/views.py` + `viewsets.GenericViewSet`.
+
+Миксин предоставляет готовые методы `_generic_deposit(...)` и `_generic_withdraw(...)`, которые обрабатывают создание транзакции через стандартные сериализаторы:
+
+```python
+@extend_schema(tags=["MySystem"])
+class MySystemViewSet(
+    GenericPaymentSystemApiV1Mixin,
+    viewsets.GenericViewSet[Any],
+):
+    @extend_schema(
+        operation_id="Create MySystem deposit transaction",
+        request=DepositTransactionRequestSerializer,
+    )
+    @action(detail=False, methods=["post"])
+    def deposit(self, request: Request) -> Response:
+        return self._generic_deposit(
+            request.data, serializer_class=DepositTransactionRequestSerializer
+        )
+
+    @extend_schema(
+        operation_id="Create MySystem withdrawal transaction",
+        request=WithdrawalTransactionRequestSerializer,
+    )
+    @action(detail=False, methods=["post"])
+    def withdraw(self, request: Request) -> Response:
+        return self._generic_withdraw(
+            request.data, serializer_class=WithdrawalTransactionRequestSerializer
+        )
+```
+
+Если интеграция использует кастомные поля в запросе — создать свой сериализатор, наследующий от `DepositTransactionRequestSerializer` / `WithdrawalTransactionRequestSerializer`.
+
 #### Маппинг статусов
 
 Каждая интеграция определяет маппинг статусов провайдера → `TransactionStatus`:
@@ -153,6 +278,24 @@ _operation_status_by_foreign_status = {
     "failed": TransactionStatus.FAILED,
 }
 ```
+
+#### Использование `PaymentTransaction.extra`
+
+`extra` (JSONField) — хранилище provider-specific данных, которые не укладываются в стандартные поля транзакции. Типичные случаи:
+
+- Промежуточные идентификаторы от провайдера, нужные для status check (пример: `fetchaOperation` в Paycash).
+- Дополнительные данные из callback, необходимые для дальнейшей обработки.
+
+```python
+trx.extra["provider_session_id"] = response_data["session_id"]
+trx.save_extra()
+```
+
+Правила:
+
+- Не хранить в `extra` секреты и PII.
+- Использовать `trx.save_extra()` вместо `trx.save()`, если меняется только `extra`.
+- Ключи называть snake_case, без префикса имени провайдера (контекст уже задан типом системы).
 
 #### Регистрация
 
